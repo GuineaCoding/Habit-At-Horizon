@@ -15,6 +15,9 @@ const LoginScreen = () => {
     console.log('Login attempt with:', email, password);
     navigation.navigate('Home'); 
   };
+  const naviegateToPassowrdResetScreen = () => {
+    navigation.navigate('PasswordResetScreen'); 
+  };
 
   return (
     <View style={styles.container}>
@@ -40,7 +43,7 @@ const LoginScreen = () => {
       <Button
         mode="contained"
         onPress={handleLogin}
-        color="#6D9773"
+        buttonColor="#6D9773"
         style={styles.button}
       >
         Login
@@ -50,12 +53,14 @@ const LoginScreen = () => {
         onPress={() => {
           setEmail('');
           setPassword('');
+          naviegateToPassowrdResetScreen()
         }}
-        color="#B46617"
+        buttonColor="#B46617"
         style={styles.button}
       >
         Reset Password
       </Button>
+
       <Text style={styles.text}>
         Hey, if you're here, you've already made the first step towards a better you.
       </Text>
