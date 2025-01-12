@@ -29,7 +29,7 @@ const HomeScreen = () => {
       </Button>
       <Button
         mode="contained"
-        onPress={() => navigation.navigate('About')} 
+        onPress={() => navigation.navigate('AboutScreen')} 
         buttonColor="#FFBA00"
       >
         About
