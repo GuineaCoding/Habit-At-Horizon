@@ -34,6 +34,13 @@ const WelcomeScreen = () => {
       >
         About
       </Button>
+      <Button
+        mode="contained"
+        onPress={() => navigation.navigate('Home')} 
+        buttonColor="#FFBA00"
+      >
+        Home
+      </Button>
     </View>
   );
 };
