@@ -1,10 +1,10 @@
-// src/screens/HomeScreen.js
+// src/screens/Welcomecreen.js
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper'; 
 import { useNavigation } from '@react-navigation/native';
 
-const HomeScreen = () => {
+const Welcomecreen = () => {
   const navigation = useNavigation();
 
   return (
@@ -59,4 +59,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default HomeScreen;
+export default Welcomecreen;

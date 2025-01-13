@@ -13,7 +13,7 @@ const LoginScreen = () => {
 
   const handleLogin = () => {
     console.log('Login attempt with:', email, password);
-    navigation.navigate('Home'); 
+    navigation.navigate('WelcomeScreen'); 
   };
   const naviegateToPassowrdResetScreen = () => {
     navigation.navigate('PasswordResetScreen'); 
