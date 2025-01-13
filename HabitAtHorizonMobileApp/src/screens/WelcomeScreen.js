@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper'; 
 import { useNavigation } from '@react-navigation/native';
 
-const Welcomecreen = () => {
+const WelcomeScreen = () => {
   const navigation = useNavigation();
 
   return (
@@ -59,4 +59,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Welcomecreen;
+export default WelcomeScreen;
