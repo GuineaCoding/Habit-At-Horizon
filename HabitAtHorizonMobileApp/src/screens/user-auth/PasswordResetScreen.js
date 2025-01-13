@@ -1,22 +1,31 @@
-// src/screens/PasswordResetScreen.js
 import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import auth from '@react-native-firebase/auth'; 
 
 const PasswordResetScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');  
 
-  const handlePasswordReset = () => {
-    console.log('Password reset request for:', email);
-    navigation.navigate('Login'); 
+  const handlePasswordReset = async () => {
+    try {
+      await auth().sendPasswordResetEmail(email);
+      console.log('Reset instructions sent to:', email);
+      alert('Reset instructions sent to your email.');  
+      navigation.navigate('Login'); 
+    } catch (error) {
+      setError(error.message); 
+      console.error('Failed to send reset instructions:', error);
+    }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Reset Your Password</Text>
       <Text style={styles.text}>Enter your email address to receive reset instructions.</Text>
+      {error ? <Text style={styles.error}>{error}</Text> : null}  
       <TextInput
         label="Email address"
         value={email}
@@ -39,7 +48,7 @@ const PasswordResetScreen = () => {
       <Button
         mode="text"
         onPress={() => navigation.goBack()}
-        buttonColor="#FFFFFF"
+        buttonColor="#FFFFFF" 
         style={styles.textButton}
       >
         Back to Login
@@ -78,6 +87,12 @@ const styles = StyleSheet.create({
   },
   textButton: {
     marginTop: 10,
+  },
+  error: {
+    color: 'red', 
+    fontSize: 16,
+    marginBottom: 10,
+    textAlign: 'center'
   }
 });
 
