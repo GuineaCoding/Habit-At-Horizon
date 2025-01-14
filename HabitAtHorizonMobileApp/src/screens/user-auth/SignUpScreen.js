@@ -39,7 +39,7 @@ const SignupScreen = () => {
         username,
       });
       console.log('User account created & signed in! Navigating to home screen...');
-      navigation.navigate('Home');
+      navigation.replace('Home');
     } catch (error) {
       console.error("Failed to sign up and navigate: ", error);
       if (error.code === 'auth/email-already-in-use') {

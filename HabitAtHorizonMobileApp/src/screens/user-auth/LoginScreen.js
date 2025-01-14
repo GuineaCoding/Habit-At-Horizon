@@ -13,7 +13,7 @@ const LoginScreen = () => {
   const handleLogin = async () => {
     try {
       await auth().signInWithEmailAndPassword(email, password);
-      navigation.navigate('Home');
+      navigation.replace('Home');
     } catch (error) {
       setError("Failed to sign in. Please check your credentials and try again.");
     }

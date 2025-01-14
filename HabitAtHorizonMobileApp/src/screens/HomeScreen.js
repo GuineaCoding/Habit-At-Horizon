@@ -13,12 +13,21 @@ const HomeScreen = () => {
   
     const handleLogout = async () => {
       try {
+        
+        // Resetting to welcome screen
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Welcome' }],
+          
+        });
         await auth().signOut();
-        navigation.navigate('Welcome');
+        
+
       } catch (error) {
         console.error('Logout failed:', error);
       }
     };
+    
   
     return (
       <View style={styles.container}>
