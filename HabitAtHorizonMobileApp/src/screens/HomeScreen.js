@@ -23,20 +23,20 @@ const HomeScreen = () => {
       }
     };
 
-    // Placeholder functions for navigation
+  
     const goToMyPersonalSpace = () => {
-        navigation.navigate('MyPersonalSpace'); // Update 'MyPersonalSpace' to your screen's name
+        navigation.navigate('MyPersonalSpace'); 
     };
 
     const goToMentoring = () => {
-        navigation.navigate('Mentoring'); // Update 'Mentoring' to your screen's name
+        navigation.navigate('MentorshipScreen'); 
     };
 
     return (
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.Content title="Home Screen" />
-          <Appbar.Action icon="menu" color="white" onPress={openMenu} />
+          <Appbar.Action icon="menu" color="black" onPress={openMenu} />
           <Menu
             visible={visible}
             onDismiss={closeMenu}

@@ -8,6 +8,8 @@ import SignupScreen from '../screens/user-auth/SignUpScreen';
 import PasswordResetScreen from '../screens/user-auth/PasswordResetScreen';
 import AboutScreen from '../screens/AboutScreen';
 import HomeScreen from '../screens/HomeScreen';
+import MentorshipScreen from '../screens/MentorshipScreen';
+import BoardsScreen from '../screens/BoardsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -22,7 +24,7 @@ const AppNavigator = () => {
         navigationRef.current?.navigate('Welcome');
       }
     });
-    return unsubscribe; 
+    return unsubscribe;
   }, []);
 
   return (
@@ -34,6 +36,12 @@ const AppNavigator = () => {
         <Stack.Screen name="PasswordResetScreen" component={PasswordResetScreen} />
         <Stack.Screen name="AboutScreen" component={AboutScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="MentorshipScreen" component={MentorshipScreen} />
+        <Stack.Screen 
+          name="BoardsScreen" 
+          component={BoardsScreen} 
+          options={{ headerShown: true, title: 'Boards' }} 
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
