@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Card, Appbar, Menu } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
@@ -7,61 +7,71 @@ import auth from '@react-native-firebase/auth';
 const HomeScreen = () => {
     const navigation = useNavigation();
     const [visible, setVisible] = useState(false);
-  
+
     const openMenu = () => setVisible(true);
     const closeMenu = () => setVisible(false);
-  
+
     const handleLogout = async () => {
       try {
-        
-        // Resetting to welcome screen
+        await auth().signOut();
         navigation.reset({
           index: 0,
           routes: [{ name: 'Welcome' }],
-          
         });
-        await auth().signOut();
-        
-
       } catch (error) {
         console.error('Logout failed:', error);
       }
     };
-    
-  
+
+    // Placeholder functions for navigation
+    const goToMyPersonalSpace = () => {
+        navigation.navigate('MyPersonalSpace'); // Update 'MyPersonalSpace' to your screen's name
+    };
+
+    const goToMentoring = () => {
+        navigation.navigate('Mentoring'); // Update 'Mentoring' to your screen's name
+    };
+
     return (
       <View style={styles.container}>
         <Appbar.Header>
           <Appbar.Content title="Home Screen" />
+          <Appbar.Action icon="menu" color="white" onPress={openMenu} />
           <Menu
             visible={visible}
             onDismiss={closeMenu}
-            anchor={<Appbar.Action icon="menu" color="white" onPress={openMenu} />}>
+            anchor={<Text style={{ color: 'white', marginRight: 20 }}>Menu</Text>}>
             <Menu.Item onPress={handleLogout} title="Logout" />
           </Menu>
         </Appbar.Header>
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text style={styles.header}>Welcome to Your App</Text>
-            <Text>Explore the features of your app here.</Text>
-          </Card.Content>
-        </Card>
+        <View style={styles.listContainer}>
+          <TouchableOpacity style={styles.listItem} onPress={goToMyPersonalSpace}>
+            <Text style={styles.listText}>My Personal Space</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.listItem} onPress={goToMentoring}>
+            <Text style={styles.listText}>Mentoring</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
-  };
-  
-  const styles = StyleSheet.create({
+};
+
+const styles = StyleSheet.create({
     container: {
       flex: 1,
     },
-    card: {
-      margin: 20,
+    listContainer: {
+      marginTop: 20,
     },
-    header: {
-      fontSize: 24,
-      marginBottom: 20,
+    listItem: {
+      padding: 15,
+      backgroundColor: '#E0E0E0',
+      borderBottomWidth: 1,
+      borderColor: '#CCCCCC',
     },
-  });
-  
-  export default HomeScreen;
-  
+    listText: {
+      fontSize: 18,
+    },
+});
+
+export default HomeScreen;
