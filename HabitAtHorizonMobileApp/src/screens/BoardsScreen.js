@@ -113,7 +113,7 @@ const BoardsScreen = ({ navigation }) => {
         <View style={styles.boardItem}>
             <TouchableOpacity
                 style={styles.boardInfo}
-                onPress={() => navigation.navigate('BoardScreen', { boardId: item.id })}
+                onPress={() => navigation.navigate('BoardDetailsScreen', { boardId: item.id })}
             >
                 <Text style={styles.boardTitle}>{item.title}</Text>
                 <Text style={styles.boardCreator}>Created by: {item.creatorEmail}</Text>

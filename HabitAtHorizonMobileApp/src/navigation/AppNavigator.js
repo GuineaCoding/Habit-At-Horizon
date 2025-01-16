@@ -10,6 +10,7 @@ import AboutScreen from '../screens/AboutScreen';
 import HomeScreen from '../screens/HomeScreen';
 import MentorshipScreen from '../screens/MentorshipScreen';
 import BoardsScreen from '../screens/BoardsScreen';
+import BoardDetailsScreen from '../screens/BoardDetailsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,12 +38,18 @@ const AppNavigator = () => {
         <Stack.Screen name="AboutScreen" component={AboutScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="MentorshipScreen" component={MentorshipScreen} />
-        <Stack.Screen 
-          name="BoardsScreen" 
-          component={BoardsScreen} 
-          options={{ headerShown: true, title: 'Boards' }} 
+        <Stack.Screen
+          name="BoardsScreen"
+          component={BoardsScreen}
+          options={{ headerShown: true, title: 'Boards' }}
+        />
+            <Stack.Screen
+          name="BoardDetailsScreen"
+          component={BoardDetailsScreen}
+          options={{ headerShown: true, title: 'Board Details' }}
         />
       </Stack.Navigator>
+
     </NavigationContainer>
   );
 };
