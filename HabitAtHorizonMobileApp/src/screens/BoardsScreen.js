@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, Button, StyleSheet, TouchableOpacity, Modal, TextInput } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
 const BoardsScreen = ({ navigation }) => {
     const [boards, setBoards] = useState([]);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [boardTitle, setBoardTitle] = useState('');
     const user = auth().currentUser;
 
     useEffect(() => {
@@ -21,6 +23,32 @@ const BoardsScreen = ({ navigation }) => {
 
         return () => unsubscribe();
     }, [user]);
+
+    const addBoard = async () => {
+        if (!boardTitle.trim()) return;
+
+        try {
+         
+            const boardRef = await firestore().collection('boards').add({
+                title: boardTitle,
+                creator: user.uid,
+                creatorEmail: user.email,
+                members: {
+                    [user.uid]: {
+                        role: 'Admin',
+                        joinedAt: new Date(),
+                    },
+                },
+                createdAt: new Date(),
+            });
+
+          
+            setModalVisible(false);
+            setBoardTitle('');
+        } catch (error) {
+            console.error('Error creating board:', error);
+        }
+    };
 
     const renderBoard = ({ item }) => (
         <TouchableOpacity
@@ -45,12 +73,32 @@ const BoardsScreen = ({ navigation }) => {
             ) : (
                 <Text style={styles.noBoardsText}>You have no boards yet.</Text>
             )}
+
+       
             <View style={styles.addButtonContainer}>
-                <Button
-                    title="Add a Board"
-                    onPress={() => navigation.navigate('MentorshipScreen')}
-                />
+                <Button title="Add a Board" onPress={() => setModalVisible(true)} />
             </View>
+
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalHeader}>Create a New Board</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter board title"
+                            value={boardTitle}
+                            onChangeText={setBoardTitle}
+                        />
+                        <Button title="Create Board" onPress={addBoard} />
+                        <Button title="Cancel" onPress={() => setModalVisible(false)} />
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -98,6 +146,30 @@ const styles = StyleSheet.create({
         bottom: 20,
         left: 20,
         right: 20,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        width: '90%',
+    },
+    modalHeader: {
+        fontSize: 18,
+        marginBottom: 10,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        padding: 10,
+        marginVertical: 10,
+        borderRadius: 5,
+        width: '100%',
     },
 });
 
