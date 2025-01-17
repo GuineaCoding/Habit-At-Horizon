@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, WebView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { WebView } from 'react-native-webview';
 import firestore from '@react-native-firebase/firestore';
 
 const LessonScreen = ({ route }) => {

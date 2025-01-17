@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Button } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Button } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import firestore from '@react-native-firebase/firestore';
 import { Dimensions } from 'react-native';
 
 const BoardDetailsScreen = ({ route, navigation }) => {
-    const { boardId } = route.params;  
+    const { boardId } = route.params;
     const [boardData, setBoardData] = useState(null);
     const [index, setIndex] = useState(0);
     const [routes] = useState([
@@ -51,22 +51,35 @@ const BoardDetailsScreen = ({ route, navigation }) => {
         );
     }
 
+    const editLesson = (lessonId) => {
+        navigation.navigate('LessonBuilderScreen', { boardId, lessonId });
+    };
+
+    const deleteLesson = (lessonId) => {
+        Alert.alert("Confirm Delete", "Are you sure you want to delete this lesson?", [
+            { text: "Cancel", style: "cancel" },
+            { text: "OK", onPress: () => firestore().collection('boards').doc(boardId).collection('lessons').doc(lessonId).delete() }
+        ]);
+    };
+
     const LessonsRoute = () => (
         <View style={styles.tabContainer}>
             <FlatList
                 data={lessons}
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
-                    <TouchableOpacity
-                        style={styles.lessonItem}
-                        onPress={() => navigation.navigate('LessonScreen', {
+                    <View style={styles.lessonItem}>
+                        <TouchableOpacity onPress={() => navigation.navigate('LessonScreen', {
                             boardId: boardId,
                             lessonId: item.id,
-                        })}
-                    >
-                        <Text style={styles.lessonTitle}>{item.title}</Text>
-                        <Text style={styles.lessonDescription}>{item.description}</Text>
-                    </TouchableOpacity>
+                        })}>
+                            <Text style={styles.lessonTitle}>{item.title}</Text>
+                        </TouchableOpacity>
+                        <View style={styles.buttonGroup}>
+                            <Button title="Edit" onPress={() => editLesson(item.id)} />
+                            <Button title="Delete" onPress={() => deleteLesson(item.id)} color="red" />
+                        </View>
+                    </View>
                 )}
                 ListEmptyComponent={<Text style={styles.noLessons}>No lessons added yet.</Text>}
             />
@@ -78,8 +91,6 @@ const BoardDetailsScreen = ({ route, navigation }) => {
             </TouchableOpacity>
         </View>
     );
-    
-
     const TestsRoute = () => (
         <View style={styles.tabContainer}>
             <Text>Tests content goes here...</Text>
@@ -160,6 +171,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     lessonItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         padding: 15,
         borderWidth: 1,
         borderColor: '#ddd',
@@ -174,6 +188,9 @@ const styles = StyleSheet.create({
     lessonDescription: {
         fontSize: 14,
         color: '#555',
+    },
+    buttonGroup: {
+        flexDirection: 'row',
     },
     noLessons: {
         textAlign: 'center',
