@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, Button } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Button } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import firestore from '@react-native-firebase/firestore';
 import { Dimensions } from 'react-native';
 
-const BoardDetailsScreen = ({ route }) => {
+const BoardDetailsScreen = ({ route, navigation }) => {
     const { boardId } = route.params;  
     const [boardData, setBoardData] = useState(null);
     const [index, setIndex] = useState(0);
@@ -13,10 +13,10 @@ const BoardDetailsScreen = ({ route }) => {
         { key: 'tests', title: 'Tests' },
         { key: 'members', title: 'Members' },
     ]);
+    const [lessons, setLessons] = useState([]);
 
     useEffect(() => {
-        
-        const unsubscribe = firestore()
+        const unsubscribeBoard = firestore()
             .collection('boards')
             .doc(boardId)
             .onSnapshot(doc => {
@@ -25,7 +25,22 @@ const BoardDetailsScreen = ({ route }) => {
                 }
             });
 
-        return () => unsubscribe();
+        const unsubscribeLessons = firestore()
+            .collection('boards')
+            .doc(boardId)
+            .collection('lessons')
+            .onSnapshot(snapshot => {
+                const fetchedLessons = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+                setLessons(fetchedLessons);
+            });
+
+        return () => {
+            unsubscribeBoard();
+            unsubscribeLessons();
+        };
     }, [boardId]);
 
     if (!boardData) {
@@ -35,21 +50,45 @@ const BoardDetailsScreen = ({ route }) => {
             </View>
         );
     }
- 
+
     const LessonsRoute = () => (
         <View style={styles.tabContainer}>
-            <Text>Lessons </Text>
+            <FlatList
+                data={lessons}
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => (
+                    <TouchableOpacity
+                        style={styles.lessonItem}
+                        onPress={() =>
+                            navigation.navigate('LessonBuilderScreen', {
+                                boardId,
+                                lessonId: item.id,
+                            })
+                        }
+                    >
+                        <Text style={styles.lessonTitle}>{item.title}</Text>
+                        <Text style={styles.lessonDescription}>{item.description}</Text>
+                    </TouchableOpacity>
+                )}
+                ListEmptyComponent={
+                    <Text style={styles.noLessons}>No lessons added yet.</Text>
+                }
+            />
+            <TouchableOpacity
+                style={styles.addLessonButton}
+                onPress={() => navigation.navigate('LessonBuilderScreen', { boardId })}
+            >
+                <Text style={styles.addLessonButtonText}>Add Lesson</Text>
+            </TouchableOpacity>
         </View>
     );
 
-    // Tab Content: Tests
     const TestsRoute = () => (
         <View style={styles.tabContainer}>
-            <Text>Tests </Text>
+            <Text>Tests content goes here...</Text>
         </View>
     );
 
-    // Tab Content: Members
     const MembersRoute = () => (
         <View style={styles.tabContainer}>
             <FlatList
@@ -64,7 +103,7 @@ const BoardDetailsScreen = ({ route }) => {
             />
         </View>
     );
- 
+
     const renderScene = SceneMap({
         lessons: LessonsRoute,
         tests: TestsRoute,
@@ -111,8 +150,7 @@ const styles = StyleSheet.create({
     },
     tabContainer: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
+        paddingBottom: 20,
     },
     tabBar: {
         backgroundColor: '#007bff',
@@ -122,6 +160,43 @@ const styles = StyleSheet.create({
     },
     tabLabel: {
         color: '#fff',
+        fontWeight: 'bold',
+    },
+    lessonItem: {
+        padding: 15,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 8,
+        marginBottom: 10,
+        backgroundColor: '#f9f9f9',
+    },
+    lessonTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    lessonDescription: {
+        fontSize: 14,
+        color: '#555',
+    },
+    noLessons: {
+        textAlign: 'center',
+        color: '#777',
+        fontSize: 16,
+        marginVertical: 20,
+    },
+    addLessonButton: {
+        backgroundColor: '#007bff',
+        padding: 15,
+        borderRadius: 8,
+        alignItems: 'center',
+        position: 'absolute',
+        bottom: 10,
+        left: 20,
+        right: 20,
+    },
+    addLessonButtonText: {
+        color: '#fff',
+        fontSize: 16,
         fontWeight: 'bold',
     },
     memberItem: {
