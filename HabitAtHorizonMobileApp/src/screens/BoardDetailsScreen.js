@@ -59,20 +59,16 @@ const BoardDetailsScreen = ({ route, navigation }) => {
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         style={styles.lessonItem}
-                        onPress={() =>
-                            navigation.navigate('LessonBuilderScreen', {
-                                boardId,
-                                lessonId: item.id,
-                            })
-                        }
+                        onPress={() => navigation.navigate('LessonScreen', {
+                            boardId: boardId,
+                            lessonId: item.id,
+                        })}
                     >
                         <Text style={styles.lessonTitle}>{item.title}</Text>
                         <Text style={styles.lessonDescription}>{item.description}</Text>
                     </TouchableOpacity>
                 )}
-                ListEmptyComponent={
-                    <Text style={styles.noLessons}>No lessons added yet.</Text>
-                }
+                ListEmptyComponent={<Text style={styles.noLessons}>No lessons added yet.</Text>}
             />
             <TouchableOpacity
                 style={styles.addLessonButton}
@@ -82,6 +78,7 @@ const BoardDetailsScreen = ({ route, navigation }) => {
             </TouchableOpacity>
         </View>
     );
+    
 
     const TestsRoute = () => (
         <View style={styles.tabContainer}>

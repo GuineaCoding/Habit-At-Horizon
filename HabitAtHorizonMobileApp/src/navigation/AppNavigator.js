@@ -12,6 +12,7 @@ import MentorshipScreen from '../screens/MentorshipScreen';
 import BoardsScreen from '../screens/BoardsScreen';
 import BoardDetailsScreen from '../screens/BoardDetailsScreen';
 import LessontBuilderScreen from '../screens/LessonBuilderScreen';
+import LessonScreen from '../screens/LessonScreen';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -52,6 +53,11 @@ const AppNavigator = () => {
           name="LessonBuilderScreen"
           component={LessontBuilderScreen}
           options={{ headerShown: true, title: 'Lesson Builder' }}
+        />
+                            <Stack.Screen
+          name="LessonScreen"
+          component={LessonScreen}
+          options={{ headerShown: true, title: 'Lesson Screen' }}
         />
       </Stack.Navigator>
 
