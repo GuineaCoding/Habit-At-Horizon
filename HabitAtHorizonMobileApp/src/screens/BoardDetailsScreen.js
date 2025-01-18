@@ -14,6 +14,7 @@ const BoardDetailsScreen = ({ route, navigation }) => {
         { key: 'members', title: 'Members' },
     ]);
     const [lessons, setLessons] = useState([]);
+    const [tests, setTests] = useState([]);
 
     useEffect(() => {
         const unsubscribeBoard = firestore()
@@ -22,6 +23,8 @@ const BoardDetailsScreen = ({ route, navigation }) => {
             .onSnapshot(doc => {
                 if (doc.exists) {
                     setBoardData({ id: doc.id, ...doc.data() });
+                } else {
+                    setBoardData(null);
                 }
             });
 
@@ -37,9 +40,22 @@ const BoardDetailsScreen = ({ route, navigation }) => {
                 setLessons(fetchedLessons);
             });
 
+        const unsubscribeTests = firestore()
+            .collection('boards')
+            .doc(boardId)
+            .collection('tests')
+            .onSnapshot(snapshot => {
+                const fetchedTests = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+                setTests(fetchedTests);
+            });
+
         return () => {
             unsubscribeBoard();
             unsubscribeLessons();
+            unsubscribeTests();
         };
     }, [boardId]);
 
@@ -51,15 +67,8 @@ const BoardDetailsScreen = ({ route, navigation }) => {
         );
     }
 
-    const editLesson = (lessonId) => {
-        navigation.navigate('LessonBuilderScreen', { boardId, lessonId });
-    };
-
-    const deleteLesson = (lessonId) => {
-        Alert.alert("Confirm Delete", "Are you sure you want to delete this lesson?", [
-            { text: "Cancel", style: "cancel" },
-            { text: "OK", onPress: () => firestore().collection('boards').doc(boardId).collection('lessons').doc(lessonId).delete() }
-        ]);
+    const addTest = () => {
+        navigation.navigate('TestCreateScreen', { boardId });
     };
 
     const LessonsRoute = () => (
@@ -69,15 +78,12 @@ const BoardDetailsScreen = ({ route, navigation }) => {
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
                     <View style={styles.lessonItem}>
-                        <TouchableOpacity onPress={() => navigation.navigate('LessonScreen', {
-                            boardId: boardId,
-                            lessonId: item.id,
-                        })}>
+                        <TouchableOpacity onPress={() => navigation.navigate('LessonScreen', { boardId, lessonId: item.id })}>
                             <Text style={styles.lessonTitle}>{item.title}</Text>
                         </TouchableOpacity>
                         <View style={styles.buttonGroup}>
-                            <Button title="Edit" onPress={() => editLesson(item.id)} />
-                            <Button title="Delete" onPress={() => deleteLesson(item.id)} color="red" />
+                            <Button title="Edit" onPress={() => navigation.navigate('LessonBuilderScreen', { boardId, lessonId: item.id })} />
+                            <Button title="Delete" color="red" onPress={() => firestore().collection('boards').doc(boardId).collection('lessons').doc(item.id).delete()} />
                         </View>
                     </View>
                 )}
@@ -91,9 +97,29 @@ const BoardDetailsScreen = ({ route, navigation }) => {
             </TouchableOpacity>
         </View>
     );
+
     const TestsRoute = () => (
         <View style={styles.tabContainer}>
-            <Text>Tests content goes here...</Text>
+            <FlatList
+                data={tests}
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => (
+                    <TouchableOpacity
+                        style={styles.testItem}
+                        onPress={() => navigation.navigate('TestCreateScreen', { boardId, testId: item.id })}
+                    >
+                        <Text style={styles.testTitle}>{item.title}</Text>
+                    </TouchableOpacity>
+                )}
+                ListFooterComponent={(
+                    <TouchableOpacity
+                        style={styles.addTestButton}
+                        onPress={addTest}
+                    >
+                        <Text style={styles.addTestButtonText}>Add Test</Text>
+                    </TouchableOpacity>
+                )}
+            />
         </View>
     );
 
@@ -220,6 +246,30 @@ const styles = StyleSheet.create({
     },
     memberRole: {
         color: '#555',
+    },
+    testItem: {
+        padding: 15,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 8,
+        marginBottom: 10,
+        backgroundColor: '#f9f9f9',
+    },
+    testTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    addTestButton: {
+        backgroundColor: '#007bff',
+        padding: 15,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    addTestButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });
 
