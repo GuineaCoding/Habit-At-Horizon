@@ -13,6 +13,7 @@ import BoardsScreen from '../screens/BoardsScreen';
 import BoardDetailsScreen from '../screens/BoardDetailsScreen';
 import LessontBuilderScreen from '../screens/LessonBuilderScreen';
 import LessonScreen from '../screens/LessonScreen';
+import TestCreateScreen from '../screens/TestCreateScreen';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -44,20 +45,25 @@ const AppNavigator = () => {
           component={BoardsScreen}
           options={{ headerShown: true, title: 'Boards' }}
         />
-            <Stack.Screen
+        <Stack.Screen
           name="BoardDetailsScreen"
           component={BoardDetailsScreen}
           options={{ headerShown: true, title: 'Board Details' }}
         />
-                    <Stack.Screen
+        <Stack.Screen
           name="LessonBuilderScreen"
           component={LessontBuilderScreen}
           options={{ headerShown: true, title: 'Lesson Builder' }}
         />
-                            <Stack.Screen
+        <Stack.Screen
           name="LessonScreen"
           component={LessonScreen}
           options={{ headerShown: true, title: 'Lesson Screen' }}
+        />
+        <Stack.Screen
+          name="TestCreateScreen"
+          component={TestCreateScreen}
+          options={{ headerShown: true, title: 'Test Creation Screen' }}
         />
       </Stack.Navigator>
 
