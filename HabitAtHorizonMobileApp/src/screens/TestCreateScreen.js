@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, ScrollView, StyleSheet, Switch, Alert } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 
-const TestCreateScreen = ({ route,navigation }) => {
+const TestCreateScreen = ({ route, navigation }) => {
     const { boardId } = route.params;
+    const [testName, setTestName] = useState('');
     const [questions, setQuestions] = useState([]);
 
     const addQuestion = (type) => {
@@ -11,10 +12,14 @@ const TestCreateScreen = ({ route,navigation }) => {
             id: Date.now(),
             type,
             questionText: '',
-            options: type === 'mcq' ? [{ text: '', correct: false }] : [],
+            options: type === 'mcq' ? [{text: '', correct: false}] : [],
             answer: ''
         };
         setQuestions([...questions, newQuestion]);
+    };
+
+    const updateTestName = (text) => {
+        setTestName(text);
     };
 
     const updateQuestionText = (index, text) => {
@@ -31,7 +36,7 @@ const TestCreateScreen = ({ route,navigation }) => {
 
     const addOption = (index) => {
         const updatedQuestions = [...questions];
-        updatedQuestions[index].options.push({ text: '', correct: false });
+        updatedQuestions[index].options.push({text: '', correct: false});
         setQuestions(updatedQuestions);
     };
 
@@ -48,19 +53,24 @@ const TestCreateScreen = ({ route,navigation }) => {
     };
 
     const handleSubmitTest = async () => {
+        if (!testName.trim()) {
+            Alert.alert('Error', 'Please enter a test name.');
+            return;
+        }
         try {
             await firestore()
                 .collection('boards')
                 .doc(boardId)
                 .collection('tests')
                 .add({
+                    name: testName,
                     questions
                 });
-            Alert.alert('Success', 'Lesson saved successfully!');
+            Alert.alert('Success', 'Test submitted successfully!');
             navigation.goBack();
         } catch (error) {
             console.error("Error submitting test: ", error);
-            alert('Failed to submit test!');
+            Alert.alert('Error', 'Failed to submit test!');
         }
     };
 
@@ -139,6 +149,12 @@ const TestCreateScreen = ({ route,navigation }) => {
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.header}>Create a Test</Text>
+            <TextInput
+                style={styles.testNameInput}
+                placeholder="Enter Test Name"
+                value={testName}
+                onChangeText={updateTestName}
+            />
             <Button title="Add Multiple Choice Question" onPress={() => addQuestion('mcq')} />
             <Button title="Add True/False Question" onPress={() => addQuestion('tf')} />
             <Button title="Add Text Response Question" onPress={() => addQuestion('text')} />
@@ -158,6 +174,12 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 20,
+    },
+    testNameInput: {
+        height: 40,
+        borderColor: 'gray',
+        borderWidth: 1,
+        marginBottom: 10,
     },
     questionContainer: {
         marginBottom: 20,
