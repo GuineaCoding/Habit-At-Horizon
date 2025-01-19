@@ -28,7 +28,7 @@ const TestViewScreen = ({ route }) => {
         const initialAnswers = {};
         questions.forEach((question, index) => {
             if (question.type === 'mcq' || question.type === 'tf') {
-                initialAnswers[index] = question.options[0].text; // Default to first option
+                initialAnswers[index] = question.options[0].text; 
             } else {
                 initialAnswers[index] = '';
             }
