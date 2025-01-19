@@ -14,6 +14,7 @@ import BoardDetailsScreen from '../screens/BoardDetailsScreen';
 import LessontBuilderScreen from '../screens/LessonBuilderScreen';
 import LessonScreen from '../screens/LessonScreen';
 import TestCreateScreen from '../screens/TestCreateScreen';
+import TestViewScreen from '../screens/TestViewScreen';
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -65,6 +66,7 @@ const AppNavigator = () => {
           component={TestCreateScreen}
           options={{ headerShown: true, title: 'Test Creation Screen' }}
         />
+        <Stack.Screen name="TestViewScreen" component={TestViewScreen} />
       </Stack.Navigator>
 
     </NavigationContainer>

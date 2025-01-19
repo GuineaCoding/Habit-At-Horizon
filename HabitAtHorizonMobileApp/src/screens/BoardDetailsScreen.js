@@ -105,16 +105,16 @@ const BoardDetailsScreen = ({ route, navigation }) => {
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
                     <View style={styles.testItem}>
-                        <TouchableOpacity 
-                            style={{ flex: 1 }} 
-                            onPress={() => navigation.navigate('TestCreateScreen', { boardId, testId: item.id })}
+                        <TouchableOpacity
+                            style={{ flex: 1 }}
+                            onPress={() => navigation.navigate('TestViewScreen', { boardId, testId: item.id })}
                         >
                             <Text style={styles.testTitle}>{item.name}</Text>
                         </TouchableOpacity>
-                        <Button 
-                            title="Delete" 
-                            color="red" 
-                            onPress={() => handleDeleteTest(item.id)} 
+                        <Button
+                            title="Delete"
+                            color="red"
+                            onPress={() => handleDeleteTest(item.id)}
                         />
                     </View>
                 )}
@@ -129,7 +129,7 @@ const BoardDetailsScreen = ({ route, navigation }) => {
             />
         </View>
     );
-    
+
     const handleDeleteTest = (testId) => {
         Alert.alert("Confirm Delete", "Are you sure you want to delete this test?", [
             { text: "Cancel", style: "cancel" },
@@ -137,7 +137,7 @@ const BoardDetailsScreen = ({ route, navigation }) => {
         ]);
     };
 
-    
+
 
     const MembersRoute = () => (
         <View style={styles.tabContainer}>
