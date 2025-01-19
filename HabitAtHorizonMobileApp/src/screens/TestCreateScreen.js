@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, ScrollView, StyleSheet, Switch } from 'react-native';
+import { View, Text, TextInput, Button, ScrollView, StyleSheet, Switch, Alert } from 'react-native';
+import firestore from '@react-native-firebase/firestore';
 
-const TestCreateScreen = () => {
+const TestCreateScreen = ({ route,navigation }) => {
+    const { boardId } = route.params;
     const [questions, setQuestions] = useState([]);
 
     const addQuestion = (type) => {
@@ -9,7 +11,7 @@ const TestCreateScreen = () => {
             id: Date.now(),
             type,
             questionText: '',
-            options: type === 'mcq' ? [{text: '', correct: false}] : [],
+            options: type === 'mcq' ? [{ text: '', correct: false }] : [],
             answer: ''
         };
         setQuestions([...questions, newQuestion]);
@@ -29,16 +31,37 @@ const TestCreateScreen = () => {
 
     const addOption = (index) => {
         const updatedQuestions = [...questions];
-        updatedQuestions[index].options.push({text: '', correct: false});
+        updatedQuestions[index].options.push({ text: '', correct: false });
         setQuestions(updatedQuestions);
     };
 
     const setOptionCorrect = (index, optionIndex) => {
         const updatedQuestions = [...questions];
-        updatedQuestions[index].options.forEach((option, idx) => {
-            if (idx === optionIndex) option.correct = !option.correct;
-        });
+        updatedQuestions[index].options[optionIndex].correct = !updatedQuestions[index].options[optionIndex].correct;
         setQuestions(updatedQuestions);
+    };
+
+    const setAnswer = (index, answer) => {
+        const updatedQuestions = [...questions];
+        updatedQuestions[index].answer = answer;
+        setQuestions(updatedQuestions);
+    };
+
+    const handleSubmitTest = async () => {
+        try {
+            await firestore()
+                .collection('boards')
+                .doc(boardId)
+                .collection('tests')
+                .add({
+                    questions
+                });
+            Alert.alert('Success', 'Lesson saved successfully!');
+            navigation.goBack();
+        } catch (error) {
+            console.error("Error submitting test: ", error);
+            alert('Failed to submit test!');
+        }
     };
 
     const renderOptionInput = (option, index, questionIndex) => (
@@ -83,8 +106,8 @@ const TestCreateScreen = () => {
                             onChangeText={(text) => updateQuestionText(index, text)}
                         />
                         <View style={styles.buttonRow}>
-                            <Button title="True" onPress={() => setAnswer(index, 'True')} />
-                            <Button title="False" onPress={() => setAnswer(index, 'False')} />
+                            <Button title="True" color="green" onPress={() => setAnswer(index, 'True')} />
+                            <Button title="False" color="red" onPress={() => setAnswer(index, 'False')} />
                         </View>
                     </View>
                 );
@@ -121,6 +144,7 @@ const TestCreateScreen = () => {
             <Button title="Add Text Response Question" onPress={() => addQuestion('text')} />
             <Button title="Add Video Analysis Question" onPress={() => addQuestion('video')} />
             {questions.map((question, index) => renderQuestionInput(question, index))}
+            <Button title="Submit Test" onPress={handleSubmitTest} />
         </ScrollView>
     );
 };
