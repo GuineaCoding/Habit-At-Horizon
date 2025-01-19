@@ -8,14 +8,22 @@ const TestCreateScreen = ({ route, navigation }) => {
     const [questions, setQuestions] = useState([]);
 
     const addQuestion = (type) => {
-        const newQuestion = {
+        let newQuestion = {
             id: Date.now(),
             type,
             questionText: '',
-            options: type === 'mcq' ? [{text: '', correct: false}] : [],
-            answer: ''
+            detail: '',
+            options: type === 'mcq' ? [{ text: '', correct: false }] : type === 'tf' ? [{ text: 'True', correct: false }, { text: 'False', correct: false }] : [],
+            embedLink: type === 'video' ? '' : null  
         };
+
         setQuestions([...questions, newQuestion]);
+    };
+
+    const addOption = (index) => {
+        const updatedQuestions = [...questions];
+        updatedQuestions[index].options.push({ text: '', correct: false });
+        setQuestions(updatedQuestions);
     };
 
     const updateTestName = (text) => {
@@ -28,15 +36,21 @@ const TestCreateScreen = ({ route, navigation }) => {
         setQuestions(updatedQuestions);
     };
 
-    const updateOptionText = (index, optionIndex, text) => {
+    const updateDetail = (index, text) => {
         const updatedQuestions = [...questions];
-        updatedQuestions[index].options[optionIndex].text = text;
+        updatedQuestions[index].detail = text;
         setQuestions(updatedQuestions);
     };
 
-    const addOption = (index) => {
+    const updateEmbedLink = (index, text) => {
         const updatedQuestions = [...questions];
-        updatedQuestions[index].options.push({text: '', correct: false});
+        updatedQuestions[index].embedLink = text;
+        setQuestions(updatedQuestions);
+    };
+
+    const updateOptionText = (index, optionIndex, text) => {
+        const updatedQuestions = [...questions];
+        updatedQuestions[index].options[optionIndex].text = text;
         setQuestions(updatedQuestions);
     };
 
@@ -46,17 +60,17 @@ const TestCreateScreen = ({ route, navigation }) => {
         setQuestions(updatedQuestions);
     };
 
-    const setAnswer = (index, answer) => {
-        const updatedQuestions = [...questions];
-        updatedQuestions[index].answer = answer;
-        setQuestions(updatedQuestions);
-    };
-
     const handleSubmitTest = async () => {
         if (!testName.trim()) {
             Alert.alert('Error', 'Please enter a test name.');
             return;
         }
+
+        const filteredQuestions = questions.map(question => ({
+            ...question,
+            embedLink: question.embedLink || null
+        }));
+
         try {
             await firestore()
                 .collection('boards')
@@ -64,7 +78,7 @@ const TestCreateScreen = ({ route, navigation }) => {
                 .collection('tests')
                 .add({
                     name: testName,
-                    questions
+                    questions: filteredQuestions
                 });
             Alert.alert('Success', 'Test submitted successfully!');
             navigation.goBack();
@@ -74,51 +88,35 @@ const TestCreateScreen = ({ route, navigation }) => {
         }
     };
 
-    const renderOptionInput = (option, index, questionIndex) => (
-        <View key={index} style={styles.optionContainer}>
-            <TextInput
-                style={styles.optionInput}
-                placeholder="Option"
-                value={option.text}
-                onChangeText={(text) => updateOptionText(questionIndex, index, text)}
-            />
-            <Switch
-                trackColor={{ false: '#767577', true: '#81b0ff' }}
-                thumbColor={option.correct ? '#f5dd4b' : '#f4f3f4'}
-                onValueChange={() => setOptionCorrect(questionIndex, index)}
-                value={option.correct}
-            />
-        </View>
-    );
-
     const renderQuestionInput = (question, index) => {
         switch (question.type) {
             case 'mcq':
-                return (
-                    <View key={question.id} style={styles.questionContainer}>
-                        <TextInput
-                            style={styles.questionInput}
-                            placeholder="Question Text"
-                            value={question.questionText}
-                            onChangeText={(text) => updateQuestionText(index, text)}
-                        />
-                        {question.options.map((option, optionIndex) => renderOptionInput(option, optionIndex, index))}
-                        <Button title="Add Option" onPress={() => addOption(index)} />
-                    </View>
-                );
             case 'tf':
                 return (
                     <View key={question.id} style={styles.questionContainer}>
                         <TextInput
                             style={styles.questionInput}
-                            placeholder="Question Text"
+                            placeholder="Question Title"
                             value={question.questionText}
                             onChangeText={(text) => updateQuestionText(index, text)}
                         />
-                        <View style={styles.buttonRow}>
-                            <Button title="True" color="green" onPress={() => setAnswer(index, 'True')} />
-                            <Button title="False" color="red" onPress={() => setAnswer(index, 'False')} />
-                        </View>
+                        {question.options.map((option, optionIndex) => (
+                            <View key={optionIndex} style={styles.optionContainer}>
+                                <TextInput
+                                    style={styles.optionInput}
+                                    placeholder="Option"
+                                    value={option.text}
+                                    onChangeText={(text) => updateOptionText(index, optionIndex, text)}
+                                />
+                                <Switch
+                                    trackColor={{ false: '#767577', true: '#81b0ff' }}
+                                    thumbColor={option.correct ? '#f5dd4b' : '#f4f3f4'}
+                                    onValueChange={() => setOptionCorrect(index, optionIndex)}
+                                    value={option.correct}
+                                />
+                            </View>
+                        ))}
+                        {question.type === 'mcq' && <Button title="Add Option" onPress={() => addOption(index)} />}
                     </View>
                 );
             case 'text':
@@ -127,17 +125,25 @@ const TestCreateScreen = ({ route, navigation }) => {
                     <View key={question.id} style={styles.questionContainer}>
                         <TextInput
                             style={styles.questionInput}
-                            placeholder={question.type === 'video' ? "Embed Video Link" : "Question Text"}
+                            placeholder={question.type === 'video' ? "Video Title" : "Question Title"}
                             value={question.questionText}
                             onChangeText={(text) => updateQuestionText(index, text)}
                         />
+                        {question.type === 'video' && (
+                            <TextInput
+                                style={styles.questionInput}
+                                placeholder="Embed Video Link"
+                                value={question.embedLink || ''}
+                                onChangeText={(text) => updateEmbedLink(index, text)}
+                            />
+                        )}
                         <TextInput
                             style={styles.multilineInput}
                             multiline
                             numberOfLines={4}
-                            placeholder={question.type === 'video' ? "Analysis Text" : "Enter answer text"}
-                            value={question.answer}
-                            onChangeText={(text) => setAnswer(index, text)}
+                            placeholder="Detailed Question"
+                            value={question.detail}
+                            onChangeText={(text) => updateDetail(index, text)}
                         />
                     </View>
                 );
@@ -216,7 +222,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         marginTop: 10,
-    }
+    },
 });
 
 export default TestCreateScreen;
