@@ -104,17 +104,24 @@ const BoardDetailsScreen = ({ route, navigation }) => {
                 data={tests}
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
-                    <TouchableOpacity
-                        style={styles.testItem}
-                        onPress={() => navigation.navigate('TestCreateScreen', { boardId, testId: item.id })}
-                    >
-                        <Text style={styles.testTitle}>{item.title}</Text>
-                    </TouchableOpacity>
+                    <View style={styles.testItem}>
+                        <TouchableOpacity 
+                            style={{ flex: 1 }} 
+                            onPress={() => navigation.navigate('TestCreateScreen', { boardId, testId: item.id })}
+                        >
+                            <Text style={styles.testTitle}>{item.name}</Text>
+                        </TouchableOpacity>
+                        <Button 
+                            title="Delete" 
+                            color="red" 
+                            onPress={() => handleDeleteTest(item.id)} 
+                        />
+                    </View>
                 )}
                 ListFooterComponent={(
                     <TouchableOpacity
                         style={styles.addTestButton}
-                        onPress={addTest}
+                        onPress={() => navigation.navigate('TestCreateScreen', { boardId })}
                     >
                         <Text style={styles.addTestButtonText}>Add Test</Text>
                     </TouchableOpacity>
@@ -122,6 +129,15 @@ const BoardDetailsScreen = ({ route, navigation }) => {
             />
         </View>
     );
+    
+    const handleDeleteTest = (testId) => {
+        Alert.alert("Confirm Delete", "Are you sure you want to delete this test?", [
+            { text: "Cancel", style: "cancel" },
+            { text: "OK", onPress: () => firestore().collection('boards').doc(boardId).collection('tests').doc(testId).delete() }
+        ]);
+    };
+
+    
 
     const MembersRoute = () => (
         <View style={styles.tabContainer}>
@@ -167,6 +183,18 @@ const BoardDetailsScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
+
+    testItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 15,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 8,
+        marginBottom: 10,
+        backgroundColor: '#f9f9f9',
+    },
     container: {
         flex: 1,
         padding: 20,
