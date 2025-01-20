@@ -109,7 +109,7 @@ const BoardDetailsScreen = ({ route, navigation }) => {
                             style={{ flex: 1 }}
                             onPress={() => navigation.navigate('TestViewScreen', { boardId, testId: item.id })}
                         >
-                            <Text style={styles.testTitle}>{item.name}</Text>
+                            <Text style={styles.testTitle}>{item.testName}</Text>
                         </TouchableOpacity>
                         <Button
                             title="Delete"

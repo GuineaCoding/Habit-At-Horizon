@@ -8,55 +8,131 @@ const TestCreateScreen = ({ route, navigation }) => {
     const [questions, setQuestions] = useState([]);
 
     const addQuestion = (type) => {
-        let newQuestion = {
-            id: Date.now(),
-            type,
-            questionText: '',
-            detail: '',
-            options: type === 'mcq' ? [{ text: '', correct: false }] : type === 'tf' ? [{ text: 'True', correct: false }, { text: 'False', correct: false }] : [],
-            embedLink: type === 'video' ? '' : null  
+        const baseQuestion = {
+            questionId: Date.now(),
+            questionType: type,
+            questionTitle: '',
         };
+        
+        let specificQuestion = {};
+        switch (type) {
+            case 'mcq':
+                specificQuestion = {
+                    options: [{ optionText: '', isCorrect: false }],
+                };
+                break;
+            case 'tf':
+                specificQuestion = {
+                    options: [
+                        { optionText: 'True', isCorrect: false },
+                        { optionText: 'False', isCorrect: false }
+                    ],
+                };
+                break;
+            case 'text':
+                specificQuestion = {
+                    questionDetail: '',
+                };
+                break;
+            case 'video':
+                specificQuestion = {
+                    videoEmbedLink: '',
+                };
+                break;
+        }
 
-        setQuestions([...questions, newQuestion]);
+        setQuestions([...questions, { ...baseQuestion, ...specificQuestion }]);
     };
 
-    const addOption = (index) => {
+    const renderQuestionInput = (question, index) => {
+        let inputs = [
+            <TextInput
+                key="title"
+                style={styles.questionInput}
+                placeholder={`${question.questionType.toUpperCase()} Question Title`}
+                value={question.questionTitle}
+                onChangeText={text => updateField(index, 'questionTitle', text)}
+            />
+        ];
+
+        if (question.questionType === 'text' || question.questionType === 'video') {
+            if (question.questionType === 'text') {
+                inputs.push(
+                    <TextInput
+                        key="detail"
+                        style={styles.multilineInput}
+                        multiline
+                        numberOfLines={4}
+                        placeholder="Detailed Description"
+                        value={question.questionDetail}
+                        onChangeText={text => updateField(index, 'questionDetail', text)}
+                    />
+                );
+            } else {
+                inputs.push(
+                    <TextInput
+                        key="embed"
+                        style={styles.questionInput}
+                        placeholder="Embed Video Link"
+                        value={question.videoEmbedLink}
+                        onChangeText={text => updateField(index, 'videoEmbedLink', text)}
+                    />
+                );
+            }
+        } else {
+            question.options.forEach((option, optionIndex) => {
+                inputs.push(
+                    <View key={`option-${optionIndex}`} style={styles.optionContainer}>
+                        <TextInput
+                            style={styles.optionInput}
+                            placeholder="Option Text"
+                            value={option.optionText}
+                            onChangeText={text => updateOptionText(index, optionIndex, text)}
+                        />
+                        <Switch
+                            trackColor={{ false: '#767577', true: '#81b0ff' }}
+                            thumbColor={option.isCorrect ? '#f5dd4b' : '#f4f3f4'}
+                            onValueChange={() => toggleOptionCorrect(index, optionIndex)}
+                            value={option.isCorrect}
+                        />
+                    </View>
+                );
+            });
+            if (question.questionType === 'mcq') {
+                inputs.push(
+                    <Button
+                        key="add-option"
+                        title="Add Option"
+                        onPress={() => addOption(index)}
+                    />
+                );
+            }
+        }
+
+        return <View key={question.questionId} style={styles.questionContainer}>{inputs}</View>;
+    };
+
+    const updateField = (index, field, value) => {
         const updatedQuestions = [...questions];
-        updatedQuestions[index].options.push({ text: '', correct: false });
-        setQuestions(updatedQuestions);
-    };
-
-    const updateTestName = (text) => {
-        setTestName(text);
-    };
-
-    const updateQuestionText = (index, text) => {
-        const updatedQuestions = [...questions];
-        updatedQuestions[index].questionText = text;
-        setQuestions(updatedQuestions);
-    };
-
-    const updateDetail = (index, text) => {
-        const updatedQuestions = [...questions];
-        updatedQuestions[index].detail = text;
-        setQuestions(updatedQuestions);
-    };
-
-    const updateEmbedLink = (index, text) => {
-        const updatedQuestions = [...questions];
-        updatedQuestions[index].embedLink = text;
+        updatedQuestions[index][field] = value;
         setQuestions(updatedQuestions);
     };
 
     const updateOptionText = (index, optionIndex, text) => {
         const updatedQuestions = [...questions];
-        updatedQuestions[index].options[optionIndex].text = text;
+        updatedQuestions[index].options[optionIndex].optionText = text;
         setQuestions(updatedQuestions);
     };
 
-    const setOptionCorrect = (index, optionIndex) => {
+    const toggleOptionCorrect = (index, optionIndex) => {
         const updatedQuestions = [...questions];
-        updatedQuestions[index].options[optionIndex].correct = !updatedQuestions[index].options[optionIndex].correct;
+        updatedQuestions[index].options[optionIndex].isCorrect = !updatedQuestions[index].options[optionIndex].isCorrect;
+        setQuestions(updatedQuestions);
+    };
+
+    const addOption = (index) => {
+        const updatedQuestions = [...questions];
+        updatedQuestions[index].options.push({ optionText: '', isCorrect: false });
         setQuestions(updatedQuestions);
     };
 
@@ -66,89 +142,26 @@ const TestCreateScreen = ({ route, navigation }) => {
             return;
         }
 
-        const filteredQuestions = questions.map(question => ({
-            ...question,
-            embedLink: question.embedLink || null
-        }));
-
         try {
             await firestore()
                 .collection('boards')
                 .doc(boardId)
                 .collection('tests')
                 .add({
-                    name: testName,
-                    questions: filteredQuestions
+                    testName,
+                    questions: questions.map(question => ({
+                        ...question,
+                        options: question.options ? question.options.map(option => ({
+                            optionText: option.optionText,
+                            isCorrect: option.isCorrect
+                        })) : []
+                    }))
                 });
             Alert.alert('Success', 'Test submitted successfully!');
             navigation.goBack();
         } catch (error) {
             console.error("Error submitting test: ", error);
             Alert.alert('Error', 'Failed to submit test!');
-        }
-    };
-
-    const renderQuestionInput = (question, index) => {
-        switch (question.type) {
-            case 'mcq':
-            case 'tf':
-                return (
-                    <View key={question.id} style={styles.questionContainer}>
-                        <TextInput
-                            style={styles.questionInput}
-                            placeholder="Question Title"
-                            value={question.questionText}
-                            onChangeText={(text) => updateQuestionText(index, text)}
-                        />
-                        {question.options.map((option, optionIndex) => (
-                            <View key={optionIndex} style={styles.optionContainer}>
-                                <TextInput
-                                    style={styles.optionInput}
-                                    placeholder="Option"
-                                    value={option.text}
-                                    onChangeText={(text) => updateOptionText(index, optionIndex, text)}
-                                />
-                                <Switch
-                                    trackColor={{ false: '#767577', true: '#81b0ff' }}
-                                    thumbColor={option.correct ? '#f5dd4b' : '#f4f3f4'}
-                                    onValueChange={() => setOptionCorrect(index, optionIndex)}
-                                    value={option.correct}
-                                />
-                            </View>
-                        ))}
-                        {question.type === 'mcq' && <Button title="Add Option" onPress={() => addOption(index)} />}
-                    </View>
-                );
-            case 'text':
-            case 'video':
-                return (
-                    <View key={question.id} style={styles.questionContainer}>
-                        <TextInput
-                            style={styles.questionInput}
-                            placeholder={question.type === 'video' ? "Video Title" : "Question Title"}
-                            value={question.questionText}
-                            onChangeText={(text) => updateQuestionText(index, text)}
-                        />
-                        {question.type === 'video' && (
-                            <TextInput
-                                style={styles.questionInput}
-                                placeholder="Embed Video Link"
-                                value={question.embedLink || ''}
-                                onChangeText={(text) => updateEmbedLink(index, text)}
-                            />
-                        )}
-                        <TextInput
-                            style={styles.multilineInput}
-                            multiline
-                            numberOfLines={4}
-                            placeholder="Detailed Question"
-                            value={question.detail}
-                            onChangeText={(text) => updateDetail(index, text)}
-                        />
-                    </View>
-                );
-            default:
-                return <View />;
         }
     };
 
@@ -159,13 +172,13 @@ const TestCreateScreen = ({ route, navigation }) => {
                 style={styles.testNameInput}
                 placeholder="Enter Test Name"
                 value={testName}
-                onChangeText={updateTestName}
+                onChangeText={setTestName}
             />
             <Button title="Add Multiple Choice Question" onPress={() => addQuestion('mcq')} />
             <Button title="Add True/False Question" onPress={() => addQuestion('tf')} />
             <Button title="Add Text Response Question" onPress={() => addQuestion('text')} />
             <Button title="Add Video Analysis Question" onPress={() => addQuestion('video')} />
-            {questions.map((question, index) => renderQuestionInput(question, index))}
+            {questions.map(renderQuestionInput)}
             <Button title="Submit Test" onPress={handleSubmitTest} />
         </ScrollView>
     );
@@ -217,11 +230,6 @@ const styles = StyleSheet.create({
         borderColor: 'gray',
         borderWidth: 1,
         textAlignVertical: 'top',
-    },
-    buttonRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginTop: 10,
     },
 });
 

@@ -1,102 +1,119 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TextInput, Button, StyleSheet, Picker, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, StyleSheet, TextInput } from 'react-native';
+import { CheckBox } from 'react-native-elements';
 import firestore from '@react-native-firebase/firestore';
-import { FirebaseAuth } from '@react-native-firebase/auth';
 
-const TestViewScreen = ({ route }) => {
-    const { boardId, testId } = route.params;
-    const [testDetails, setTestDetails] = useState(null);
-    const [answers, setAnswers] = useState({});
+const TestViewScreen = ({ route, navigation }) => {
+    const { testId, boardId } = route.params;
+    const [testData, setTestData] = useState(null);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        const unsubscribe = firestore()
-            .collection('boards')
-            .doc(boardId)
-            .collection('tests')
-            .doc(testId)
-            .onSnapshot(doc => {
-                if (doc.exists) {
-                    setTestDetails(doc.data());
-                    initializeAnswers(doc.data().questions);
+        const fetchTest = async () => {
+            try {
+                const testDoc = await firestore().collection('boards').doc(boardId).collection('tests').doc(testId).get();
+                if (testDoc.exists) {
+                    const data = testDoc.data();
+                    
+                    const questions = data.questions.map(question => ({
+                        ...question,
+                        options: question.options?.map(option => ({
+                            ...option,
+                            checked: false 
+                        }))
+                    }));
+                    setTestData({ ...data, questions });
+                } else {
+                    setError('No test data found');
                 }
-            });
-
-        return () => unsubscribe();
-    }, [boardId, testId]);
-
-    const initializeAnswers = (questions) => {
-        const initialAnswers = {};
-        questions.forEach((question, index) => {
-            if (question.type === 'mcq' || question.type === 'tf') {
-                initialAnswers[index] = question.options[0].text; 
-            } else {
-                initialAnswers[index] = '';
+            } catch (err) {
+                setError('Error fetching test data: ' + err.message);
             }
-        });
-        setAnswers(initialAnswers);
-    };
+        };
 
-    const handleAnswerChange = (text, index) => {
-        setAnswers(prev => ({ ...prev, [index]: text }));
-    };
+        fetchTest();
+    }, [testId, boardId]);
 
-    const handleSubmit = async () => {
-        const userEmail = FirebaseAuth().currentUser?.email;
-        if (!userEmail) {
-            Alert.alert('Error', 'No user logged in');
-            return;
-        }
-
-        try {
-            await firestore()
-                .collection('boards')
-                .doc(boardId)
-                .collection('tests')
-                .doc(testId)
-                .collection('submissions')
-                .add({
-                    userEmail,
-                    answers,
-                    submittedAt: firestore.Timestamp.fromDate(new Date())
+    const toggleCheckbox = (qIndex, optionIndex) => {
+        setTestData(prevData => {
+            const questions = [...prevData.questions];
+            const question = questions[qIndex];
+            question.options[optionIndex].checked = !question.options[optionIndex].checked;
+ 
+            if (question.questionType === 'tf') {
+                question.options.forEach((opt, idx) => {
+                    if (idx !== optionIndex) opt.checked = false;
                 });
-            Alert.alert('Success', 'Test submitted successfully');
-        } catch (error) {
-            console.error("Error submitting test: ", error);
-            Alert.alert('Error', 'Failed to submit test');
-        }
+            }
+            return { ...prevData, questions };
+        });
     };
 
-    if (!testDetails) {
-        return <View style={styles.container}><Text>Loading test details...</Text></View>;
+    if (error) {
+        return <View style={styles.container}><Text>Error: {error}</Text></View>;
+    }
+
+    if (!testData) {
+        return <View style={styles.container}><Text>Loading test data...</Text></View>;
     }
 
     return (
         <ScrollView style={styles.container}>
-            <Text style={styles.header}>{testDetails.name}</Text>
-            {testDetails.questions.map((question, index) => (
-                <View key={index} style={styles.question}>
-                    <Text style={styles.questionText}>{question.questionText}</Text>
-                    {question.type === 'tf' || question.type === 'mcq' ? (
-                        <Picker
-                            selectedValue={answers[index]}
-                            onValueChange={(itemValue) => handleAnswerChange(itemValue, index)}
-                        >
-                            {question.options.map((option, idx) => (
-                                <Picker.Item key={idx} label={option.text} value={option.text} />
-                            ))}
-                        </Picker>
-                    ) : (
+            <Text style={styles.title}>Test: {testData.testName}</Text>
+            {testData.questions?.map((question, index) => (
+                <View key={index} style={styles.questionContainer}>
+                    <Text style={styles.questionText}>{question.questionTitle}</Text>
+                    {question.questionType === 'mcq' && question.options.map((option, optIndex) => (
+                        <CheckBox
+                            key={optIndex}
+                            title={option.optionText}
+                            checked={option.checked}
+                            onPress={() => toggleCheckbox(index, optIndex)}
+                        />
+                    ))}
+                    {question.questionType === 'tf' && question.options.map((option, optIndex) => (
+                        <CheckBox
+                            key={optIndex}
+                            title={option.optionText}
+                            checked={option.checked}
+                            onPress={() => toggleCheckbox(index, optIndex)}
+                        />
+                    ))}
+                    {question.questionType === 'text' && (
                         <TextInput
                             style={styles.input}
-                            onChangeText={(text) => handleAnswerChange(text, index)}
-                            value={answers[index]}
+                            onChangeText={(text) => {
+                                setTestData(prevData => {
+                                    const questions = [...prevData.questions];
+                                    questions[index].userResponse = text;
+                                    return { ...prevData, questions };
+                                });
+                            }}
+                            value={question.userResponse || ''}
                             placeholder="Your answer"
                             multiline
                         />
                     )}
+                    {question.questionType === 'video' && (
+                        <>
+                            <Text>Video Link: {question.videoEmbedLink}</Text>
+                            <TextInput
+                                style={styles.input}
+                                onChangeText={(text) => {
+                                    setTestData(prevData => {
+                                        const questions = [...prevData.questions];
+                                        questions[index].userResponse = text;
+                                        return { ...prevData, questions };
+                                    });
+                                }}
+                                value={question.userResponse || ''}
+                                placeholder="Detailed response"
+                                multiline
+                            />
+                        </>
+                    )}
                 </View>
             ))}
-            <Button title="Submit Test" onPress={handleSubmit} />
         </ScrollView>
     );
 };
@@ -105,24 +122,32 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
+        backgroundColor: '#fff',
     },
-    header: {
+    title: {
         fontSize: 24,
         fontWeight: 'bold',
+        marginBottom: 20,
     },
-    question: {
-        marginTop: 20,
+    questionContainer: {
+        marginBottom: 20,
         padding: 10,
-        backgroundColor: '#f0f0f0',
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
     },
     questionText: {
         fontSize: 18,
+        marginBottom: 10,
+        fontWeight: 'bold',
     },
     input: {
         borderWidth: 1,
-        borderColor: 'gray',
+        borderColor: '#ccc',
         padding: 10,
-        marginTop: 5,
+        marginTop: 10,
+        marginBottom: 10,
+        borderRadius: 5,
     }
 });
 
