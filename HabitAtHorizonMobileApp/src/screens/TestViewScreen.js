@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TextInput, Button } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TextInput, Button, Alert } from 'react-native';
 import { CheckBox } from 'react-native-elements';
 import { WebView } from 'react-native-webview';
 import firestore from '@react-native-firebase/firestore';
+import { useAuth } from '../context/AuthContext';  
 
 const TestViewScreen = ({ route, navigation }) => {
     const { testId, boardId } = route.params;
     const [testData, setTestData] = useState(null);
     const [error, setError] = useState(null);
+    const { currentUser } = useAuth(); 
 
     useEffect(() => {
         const fetchTest = async () => {
@@ -49,10 +51,49 @@ const TestViewScreen = ({ route, navigation }) => {
         });
     };
 
-    const handleSubmit = () => {
-        console.log('Submitting answers:', testData);
-        Alert.alert('Submit', 'Your answers have been submitted successfully!');
+    const handleSubmit = async () => {
+        console.log("Handle submit started. Current user:", currentUser);
+    
+        if (currentUser && currentUser.email) {
+            const responses = testData.questions.map(question => {
+               
+                let response = question.options 
+                    ? question.options.filter(option => option.checked).map(option => option.optionText)
+                    : question.userResponse; 
+                
+                return {
+                    userEmail: currentUser.email,
+                    questionTitle: question.questionTitle,
+                    response: response,
+                };
+            });
+    
+            console.log("Prepared responses for submission:", responses);
+    
+            try {
+                console.log(`Attempting to store responses in Firestore at /boards/${boardId}/testResponses`);
+                const result = await firestore()
+                    .collection('boards')
+                    .doc(boardId)
+                    .collection('testResponses')
+                    .add({
+                        testId: testId,
+                        responses: responses,
+                        submittedAt: firestore.FieldValue.serverTimestamp(),
+                    });
+                console.log("Firestore write successful, document ID:", result.id);
+                Alert.alert('Success', 'Your answers have been submitted successfully!');
+                navigation.goBack();
+            } catch (error) {
+                console.error('Error submitting answers to Firestore:', error);
+                Alert.alert('Error', 'Failed to submit your answers. ' + error.message);
+            }
+        } else {
+            console.log("Error: Current user email is not available.");
+            Alert.alert('Error', 'User email is not available.');
+        }
     };
+    
 
     if (error) {
         return <View style={styles.container}><Text>Error: {error}</Text></View>;
@@ -63,30 +104,49 @@ const TestViewScreen = ({ route, navigation }) => {
     }
 
     return (
-        <View style={styles.outerContainer}>
-            <ScrollView style={styles.container}>
-                <Text style={styles.title}>Test: {testData.testName}</Text>
-                {testData.questions?.map((question, index) => (
-                    <View key={index} style={styles.questionContainer}>
-                        <Text style={styles.questionText}>{question.questionTitle}</Text>
-                        {question.questionDetail && <Text>{question.questionDetail}</Text>}
-                        {question.questionType === 'mcq' && question.options.map((option, optIndex) => (
-                            <CheckBox
-                                key={optIndex}
-                                title={option.optionText}
-                                checked={option.checked}
-                                onPress={() => toggleCheckbox(index, optIndex)}
+        <ScrollView style={styles.container}>
+            <Text style={styles.title}>Test: {testData.testName}</Text>
+            {testData.questions?.map((question, index) => (
+                <View key={index} style={styles.questionContainer}>
+                    <Text style={styles.questionText}>{question.questionTitle}</Text>
+                    {question.questionDetail && <Text>{question.questionDetail}</Text>}
+                    {question.questionType === 'mcq' && question.options.map((option, optIndex) => (
+                        <CheckBox
+                            key={optIndex}
+                            title={option.optionText}
+                            checked={option.checked}
+                            onPress={() => toggleCheckbox(index, optIndex)}
+                        />
+                    ))}
+                    {question.questionType === 'tf' && question.options.map((option, optIndex) => (
+                        <CheckBox
+                            key={optIndex}
+                            title={option.optionText}
+                            checked={option.checked}
+                            onPress={() => toggleCheckbox(index, optIndex)}
+                        />
+                    ))}
+                    {question.questionType === 'text' && (
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={(text) => {
+                                setTestData(prevData => {
+                                    const questions = [...prevData.questions];
+                                    questions[index].userResponse = text;
+                                    return { ...prevData, questions };
+                                });
+                            }}
+                            value={question.userResponse || ''}
+                            placeholder="Your answer"
+                            multiline
+                        />
+                    )}
+                    {question.questionType === 'video' && (
+                        <>
+                            <WebView
+                                source={{ uri: question.videoEmbedLink }}
+                                style={{ height: 300 }}
                             />
-                        ))}
-                        {question.questionType === 'tf' && question.options.map((option, optIndex) => (
-                            <CheckBox
-                                key={optIndex}
-                                title={option.optionText}
-                                checked={option.checked}
-                                onPress={() => toggleCheckbox(index, optIndex)}
-                            />
-                        ))}
-                        {question.questionType === 'text' && (
                             <TextInput
                                 style={styles.input}
                                 onChangeText={(text) => {
@@ -97,28 +157,19 @@ const TestViewScreen = ({ route, navigation }) => {
                                     });
                                 }}
                                 value={question.userResponse || ''}
-                                placeholder="Your answer"
+                                placeholder="Your detailed response"
                                 multiline
                             />
-                        )}
-                        {question.questionType === 'video' && (
-                            <WebView
-                                source={{ uri: question.videoEmbedLink }}
-                                style={{ height: 300 }}
-                            />
-                        )}
-                    </View>
-                ))}
-                <Button title="Submit Test" onPress={handleSubmit} color="#007bff" style={styles.submitButton} />
-            </ScrollView>
-        </View>
+                        </>
+                    )}
+                </View>
+            ))}
+            <Button title="Submit Test" onPress={handleSubmit} color="#007bff" />
+        </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
-    outerContainer: {
-        flex: 1,
-    },
     container: {
         flex: 1,
         padding: 20,
@@ -142,17 +193,18 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     input: {
+        minHeight: 80,  
         borderWidth: 1,
         borderColor: '#ccc',
-        padding: 10,
+        paddingVertical: 10,  
+        paddingHorizontal: 10,
+        fontSize: 16,
         marginTop: 10,
         marginBottom: 10,
         borderRadius: 5,
-    },
-    submitButton: {
-        height: 45,
-        paddingBottom: 310,
+        textAlignVertical: 'top' 
     }
 });
+
 
 export default TestViewScreen;
