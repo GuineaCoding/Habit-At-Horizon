@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TextInput } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TextInput, Button } from 'react-native';
 import { CheckBox } from 'react-native-elements';
+import { WebView } from 'react-native-webview';
 import firestore from '@react-native-firebase/firestore';
 
 const TestViewScreen = ({ route, navigation }) => {
@@ -14,7 +15,6 @@ const TestViewScreen = ({ route, navigation }) => {
                 const testDoc = await firestore().collection('boards').doc(boardId).collection('tests').doc(testId).get();
                 if (testDoc.exists) {
                     const data = testDoc.data();
-                    
                     const questions = data.questions.map(question => ({
                         ...question,
                         options: question.options?.map(option => ({
@@ -39,7 +39,7 @@ const TestViewScreen = ({ route, navigation }) => {
             const questions = [...prevData.questions];
             const question = questions[qIndex];
             question.options[optionIndex].checked = !question.options[optionIndex].checked;
- 
+
             if (question.questionType === 'tf') {
                 question.options.forEach((opt, idx) => {
                     if (idx !== optionIndex) opt.checked = false;
@@ -47,6 +47,11 @@ const TestViewScreen = ({ route, navigation }) => {
             }
             return { ...prevData, questions };
         });
+    };
+
+    const handleSubmit = () => {
+        console.log('Submitting answers:', testData);
+        Alert.alert('Submit', 'Your answers have been submitted successfully!');
     };
 
     if (error) {
@@ -58,45 +63,30 @@ const TestViewScreen = ({ route, navigation }) => {
     }
 
     return (
-        <ScrollView style={styles.container}>
-            <Text style={styles.title}>Test: {testData.testName}</Text>
-            {testData.questions?.map((question, index) => (
-                <View key={index} style={styles.questionContainer}>
-                    <Text style={styles.questionText}>{question.questionTitle}</Text>
-                    {question.questionType === 'mcq' && question.options.map((option, optIndex) => (
-                        <CheckBox
-                            key={optIndex}
-                            title={option.optionText}
-                            checked={option.checked}
-                            onPress={() => toggleCheckbox(index, optIndex)}
-                        />
-                    ))}
-                    {question.questionType === 'tf' && question.options.map((option, optIndex) => (
-                        <CheckBox
-                            key={optIndex}
-                            title={option.optionText}
-                            checked={option.checked}
-                            onPress={() => toggleCheckbox(index, optIndex)}
-                        />
-                    ))}
-                    {question.questionType === 'text' && (
-                        <TextInput
-                            style={styles.input}
-                            onChangeText={(text) => {
-                                setTestData(prevData => {
-                                    const questions = [...prevData.questions];
-                                    questions[index].userResponse = text;
-                                    return { ...prevData, questions };
-                                });
-                            }}
-                            value={question.userResponse || ''}
-                            placeholder="Your answer"
-                            multiline
-                        />
-                    )}
-                    {question.questionType === 'video' && (
-                        <>
-                            <Text>Video Link: {question.videoEmbedLink}</Text>
+        <View style={styles.outerContainer}>
+            <ScrollView style={styles.container}>
+                <Text style={styles.title}>Test: {testData.testName}</Text>
+                {testData.questions?.map((question, index) => (
+                    <View key={index} style={styles.questionContainer}>
+                        <Text style={styles.questionText}>{question.questionTitle}</Text>
+                        {question.questionDetail && <Text>{question.questionDetail}</Text>}
+                        {question.questionType === 'mcq' && question.options.map((option, optIndex) => (
+                            <CheckBox
+                                key={optIndex}
+                                title={option.optionText}
+                                checked={option.checked}
+                                onPress={() => toggleCheckbox(index, optIndex)}
+                            />
+                        ))}
+                        {question.questionType === 'tf' && question.options.map((option, optIndex) => (
+                            <CheckBox
+                                key={optIndex}
+                                title={option.optionText}
+                                checked={option.checked}
+                                onPress={() => toggleCheckbox(index, optIndex)}
+                            />
+                        ))}
+                        {question.questionType === 'text' && (
                             <TextInput
                                 style={styles.input}
                                 onChangeText={(text) => {
@@ -107,18 +97,28 @@ const TestViewScreen = ({ route, navigation }) => {
                                     });
                                 }}
                                 value={question.userResponse || ''}
-                                placeholder="Detailed response"
+                                placeholder="Your answer"
                                 multiline
                             />
-                        </>
-                    )}
-                </View>
-            ))}
-        </ScrollView>
+                        )}
+                        {question.questionType === 'video' && (
+                            <WebView
+                                source={{ uri: question.videoEmbedLink }}
+                                style={{ height: 300 }}
+                            />
+                        )}
+                    </View>
+                ))}
+                <Button title="Submit Test" onPress={handleSubmit} color="#007bff" style={styles.submitButton} />
+            </ScrollView>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
+    outerContainer: {
+        flex: 1,
+    },
     container: {
         flex: 1,
         padding: 20,
@@ -148,6 +148,10 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginBottom: 10,
         borderRadius: 5,
+    },
+    submitButton: {
+        height: 45,
+        paddingBottom: 310,
     }
 });
 
