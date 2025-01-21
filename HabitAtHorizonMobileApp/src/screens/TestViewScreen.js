@@ -69,6 +69,7 @@ const TestViewScreen = ({ route, navigation }) => {
             }
     
             const submission = {
+                testName: testData.testName,
                 testId: testId,
                 userId: currentUser.uid, 
                 userEmail: currentUser.email,

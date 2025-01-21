@@ -48,6 +48,13 @@ const DetailedSubmissionView = ({ route }) => {
         );
     }
 
+    const formatResponse = (response) => {
+        if (Array.isArray(response)) {
+            return response.join(", ");
+        }
+        return response.toString();
+    };
+
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.title}>Detailed Submission View</Text>
@@ -58,7 +65,7 @@ const DetailedSubmissionView = ({ route }) => {
             {submissionDetails.responses && submissionDetails.responses.map((response, index) => (
                 <View key={index} style={styles.responseContainer}>
                     <Text style={styles.responseTitle}>{response.questionTitle}</Text>
-                    <Text style={styles.responseText}>Response: {response.response.join(", ")}</Text>
+                    <Text style={styles.responseText}>Response: {formatResponse(response.response)}</Text>
                 </View>
             ))}
         </ScrollView>

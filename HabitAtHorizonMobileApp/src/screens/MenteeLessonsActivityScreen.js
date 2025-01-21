@@ -53,7 +53,7 @@ const MenteeLessonsActivityScreen = ({ route }) => {
                         style={styles.submissionItem}
                         onPress={() => navigation.navigate('DetailedSubmissionView', { submissionId: item.id, userId, boardId })}
                     >
-                        <Text style={styles.submissionTitle}>Test ID: {item.testId}</Text>
+                        <Text style={styles.submissionTitle}>Test Name: {item.testName}</Text>
                         <Text>Submitted on: {new Date(item.submittedAt.toDate()).toLocaleDateString()}</Text>
                     </TouchableOpacity>
                 )}
