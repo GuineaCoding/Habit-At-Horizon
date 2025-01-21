@@ -11,7 +11,7 @@ const BoardDetailsScreen = ({ route, navigation }) => {
     const [routes] = useState([
         { key: 'lessons', title: 'Lessons' },
         { key: 'tests', title: 'Tests' },
-        { key: 'members', title: 'Members' },
+        { key: 'members', title: 'Mentees And Submissions' },
     ]);
     const [lessons, setLessons] = useState([]);
     const [tests, setTests] = useState([]);

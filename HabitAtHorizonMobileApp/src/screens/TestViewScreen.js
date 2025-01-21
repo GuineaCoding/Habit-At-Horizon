@@ -39,7 +39,7 @@ const TestViewScreen = ({ route, navigation }) => {
         setResponses(prev => {
             const newResponses = { ...prev };
             if (isTrueFalse) {
-                newResponses[questionId] = [optionText]; 
+                newResponses[questionId] = [optionText];
             } else {
                 const currentSelection = newResponses[questionId];
                 const index = currentSelection.indexOf(optionText);
@@ -60,16 +60,17 @@ const TestViewScreen = ({ route, navigation }) => {
 
     const handleSubmit = async () => {
         if (currentUser && currentUser.email) {
-            const allAnswered = testData.questions.every(question => 
+            const allAnswered = testData.questions.every(question =>
                 question.options ? responses[question.questionId].length > 0 : responses[question.questionId].trim() !== ''
             );
             if (!allAnswered) {
                 Alert.alert('Incomplete', 'Please answer all questions before submitting.');
                 return;
             }
-
+    
             const submission = {
                 testId: testId,
+                userId: currentUser.uid, 
                 userEmail: currentUser.email,
                 responses: Object.keys(responses).map(questionId => ({
                     questionTitle: testData.questions.find(q => q.questionId.toString() === questionId).questionTitle,
@@ -77,22 +78,25 @@ const TestViewScreen = ({ route, navigation }) => {
                 })),
                 submittedAt: firestore.FieldValue.serverTimestamp(),
             };
-
+    
             try {
                 const result = await firestore()
                     .collection('boards')
                     .doc(boardId)
                     .collection('testResponses')
                     .add(submission);
+                console.log("Test response submitted successfully:", result.id);
                 Alert.alert('Success', 'Your answers have been submitted successfully!');
-                navigation.goBack();
+                navigation.goBack(); 
             } catch (error) {
+                console.error("Error submitting test response:", error);
                 Alert.alert('Error', 'Failed to submit your answers. ' + error.message);
             }
         } else {
             Alert.alert('Error', 'User email is not available.');
         }
     };
+    
 
     if (error) {
         return <View style={styles.container}><Text>Error: {error}</Text></View>;
