@@ -3,13 +3,14 @@ import { View, Text, ScrollView, StyleSheet, TextInput, Button, Alert } from 're
 import { CheckBox } from 'react-native-elements';
 import { WebView } from 'react-native-webview';
 import firestore from '@react-native-firebase/firestore';
-import { useAuth } from '../context/AuthContext';  
+import { useAuth } from '../context/AuthContext';
 
 const TestViewScreen = ({ route, navigation }) => {
     const { testId, boardId } = route.params;
     const [testData, setTestData] = useState(null);
+    const [responses, setResponses] = useState({});
     const [error, setError] = useState(null);
-    const { currentUser } = useAuth(); 
+    const { currentUser } = useAuth();
 
     useEffect(() => {
         const fetchTest = async () => {
@@ -17,14 +18,12 @@ const TestViewScreen = ({ route, navigation }) => {
                 const testDoc = await firestore().collection('boards').doc(boardId).collection('tests').doc(testId).get();
                 if (testDoc.exists) {
                     const data = testDoc.data();
-                    const questions = data.questions.map(question => ({
-                        ...question,
-                        options: question.options?.map(option => ({
-                            ...option,
-                            checked: false 
-                        }))
-                    }));
-                    setTestData({ ...data, questions });
+                    setTestData(data);
+                    const initialResponses = data.questions.reduce((acc, question) => {
+                        acc[question.questionId] = question.options ? [] : '';
+                        return acc;
+                    }, {});
+                    setResponses(initialResponses);
                 } else {
                     setError('No test data found');
                 }
@@ -36,64 +35,46 @@ const TestViewScreen = ({ route, navigation }) => {
         fetchTest();
     }, [testId, boardId]);
 
-    const toggleCheckbox = (qIndex, optionIndex) => {
-        setTestData(prevData => {
-            const questions = [...prevData.questions];
-            const question = questions[qIndex];
-            question.options[optionIndex].checked = !question.options[optionIndex].checked;
-
-            if (question.questionType === 'tf') {
-                question.options.forEach((opt, idx) => {
-                    if (idx !== optionIndex) opt.checked = false;
-                });
-            }
-            return { ...prevData, questions };
+    const handleOptionChange = (questionId, optionText, checked) => {
+        setResponses(prev => {
+            const updatedOptions = checked 
+                ? [...prev[questionId], optionText]
+                : prev[questionId].filter(opt => opt !== optionText);
+            return { ...prev, [questionId]: updatedOptions };
         });
     };
 
+    const handleTextChange = (questionId, text) => {
+        setResponses(prev => ({ ...prev, [questionId]: text }));
+    };
+
     const handleSubmit = async () => {
-        console.log("Handle submit started. Current user:", currentUser);
-    
         if (currentUser && currentUser.email) {
-            const responses = testData.questions.map(question => {
-               
-                let response = question.options 
-                    ? question.options.filter(option => option.checked).map(option => option.optionText)
-                    : question.userResponse; 
-                
-                return {
-                    userEmail: currentUser.email,
-                    questionTitle: question.questionTitle,
-                    response: response,
-                };
-            });
-    
-            console.log("Prepared responses for submission:", responses);
-    
+            const submission = {
+                testId: testId,
+                userEmail: currentUser.email,
+                responses: Object.keys(responses).map(questionId => ({
+                    questionTitle: testData.questions.find(q => q.questionId.toString() === questionId).questionTitle,
+                    response: responses[questionId],
+                })),
+                submittedAt: firestore.FieldValue.serverTimestamp(),
+            };
+
             try {
-                console.log(`Attempting to store responses in Firestore at /boards/${boardId}/testResponses`);
                 const result = await firestore()
                     .collection('boards')
                     .doc(boardId)
                     .collection('testResponses')
-                    .add({
-                        testId: testId,
-                        responses: responses,
-                        submittedAt: firestore.FieldValue.serverTimestamp(),
-                    });
-                console.log("Firestore write successful, document ID:", result.id);
+                    .add(submission);
                 Alert.alert('Success', 'Your answers have been submitted successfully!');
                 navigation.goBack();
             } catch (error) {
-                console.error('Error submitting answers to Firestore:', error);
                 Alert.alert('Error', 'Failed to submit your answers. ' + error.message);
             }
         } else {
-            console.log("Error: Current user email is not available.");
             Alert.alert('Error', 'User email is not available.');
         }
     };
-    
 
     if (error) {
         return <View style={styles.container}><Text>Error: {error}</Text></View>;
@@ -106,37 +87,23 @@ const TestViewScreen = ({ route, navigation }) => {
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.title}>Test: {testData.testName}</Text>
-            {testData.questions?.map((question, index) => (
-                <View key={index} style={styles.questionContainer}>
+            {testData.questions.map(question => (
+                <View key={question.questionId} style={styles.questionContainer}>
                     <Text style={styles.questionText}>{question.questionTitle}</Text>
                     {question.questionDetail && <Text>{question.questionDetail}</Text>}
-                    {question.questionType === 'mcq' && question.options.map((option, optIndex) => (
+                    {question.options && question.options.map((option, index) => (
                         <CheckBox
-                            key={optIndex}
+                            key={index}
                             title={option.optionText}
-                            checked={option.checked}
-                            onPress={() => toggleCheckbox(index, optIndex)}
-                        />
-                    ))}
-                    {question.questionType === 'tf' && question.options.map((option, optIndex) => (
-                        <CheckBox
-                            key={optIndex}
-                            title={option.optionText}
-                            checked={option.checked}
-                            onPress={() => toggleCheckbox(index, optIndex)}
+                            checked={responses[question.questionId].includes(option.optionText)}
+                            onPress={() => handleOptionChange(question.questionId, option.optionText, !responses[question.questionId].includes(option.optionText))}
                         />
                     ))}
                     {question.questionType === 'text' && (
                         <TextInput
                             style={styles.input}
-                            onChangeText={(text) => {
-                                setTestData(prevData => {
-                                    const questions = [...prevData.questions];
-                                    questions[index].userResponse = text;
-                                    return { ...prevData, questions };
-                                });
-                            }}
-                            value={question.userResponse || ''}
+                            onChangeText={(text) => handleTextChange(question.questionId, text)}
+                            value={responses[question.questionId]}
                             placeholder="Your answer"
                             multiline
                         />
@@ -149,15 +116,9 @@ const TestViewScreen = ({ route, navigation }) => {
                             />
                             <TextInput
                                 style={styles.input}
-                                onChangeText={(text) => {
-                                    setTestData(prevData => {
-                                        const questions = [...prevData.questions];
-                                        questions[index].userResponse = text;
-                                        return { ...prevData, questions };
-                                    });
-                                }}
-                                value={question.userResponse || ''}
-                                placeholder="Your detailed response"
+                                onChangeText={(text) => handleTextChange(question.questionId, text)}
+                                value={responses[question.questionId]}
+                                placeholder="Enter your response to the video"
                                 multiline
                             />
                         </>
@@ -193,18 +154,17 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     input: {
-        minHeight: 80,  
+        minHeight: 80,
         borderWidth: 1,
         borderColor: '#ccc',
-        paddingVertical: 10,  
+        paddingVertical: 10,
         paddingHorizontal: 10,
         fontSize: 16,
         marginTop: 10,
         marginBottom: 10,
         borderRadius: 5,
-        textAlignVertical: 'top' 
+        textAlignVertical: 'top',
     }
 });
-
 
 export default TestViewScreen;
