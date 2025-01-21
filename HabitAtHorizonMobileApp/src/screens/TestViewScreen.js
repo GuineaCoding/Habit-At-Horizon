@@ -35,12 +35,22 @@ const TestViewScreen = ({ route, navigation }) => {
         fetchTest();
     }, [testId, boardId]);
 
-    const handleOptionChange = (questionId, optionText, checked) => {
+    const handleOptionChange = (questionId, optionText, isTrueFalse = false) => {
         setResponses(prev => {
-            const updatedOptions = checked 
-                ? [...prev[questionId], optionText]
-                : prev[questionId].filter(opt => opt !== optionText);
-            return { ...prev, [questionId]: updatedOptions };
+            const newResponses = { ...prev };
+            if (isTrueFalse) {
+                newResponses[questionId] = [optionText]; 
+            } else {
+                const currentSelection = newResponses[questionId];
+                const index = currentSelection.indexOf(optionText);
+                if (index > -1) {
+                    currentSelection.splice(index, 1);
+                } else {
+                    currentSelection.push(optionText);
+                }
+                newResponses[questionId] = currentSelection;
+            }
+            return newResponses;
         });
     };
 
@@ -50,6 +60,14 @@ const TestViewScreen = ({ route, navigation }) => {
 
     const handleSubmit = async () => {
         if (currentUser && currentUser.email) {
+            const allAnswered = testData.questions.every(question => 
+                question.options ? responses[question.questionId].length > 0 : responses[question.questionId].trim() !== ''
+            );
+            if (!allAnswered) {
+                Alert.alert('Incomplete', 'Please answer all questions before submitting.');
+                return;
+            }
+
             const submission = {
                 testId: testId,
                 userEmail: currentUser.email,
@@ -96,7 +114,8 @@ const TestViewScreen = ({ route, navigation }) => {
                             key={index}
                             title={option.optionText}
                             checked={responses[question.questionId].includes(option.optionText)}
-                            onPress={() => handleOptionChange(question.questionId, option.optionText, !responses[question.questionId].includes(option.optionText))}
+                            onPress={() => handleOptionChange(question.questionId, option.optionText, question.questionType === 'tf')}
+                            containerStyle={question.questionType === 'tf' ? { backgroundColor: 'transparent', borderWidth: 0 } : {}}
                         />
                     ))}
                     {question.questionType === 'text' && (
