@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Button } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Button, Dimensions, Modal, TextInput } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import firestore from '@react-native-firebase/firestore';
-import { Dimensions } from 'react-native';
+import { findUserByUsername } from '../services/UserService';
 
 const BoardDetailsScreen = ({ route, navigation }) => {
+    const [modalVisible, setModalVisible] = useState(false);
+    const [username, setUsername] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     const { boardId } = route.params;
     const [boardData, setBoardData] = useState(null);
     const [index, setIndex] = useState(0);
     const [routes] = useState([
         { key: 'lessons', title: 'Lessons' },
         { key: 'tests', title: 'Tests' },
-        { key: 'members', title: 'Mentees And Submissions' },
+        { key: 'members', title: 'Mentees and Submissions' },
     ]);
     const [lessons, setLessons] = useState([]);
     const [tests, setTests] = useState([]);
@@ -67,8 +70,45 @@ const BoardDetailsScreen = ({ route, navigation }) => {
         );
     }
 
-    const addTest = () => {
-        navigation.navigate('TestCreateScreen', { boardId });
+    const inviteUser = async () => {
+        try {
+            setErrorMessage(''); 
+            const user = await findUserByUsername(username); 
+
+            
+            if (boardData.members && boardData.members[user.id]) {
+                Alert.alert('Error', 'User is already a member of this board.');
+                return;
+            }
+
+            await firestore()
+                .collection('boards')
+                .doc(boardId)
+                .update({
+                    [`members.${user.id}`]: {
+                        email: user.email,
+                        role: 'mentee',
+                    },
+                });
+
+          
+            setBoardData(prev => ({
+                ...prev,
+                members: {
+                    ...prev.members,
+                    [user.id]: {
+                        email: user.email,
+                        role: 'mentee',
+                    },
+                },
+            }));
+
+            Alert.alert('Success', 'User has been invited successfully!');
+            setModalVisible(false);
+            setUsername(''); 
+        } catch (error) {
+            setErrorMessage(error.message || 'Failed to invite user. Please try again.');
+        }
     };
 
     const LessonsRoute = () => (
@@ -137,19 +177,20 @@ const BoardDetailsScreen = ({ route, navigation }) => {
         ]);
     };
 
-
-
     const MembersRoute = () => (
         <View style={styles.tabContainer}>
             <FlatList
                 data={Object.entries(boardData.members || {})}
                 keyExtractor={([userId]) => userId}
                 renderItem={({ item: [userId, userDetails] }) => (
-                    <View style={styles.memberItem}>
-                        <Text>{userDetails.email}</Text>
-                        <Text style={styles.memberRole}>Role: {userDetails.role}</Text>
-                    </View>
+                    <TouchableOpacity onPress={() => navigation.navigate('MenteeLessonsActivityScreen', { userId, boardId })}>
+                        <View style={styles.memberItem}>
+                            <Text>{userDetails.email}</Text>
+                            <Text style={styles.memberRole}>Role: {userDetails.role}</Text>
+                        </View>
+                    </TouchableOpacity>
                 )}
+                ListFooterComponent={<Button title="Invite Member" onPress={() => setModalVisible(true)} />}
             />
         </View>
     );
@@ -158,31 +199,51 @@ const BoardDetailsScreen = ({ route, navigation }) => {
         lessons: LessonsRoute,
         tests: TestsRoute,
         members: MembersRoute,
-    });
-
-    return (
+      });
+    
+      return (
         <View style={styles.container}>
-            <Text style={styles.header}>{boardData.title}</Text>
-            <Text style={styles.subHeader}>Created by: {boardData.creatorEmail}</Text>
-            <TabView
-                navigationState={{ index, routes }}
-                renderScene={renderScene}
-                onIndexChange={setIndex}
-                initialLayout={{ width: Dimensions.get('window').width }}
-                renderTabBar={props => (
-                    <TabBar
-                        {...props}
-                        indicatorStyle={styles.tabIndicator}
-                        style={styles.tabBar}
-                        labelStyle={styles.tabLabel}
-                    />
-                )}
-            />
+          <Text style={styles.header}>{boardData.title}</Text>
+          <TabView
+            navigationState={{ index, routes }}
+            renderScene={renderScene}
+            onIndexChange={setIndex}
+            initialLayout={{ width: Dimensions.get('window').width }}
+            renderTabBar={props => (
+              <TabBar
+                {...props}
+                indicatorStyle={styles.tabIndicator}
+                style={styles.tabBar}
+                labelStyle={styles.tabLabel}
+              />
+            )}
+          />
+          <Modal
+            visible={modalVisible}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Invite Member</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter username"
+                  value={username}
+                  onChangeText={setUsername}
+                />
+                {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+                <Button title="Invite" onPress={inviteUser} />
+                <Button title="Cancel" onPress={() => setModalVisible(false)} color="red" />
+              </View>
+            </View>
+          </Modal>
         </View>
-    );
+      );
 };
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create({  
 
     testItem: {
         flexDirection: 'row',
