@@ -16,6 +16,7 @@ import LessonScreen from '../screens/LessonScreen';
 import TestCreateScreen from '../screens/TestCreateScreen';
 import TestViewScreen from '../screens/TestViewScreen';
 import MenteeLessonsActivityScreen from "../screens/MenteeLessonsActivityScreen"
+import DetailedSubmissionView from "../screens/DetailedSubmissionView"
 
 const Stack = createNativeStackNavigator();
 
@@ -70,6 +71,7 @@ const AppNavigator = () => {
         />
         <Stack.Screen name="TestViewScreen" component={TestViewScreen} />
         <Stack.Screen name="MenteeLessonsActivityScreen" component={MenteeLessonsActivityScreen} options={{ title: 'Mentee Activity' }} />
+        <Stack.Screen name="DetailedSubmissionView" component={DetailedSubmissionView} options={{ title: 'Submitted Test' }} />
       </Stack.Navigator>
 
     </NavigationContainer>
