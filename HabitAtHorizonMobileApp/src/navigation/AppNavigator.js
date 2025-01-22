@@ -19,6 +19,7 @@ import MenteeLessonsActivityScreen from "../screens/MenteeLessonsActivityScreen"
 import DetailedSubmissionView from "../screens/DetailedSubmissionView"
 import MenteesDashboardScreen from "../screens/mentees/MenteesDashboardScreen"
 import MenteeLessonsBoardsScreen from "../screens/mentees/MenteeLessonsBoardsScreen"
+import MenteeBoardsList from "../screens/mentees/MenteeBoardsList"
 
 const Stack = createNativeStackNavigator();
 
@@ -76,6 +77,7 @@ const AppNavigator = () => {
         <Stack.Screen name="DetailedSubmissionView" component={DetailedSubmissionView} options={{ title: 'Submitted Test' }} />
         <Stack.Screen name="MenteesDashboardScreen" component={MenteesDashboardScreen} options={{ title: 'Mentee Dashboard' }} />
         <Stack.Screen name="MenteeLessonsBoardsScreen" component={MenteeLessonsBoardsScreen} options={{ title: 'Mentee Lesson' }} />
+        <Stack.Screen name="MenteeBoardsList" component={MenteeBoardsList} options={{ title: 'Mentee Board List' }} />
       </Stack.Navigator>
 
     </NavigationContainer>
