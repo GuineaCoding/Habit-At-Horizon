@@ -73,6 +73,7 @@ const TestViewScreen = ({ route, navigation }) => {
                 testId: testId,
                 userId: currentUser.uid, 
                 userEmail: currentUser.email,
+                isTestCheckedByMentor: "false",
                 responses: Object.keys(responses).map(questionId => ({
                     questionTitle: testData.questions.find(q => q.questionId.toString() === questionId).questionTitle,
                     response: responses[questionId],
