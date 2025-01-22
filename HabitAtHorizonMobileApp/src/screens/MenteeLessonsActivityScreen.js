@@ -50,7 +50,7 @@ const MenteeLessonsActivityScreen = ({ route }) => {
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
                     <TouchableOpacity
-                        style={styles.submissionItem}
+                        style={[styles.submissionItem, item.isTestCheckedByMentor ? styles.checked : styles.unchecked]}
                         onPress={() => navigation.navigate('DetailedSubmissionView', { submissionId: item.id, userId, boardId })}
                     >
                         <Text style={styles.submissionTitle}>Test Name: {item.testName}</Text>
@@ -72,12 +72,17 @@ const styles = StyleSheet.create({
     submissionItem: {
         padding: 15,
         marginVertical: 8,
-        backgroundColor: '#f0f0f0',
         borderRadius: 5
     },
     submissionTitle: {
         fontSize: 16,
         fontWeight: 'bold'
+    },
+    checked: {
+        backgroundColor: '#e0ffe0' 
+    },
+    unchecked: {
+        backgroundColor: '#ffe0e0'
     }
 });
 
