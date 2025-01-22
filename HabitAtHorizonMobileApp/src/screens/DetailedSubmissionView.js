@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, Button, Alert } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
+import { Picker } from '@react-native-picker/picker';
 
-const DetailedSubmissionView = ({ route }) => {
+const DetailedSubmissionView = ({ route, navigation }) => {
     const { submissionId, userId, boardId } = route.params;
     const [submissionDetails, setSubmissionDetails] = useState(null);
     const [feedback, setFeedback] = useState([]);
+    const [passStatus, setPassStatus] = useState('pass'); 
+    const [genericTestFeedback, setGenericTestFeedback] = useState('');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -47,16 +50,19 @@ const DetailedSubmissionView = ({ route }) => {
                 ...response,
                 feedback: feedback[index]
             }));
-    
+
             await firestore()
                 .collection('boards')
                 .doc(boardId)
                 .collection('testResponses')
                 .doc(submissionId)
                 .update({
-                    responses: updatedResponses
+                    responses: updatedResponses,
+                    isTestCheckedByMentor: true,
+                    passStatus,
+                    genericTestFeedback
                 });
-    
+
             Alert.alert("Feedback Submitted", "Feedback has been successfully saved.", [
                 { text: "OK", onPress: () => navigation.goBack() }
             ]);
@@ -65,7 +71,6 @@ const DetailedSubmissionView = ({ route }) => {
             Alert.alert("Error", "Failed to submit feedback.");
         }
     };
-    
 
     if (loading) {
         return (
@@ -83,13 +88,6 @@ const DetailedSubmissionView = ({ route }) => {
         );
     }
 
-    const formatResponse = (response) => {
-        if (Array.isArray(response)) {
-            return response.join(", ");
-        }
-        return response.toString();
-    };
-
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.title}>Detailed Submission View</Text>
@@ -100,7 +98,7 @@ const DetailedSubmissionView = ({ route }) => {
             {submissionDetails.responses.map((response, index) => (
                 <View key={index} style={styles.responseContainer}>
                     <Text style={styles.responseTitle}>{response.questionTitle}</Text>
-                    <Text style={styles.responseText}>Response: {formatResponse(response.response)}</Text>
+                    <Text style={styles.responseText}>Response: {response.response}</Text>
                     <TextInput
                         style={styles.input}
                         onChangeText={text => handleFeedbackChange(text, index)}
@@ -110,6 +108,20 @@ const DetailedSubmissionView = ({ route }) => {
                     />
                 </View>
             ))}
+            <TextInput
+                style={styles.input}
+                onChangeText={setGenericTestFeedback}
+                value={genericTestFeedback}
+                placeholder="Enter generic test feedback here"
+                multiline
+            />
+            <Picker
+                selectedValue={passStatus}
+                onValueChange={itemValue => setPassStatus(itemValue)}
+                style={{ height: 50, width: 150 }}>
+                <Picker.Item label="Pass" value="pass" />
+                <Picker.Item label="Fail" value="fail" />
+            </Picker>
             <Button title="Submit Feedback" onPress={submitFeedback} color="#007bff" />
         </ScrollView>
     );
