@@ -1,18 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import {
-    View,
-    Text,
-    FlatList,
-    StyleSheet,
-    TouchableOpacity,
-    Modal,
-    TextInput,
-    Alert,
-    Button
-} from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, TextInput, Alert, Button } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import Icon from 'react-native-vector-icons/MaterialIcons'; 
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const BoardsScreen = ({ navigation }) => {
     const [boards, setBoards] = useState([]);
@@ -22,18 +12,32 @@ const BoardsScreen = ({ navigation }) => {
     const user = auth().currentUser;
 
     useEffect(() => {
-        const unsubscribe = firestore()
-            .collection('boards')
-            .where(`members.${user.uid}`, '!=', null)
-            .onSnapshot(snapshot => {
-                const fetchedBoards = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
-                setBoards(fetchedBoards);
-            });
+        const fetchBoards = async () => {
+            try {
+                const boardsSnapshot = await firestore().collection('boards').get();
+                const userBoards = [];
 
-        return () => unsubscribe();
+                for (const boardDoc of boardsSnapshot.docs) {
+                    const memberDoc = await boardDoc.ref
+                        .collection('members')
+                        .doc(user.uid)
+                        .get();
+
+                    if (memberDoc.exists) {
+                        userBoards.push({
+                            id: boardDoc.id,
+                            ...boardDoc.data(),
+                        });
+                    }
+                }
+
+                setBoards(userBoards);
+            } catch (error) {
+                console.error('Error fetching boards:', error);
+            }
+        };
+
+        fetchBoards();
     }, [user]);
 
     const handleSaveBoard = async () => {
@@ -59,17 +63,16 @@ const BoardsScreen = ({ navigation }) => {
                     .doc(editBoardId)
                     .update({ title: boardTitle });
             } else {
-                await firestore().collection('boards').add({
+                const newBoardRef = firestore().collection('boards').doc();
+                await newBoardRef.set({
                     title: boardTitle,
                     creator: user.uid,
                     creatorEmail: user.email,
-                    members: {
-                        [user.uid]: {
-                            role: 'Admin',
-                            joinedAt: new Date(),
-                        },
-                    },
                     createdAt: new Date(),
+                });
+                await newBoardRef.collection('members').doc(user.uid).set({
+                    role: 'Admin',
+                    joinedAt: new Date(),
                 });
             }
 
@@ -80,6 +83,7 @@ const BoardsScreen = ({ navigation }) => {
             console.error('Error saving board:', error);
         }
     };
+
 
     const deleteBoard = async boardId => {
         Alert.alert(

@@ -59,10 +59,11 @@ const TestViewScreen = ({ route, navigation }) => {
     };
 
     const handleSubmit = async () => {
-        if (currentUser && currentUser.email) {
+        if (currentUser && currentUser.uid) {
             const allAnswered = testData.questions.every(question =>
                 question.options ? responses[question.questionId].length > 0 : responses[question.questionId].trim() !== ''
             );
+    
             if (!allAnswered) {
                 Alert.alert('Incomplete', 'Please answer all questions before submitting.');
                 return;
@@ -71,7 +72,7 @@ const TestViewScreen = ({ route, navigation }) => {
             const submission = {
                 testName: testData.testName,
                 testId: testId,
-                userId: currentUser.uid, 
+                userId: currentUser.uid,
                 userEmail: currentUser.email,
                 isTestCheckedByMentor: false,
                 passStatus: "not graded",
@@ -83,12 +84,14 @@ const TestViewScreen = ({ route, navigation }) => {
             };
     
             try {
-                const result = await firestore()
+                await firestore()
                     .collection('boards')
                     .doc(boardId)
-                    .collection('testResponses')
+                    .collection('members')
+                    .doc(currentUser.uid)
+                    .collection('submissions')
                     .add(submission);
-                console.log("Test response submitted successfully:", result.id);
+    
                 Alert.alert('Success', 'Your answers have been submitted successfully!');
                 navigation.goBack(); 
             } catch (error) {
@@ -96,9 +99,10 @@ const TestViewScreen = ({ route, navigation }) => {
                 Alert.alert('Error', 'Failed to submit your answers. ' + error.message);
             }
         } else {
-            Alert.alert('Error', 'User email is not available.');
+            Alert.alert('Error', 'User is not authenticated.');
         }
     };
+    
     
 
     if (error) {

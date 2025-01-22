@@ -72,40 +72,35 @@ const BoardDetailsScreen = ({ route, navigation }) => {
 
     const inviteUser = async () => {
         try {
-            setErrorMessage(''); 
+            setErrorMessage('');
             const user = await findUserByUsername(username); 
-
-            
-            if (boardData.members && boardData.members[user.id]) {
+    
+            const memberDoc = await firestore()
+                .collection('boards')
+                .doc(boardId)
+                .collection('members')
+                .doc(user.id)
+                .get();
+    
+            if (memberDoc.exists) {
                 Alert.alert('Error', 'User is already a member of this board.');
                 return;
             }
-
+    
             await firestore()
                 .collection('boards')
                 .doc(boardId)
-                .update({
-                    [`members.${user.id}`]: {
-                        email: user.email,
-                        role: 'mentee',
-                    },
+                .collection('members')
+                .doc(user.id)
+                .set({
+                    email: user.email,
+                    role: 'mentee',
+                    joinedAt: new Date(),
                 });
-
-          
-            setBoardData(prev => ({
-                ...prev,
-                members: {
-                    ...prev.members,
-                    [user.id]: {
-                        email: user.email,
-                        role: 'mentee',
-                    },
-                },
-            }));
-
+    
             Alert.alert('Success', 'User has been invited successfully!');
             setModalVisible(false);
-            setUsername(''); 
+            setUsername('');
         } catch (error) {
             setErrorMessage(error.message || 'Failed to invite user. Please try again.');
         }
@@ -177,23 +172,43 @@ const BoardDetailsScreen = ({ route, navigation }) => {
         ]);
     };
 
-    const MembersRoute = () => (
-        <View style={styles.tabContainer}>
-            <FlatList
-                data={Object.entries(boardData.members || {})}
-                keyExtractor={([userId]) => userId}
-                renderItem={({ item: [userId, userDetails] }) => (
-                    <TouchableOpacity onPress={() => navigation.navigate('MenteeLessonsActivityScreen', { userId, boardId })}>
-                        <View style={styles.memberItem}>
-                            <Text>{userDetails.email}</Text>
-                            <Text style={styles.memberRole}>Role: {userDetails.role}</Text>
-                        </View>
-                    </TouchableOpacity>
-                )}
-                ListFooterComponent={<Button title="Invite Member" onPress={() => setModalVisible(true)} />}
-            />
-        </View>
-    );
+    const MembersRoute = () => {
+        const [members, setMembers] = useState([]);
+    
+        useEffect(() => {
+            const unsubscribe = firestore()
+                .collection('boards')
+                .doc(boardId)
+                .collection('members')
+                .onSnapshot(snapshot => {
+                    const fetchedMembers = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }));
+                    setMembers(fetchedMembers);
+                });
+    
+            return () => unsubscribe();
+        }, [boardId]);
+    
+        return (
+            <View style={styles.tabContainer}>
+                <FlatList
+                    data={members}
+                    keyExtractor={item => item.id}
+                    renderItem={({ item }) => (
+                        <TouchableOpacity onPress={() => navigation.navigate('MenteeLessonsActivityScreen', { userId: item.id, boardId })}>
+                            <View style={styles.memberItem}>
+                                <Text>{item.email}</Text>
+                                <Text style={styles.memberRole}>Role: {item.role}</Text>
+                            </View>
+                        </TouchableOpacity>
+                    )}
+                    ListFooterComponent={<Button title="Invite Member" onPress={() => setModalVisible(true)} />}
+                />
+            </View>
+        );
+    };
 
     const renderScene = SceneMap({
         lessons: LessonsRoute,

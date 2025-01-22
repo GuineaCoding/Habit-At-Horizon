@@ -21,8 +21,9 @@ const MenteeLessonsActivityScreen = () => {
                 const snapshot = await firestore()
                     .collection('boards')
                     .doc(boardId)
-                    .collection('testResponses')
-                    .where('userId', '==', userId)
+                    .collection('members')
+                    .doc(userId)
+                    .collection('submissions')
                     .get();
 
                 const fetchedSubmissions = snapshot.docs.map(doc => ({
@@ -79,7 +80,7 @@ const SubmissionList = ({ submissions, navigation }) => (
                 })}
             >
                 <Text style={styles.submissionTitle}>Test Name: {item.testName}</Text>
-                <Text>Submitted on: {new Date(item.submittedAt.toDate()).toLocaleDateString()}</Text>
+                <Text>Submitted on: {item.submittedAt ? new Date(item.submittedAt.toDate()).toLocaleDateString() : 'N/A'}</Text>
             </TouchableOpacity>
         )}
         ListEmptyComponent={<Text>No submissions found.</Text>}
