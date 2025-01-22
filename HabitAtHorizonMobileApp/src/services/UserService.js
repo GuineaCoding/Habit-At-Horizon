@@ -4,7 +4,8 @@ export const findUserByUsername = async (username) => {
     const usersRef = firestore().collection('users');
     const querySnapshot = await usersRef.where('username', '==', username).get();
     if (!querySnapshot.empty) {
-        return querySnapshot.docs[0].data();
+        const userDoc = querySnapshot.docs[0];
+        return { id: userDoc.id, ...userDoc.data() }; 
     } else {
         throw new Error('No user found with that username');
     }

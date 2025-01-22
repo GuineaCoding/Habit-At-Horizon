@@ -49,7 +49,10 @@ const HomeScreen = () => {
             <Text style={styles.listText}>My Personal Space</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.listItem} onPress={goToMentoring}>
-            <Text style={styles.listText}>Mentoring</Text>
+            <Text style={styles.listText}>Mentoring Space</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.listItem} onPress={goToMentoring}>
+            <Text style={styles.listText}>Mentee Space</Text>
           </TouchableOpacity>
         </View>
       </View>
