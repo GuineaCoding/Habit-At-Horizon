@@ -16,9 +16,9 @@ const MenteesDashboardScreen = () => {
             <View style={styles.content}>
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={() => navigation.navigate('LessonBoardsScreen')}
+                    onPress={() => navigation.navigate('MenteeLessonsBoardsScreen')}
                 >
-                    <Text style={styles.buttonText}>Lesson Boards</Text>
+                    <Text style={styles.buttonText}>Learning Boards</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={styles.button}
