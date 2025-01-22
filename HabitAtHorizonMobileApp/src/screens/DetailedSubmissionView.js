@@ -7,36 +7,41 @@ const DetailedSubmissionView = ({ route, navigation }) => {
     const { submissionId, userId, boardId } = route.params;
     const [submissionDetails, setSubmissionDetails] = useState(null);
     const [feedback, setFeedback] = useState([]);
-    const [passStatus, setPassStatus] = useState('pass'); 
+    const [passStatus, setPassStatus] = useState('pass');
     const [genericTestFeedback, setGenericTestFeedback] = useState('');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchSubmissionDetails = async () => {
+            setLoading(true);
             try {
+                console.log(`Fetching details for Board ID: ${boardId}, User ID: ${userId}, Submission ID: ${submissionId}`);
                 const doc = await firestore()
                     .collection('boards')
                     .doc(boardId)
-                    .collection('testResponses')
+                    .collection('members')
+                    .doc(userId)
+                    .collection('submissions')
                     .doc(submissionId)
                     .get();
-
+    
                 if (doc.exists) {
+                    console.log("Document data:", doc.data());
                     const data = { id: doc.id, ...doc.data() };
                     setSubmissionDetails(data);
-                    setFeedback(data.responses.map(r => r.feedback || ""));
+                    setFeedback((data.responses || []).map(r => r.feedback || ""));
                 } else {
+                    console.log("No such document found!");
                     setSubmissionDetails(null);
                 }
-                setLoading(false);
             } catch (error) {
                 console.error("Failed to fetch submission details: ", error);
-                setLoading(false);
             }
+            setLoading(false);
         };
-
+    
         fetchSubmissionDetails();
-    }, [submissionId, boardId]);
+    }, [submissionId, userId, boardId]);
 
     const handleFeedbackChange = (text, index) => {
         const newFeedback = [...feedback];
@@ -45,31 +50,33 @@ const DetailedSubmissionView = ({ route, navigation }) => {
     };
 
     const submitFeedback = async () => {
+        console.log("Submitting feedback...");
+        setLoading(true);
         try {
-            const updatedResponses = submissionDetails.responses.map((response, index) => ({
-                ...response,
-                feedback: feedback[index]
-            }));
-
             await firestore()
                 .collection('boards')
                 .doc(boardId)
-                .collection('testResponses')
+                .collection('members')
+                .doc(userId)
+                .collection('submissions')
                 .doc(submissionId)
                 .update({
-                    responses: updatedResponses,
-                    isTestCheckedByMentor: true,
-                    passStatus,
-                    genericTestFeedback
+                    responses: submissionDetails.responses.map((response, index) => ({
+                        ...response,
+                        feedback: feedback[index]
+                    })),
+                    genericTestFeedback: genericTestFeedback,
+                    passStatus: passStatus,
+                    isTestCheckedByMentor: true
+                    
                 });
-
-            Alert.alert("Feedback Submitted", "Feedback has been successfully saved.", [
-                { text: "OK", onPress: () => navigation.goBack() }
-            ]);
+            Alert.alert("Feedback Submitted", "Your feedback has been successfully submitted.");
+            navigation.goBack();  
         } catch (error) {
-            console.error("Error submitting feedback: ", error);
+            console.error("Failed to submit feedback:", error);
             Alert.alert("Error", "Failed to submit feedback.");
         }
+        setLoading(false);
     };
 
     if (loading) {
@@ -79,7 +86,7 @@ const DetailedSubmissionView = ({ route, navigation }) => {
             </View>
         );
     }
-
+    
     if (!submissionDetails) {
         return (
             <View style={styles.container}>
@@ -91,14 +98,12 @@ const DetailedSubmissionView = ({ route, navigation }) => {
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.title}>Detailed Submission View</Text>
-            <Text style={styles.label}>Test ID: {submissionDetails.testId}</Text>
-            <Text style={styles.label}>Submitted by: {userId}</Text>
-            <Text style={styles.label}>Submission ID: {submissionId}</Text>
-            <Text style={styles.label}>Submitted on: {submissionDetails.submittedAt && new Date(submissionDetails.submittedAt.toDate()).toLocaleDateString()}</Text>
-            {submissionDetails.responses.map((response, index) => (
+            {submissionDetails.responses && submissionDetails.responses.map((response, index) => (
                 <View key={index} style={styles.responseContainer}>
                     <Text style={styles.responseTitle}>{response.questionTitle}</Text>
-                    <Text style={styles.responseText}>Response: {response.response}</Text>
+                    <Text style={styles.responseText}>
+                        Response: {Array.isArray(response.response) ? response.response.join(", ") : response.response}
+                    </Text>
                     <TextInput
                         style={styles.input}
                         onChangeText={text => handleFeedbackChange(text, index)}
@@ -118,7 +123,8 @@ const DetailedSubmissionView = ({ route, navigation }) => {
             <Picker
                 selectedValue={passStatus}
                 onValueChange={itemValue => setPassStatus(itemValue)}
-                style={{ height: 50, width: 150 }}>
+                style={{ height: 50, width: 150 }}
+            >
                 <Picker.Item label="Pass" value="pass" />
                 <Picker.Item label="Fail" value="fail" />
             </Picker>
@@ -163,7 +169,7 @@ const styles = StyleSheet.create({
         marginTop: 5,
         marginBottom: 10,
         padding: 10,
-        backgroundColor: '#fff'
+        backgroundColor: '#fff',
     },
 });
 

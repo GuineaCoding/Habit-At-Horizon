@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, Dimensions, ActivityIndicator } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import firestore from '@react-native-firebase/firestore';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -16,7 +16,15 @@ const MenteeLessonsActivityScreen = () => {
     const navigation = useNavigation();
 
     useEffect(() => {
+        console.log(`Attempting to fetch submissions with Board ID: ${boardId}, User ID: ${userId}`);
+        if (!userId || !boardId) {
+            console.error("Invalid user or board ID:", { userId, boardId });
+            setLoading(false);
+            return;
+        }
+
         const fetchSubmissions = async () => {
+            setLoading(true);
             try {
                 const snapshot = await firestore()
                     .collection('boards')
@@ -26,17 +34,24 @@ const MenteeLessonsActivityScreen = () => {
                     .collection('submissions')
                     .get();
 
-                const fetchedSubmissions = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-
-                setSubmissions(fetchedSubmissions);
-                setLoading(false);
+                if (!snapshot.empty) {
+                    const fetchedSubmissions = snapshot.docs.map(doc => {
+                        const data = doc.data();
+                        return {
+                            id: doc.id,
+                            testName: data.testName,
+                            submittedAt: data.submittedAt,
+                            isTestCheckedByMentor: data.isTestCheckedByMentor
+                        };
+                    });
+                    setSubmissions(fetchedSubmissions);
+                } else {
+                    setSubmissions([]);
+                }
             } catch (error) {
-                console.error("Failed to fetch submissions: ", error);
-                setLoading(false);
+                console.error("Failed to fetch submissions:", error);
             }
+            setLoading(false);
         };
 
         fetchSubmissions();
@@ -46,9 +61,26 @@ const MenteeLessonsActivityScreen = () => {
         submissions.filter(sub => sub.isTestCheckedByMentor === checked);
 
     const renderScene = SceneMap({
-        checked: () => <SubmissionList submissions={filteredSubmissions(true)} navigation={navigation} />,
-        unchecked: () => <SubmissionList submissions={filteredSubmissions(false)} navigation={navigation} />
+        unchecked: () => <SubmissionList submissions={filteredSubmissions(false)} navigation={navigation} userId={userId} boardId={boardId} />,
+        checked: () => <SubmissionList submissions={filteredSubmissions(true)} navigation={navigation} userId={userId} boardId={boardId} />        
     });
+
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <ActivityIndicator size="large" color="#0000ff" />
+                <Text>Loading submissions...</Text>
+            </View>
+        );
+    }
+
+    if (!submissions.length) {
+        return (
+            <View style={styles.container}>
+                <Text>No submissions found.</Text>
+            </View>
+        );
+    }
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
@@ -66,7 +98,7 @@ const MenteeLessonsActivityScreen = () => {
     );
 };
 
-const SubmissionList = ({ submissions, navigation }) => (
+const SubmissionList = ({ submissions, navigation, userId, boardId }) => (
     <FlatList
         data={submissions}
         keyExtractor={item => item.id}
@@ -75,8 +107,8 @@ const SubmissionList = ({ submissions, navigation }) => (
                 style={[styles.submissionItem, item.isTestCheckedByMentor ? styles.checked : styles.unchecked]}
                 onPress={() => navigation.navigate('DetailedSubmissionView', {
                     submissionId: item.id,
-                    userId: item.userId,
-                    boardId: item.boardId
+                    userId: userId, 
+                    boardId: boardId
                 })}
             >
                 <Text style={styles.submissionTitle}>Test Name: {item.testName}</Text>
@@ -86,6 +118,8 @@ const SubmissionList = ({ submissions, navigation }) => (
         ListEmptyComponent={<Text>No submissions found.</Text>}
     />
 );
+
+
 
 const styles = StyleSheet.create({
     container: {
@@ -113,10 +147,10 @@ const styles = StyleSheet.create({
         borderRadius: 5
     },
     checked: {
-        backgroundColor: '#e0ffe0' 
+        backgroundColor: '#e0ffe0'
     },
     unchecked: {
-        backgroundColor: '#ffe0e0' 
+        backgroundColor: '#ffe0e0'
     },
     submissionTitle: {
         fontSize: 16,
