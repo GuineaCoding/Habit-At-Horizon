@@ -32,6 +32,11 @@ const HomeScreen = () => {
         navigation.navigate('MentorshipScreen'); 
     };
 
+    const goToMenteeScreen = () => {
+      navigation.navigate('MenteesDashboardScreen'); 
+  };
+
+
     return (
       <View style={styles.container}>
         <Appbar.Header>
@@ -51,7 +56,7 @@ const HomeScreen = () => {
           <TouchableOpacity style={styles.listItem} onPress={goToMentoring}>
             <Text style={styles.listText}>Mentoring Space</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.listItem} onPress={goToMentoring}>
+          <TouchableOpacity style={styles.listItem} onPress={goToMenteeScreen}>
             <Text style={styles.listText}>Mentee Space</Text>
           </TouchableOpacity>
         </View>
