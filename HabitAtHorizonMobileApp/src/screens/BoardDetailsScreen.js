@@ -18,45 +18,44 @@ const BoardDetailsScreen = ({ route, navigation }) => {
     ]);
     const [lessons, setLessons] = useState([]);
     const [tests, setTests] = useState([]);
+    const [members, setMembers] = useState([]);
 
     useEffect(() => {
-        const unsubscribeBoard = firestore()
-            .collection('boards')
-            .doc(boardId)
-            .onSnapshot(doc => {
-                if (doc.exists) {
-                    setBoardData({ id: doc.id, ...doc.data() });
-                } else {
-                    setBoardData(null);
-                }
-            });
+        const unsubscribeBoard = firestore().collection('boards').doc(boardId).onSnapshot(doc => {
+            if (doc.exists) {
+                setBoardData({ id: doc.id, ...doc.data() });
+            } else {
+                setBoardData(null);
+            }
+        });
 
-        const unsubscribeLessons = firestore()
-            .collection('boards')
-            .doc(boardId)
-            .collection('lessons')
-            .onSnapshot(snapshot => {
-                const fetchedLessons = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
-                setLessons(fetchedLessons);
-            });
+        const unsubscribeMembers = firestore().collection('boards').doc(boardId).collection('members').onSnapshot(snapshot => {
+            const fetchedMembers = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setMembers(fetchedMembers);
+        });
 
-        const unsubscribeTests = firestore()
-            .collection('boards')
-            .doc(boardId)
-            .collection('tests')
-            .onSnapshot(snapshot => {
-                const fetchedTests = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
-                setTests(fetchedTests);
-            });
+        const unsubscribeLessons = firestore().collection('boards').doc(boardId).collection('lessons').onSnapshot(snapshot => {
+            const fetchedLessons = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setLessons(fetchedLessons);
+        });
+
+        const unsubscribeTests = firestore().collection('boards').doc(boardId).collection('tests').onSnapshot(snapshot => {
+            const fetchedTests = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setTests(fetchedTests);
+        });
 
         return () => {
             unsubscribeBoard();
+            unsubscribeMembers();
             unsubscribeLessons();
             unsubscribeTests();
         };
@@ -71,37 +70,44 @@ const BoardDetailsScreen = ({ route, navigation }) => {
     }
 
     const inviteUser = async () => {
+        if (!username) {
+            setErrorMessage("Please enter a username.");
+            return;
+        }
         try {
             setErrorMessage('');
-            const user = await findUserByUsername(username); 
+            const user = await findUserByUsername(username);
     
-            const memberDoc = await firestore()
-                .collection('boards')
-                .doc(boardId)
-                .collection('members')
-                .doc(user.id)
-                .get();
+            if (!user) {
+                setErrorMessage("User not found.");
+                return;
+            }
+    
+            const userId = user.id;
+            const memberRef = firestore().collection('boards').doc(boardId).collection('members').doc(userId);
+            const memberDoc = await memberRef.get();
     
             if (memberDoc.exists) {
                 Alert.alert('Error', 'User is already a member of this board.');
                 return;
             }
     
-            await firestore()
-                .collection('boards')
-                .doc(boardId)
-                .collection('members')
-                .doc(user.id)
-                .set({
-                    email: user.email,
-                    role: 'mentee',
-                    joinedAt: new Date(),
-                });
+            await memberRef.set({
+                userId: userId,
+                email: user.email,
+                role: 'mentee',
+                joinedAt: firestore.FieldValue.serverTimestamp(),
+            });
+    
+            await firestore().collection('users').doc(userId).update({
+                boards: firestore.FieldValue.arrayUnion(boardId)
+            });
     
             Alert.alert('Success', 'User has been invited successfully!');
             setModalVisible(false);
             setUsername('');
         } catch (error) {
+            console.error("Failed to invite user:", error);
             setErrorMessage(error.message || 'Failed to invite user. Please try again.');
         }
     };
@@ -172,93 +178,77 @@ const BoardDetailsScreen = ({ route, navigation }) => {
         ]);
     };
 
-    const MembersRoute = () => {
-        const [members, setMembers] = useState([]);
-    
-        useEffect(() => {
-            const unsubscribe = firestore()
-                .collection('boards')
-                .doc(boardId)
-                .collection('members')
-                .onSnapshot(snapshot => {
-                    const fetchedMembers = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data(),
-                    }));
-                    setMembers(fetchedMembers);
-                });
-    
-            return () => unsubscribe();
-        }, [boardId]);
-    
-        return (
-            <View style={styles.tabContainer}>
-                <FlatList
-                    data={members}
-                    keyExtractor={item => item.id}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity onPress={() => navigation.navigate('MenteeLessonsActivityScreen', { userId: item.id, boardId })}>
-                            <View style={styles.memberItem}>
-                                <Text>{item.email}</Text>
-                                <Text style={styles.memberRole}>Role: {item.role}</Text>
-                            </View>
-                        </TouchableOpacity>
-                    )}
-                    ListFooterComponent={<Button title="Invite Member" onPress={() => setModalVisible(true)} />}
-                />
-            </View>
-        );
-    };
+    const MembersRoute = () => (
+        <View style={styles.tabContainer}>
+            <FlatList
+                data={members}
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => (
+                    <TouchableOpacity onPress={() => navigation.navigate('MemberDetails', { userId: item.id })}>
+                        <View style={styles.memberItem}>
+                            <Text>{item.email}</Text>
+                            <Text style={styles.memberRole}>Role: {item.role}</Text>
+                        </View>
+                    </TouchableOpacity>
+                )}
+                ListFooterComponent={<Button title="Invite Member" onPress={() => setModalVisible(true)} />}
+            />
+        </View>
+    );
 
     const renderScene = SceneMap({
         lessons: LessonsRoute,
         tests: TestsRoute,
         members: MembersRoute,
-      });
-    
-      return (
+    });
+
+    return (
         <View style={styles.container}>
-          <Text style={styles.header}>{boardData.title}</Text>
-          <TabView
-            navigationState={{ index, routes }}
-            renderScene={renderScene}
-            onIndexChange={setIndex}
-            initialLayout={{ width: Dimensions.get('window').width }}
-            renderTabBar={props => (
-              <TabBar
-                {...props}
-                indicatorStyle={styles.tabIndicator}
-                style={styles.tabBar}
-                labelStyle={styles.tabLabel}
-              />
-            )}
-          />
-          <Modal
-            visible={modalVisible}
-            animationType="slide"
-            transparent={true}
-            onRequestClose={() => setModalVisible(false)}
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Invite Member</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter username"
-                  value={username}
-                  onChangeText={setUsername}
-                />
-                {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
-                <Button title="Invite" onPress={inviteUser} />
-                <Button title="Cancel" onPress={() => setModalVisible(false)} color="red" />
-              </View>
-            </View>
-          </Modal>
+            <Text style={styles.header}>{boardData ? boardData.title : 'Loading...'}</Text>
+            <TabView
+                navigationState={{ index, routes }}
+                renderScene={SceneMap({
+                    lessons: LessonsRoute,
+                    tests: TestsRoute,
+                    members: MembersRoute,
+                })}
+                onIndexChange={setIndex}
+                initialLayout={{ width: Dimensions.get('window').width }}
+                renderTabBar={props => (
+                    <TabBar
+                        {...props}
+                        indicatorStyle={styles.tabIndicator}
+                        style={styles.tabBar}
+                        labelStyle={styles.tabLabel}
+                    />
+                )}
+            />
+            <Modal
+                visible={modalVisible}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Invite Member</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter username"
+                            value={username}
+                            onChangeText={setUsername}
+                        />
+                        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+                        <Button title="Invite" onPress={inviteUser} />
+                        <Button title="Cancel" onPress={() => setModalVisible(false)} color="red" />
+                    </View>
+                </View>
+            </Modal>
         </View>
-      );
+    );
 };
 
-const styles = StyleSheet.create({  
+const styles = StyleSheet.create({
 
     testItem: {
         flexDirection: 'row',

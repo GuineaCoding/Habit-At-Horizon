@@ -10,17 +10,40 @@ const MenteeBoardsList = ({ navigation }) => {
 
     useEffect(() => {
         const fetchBoards = async () => {
-            const snapshot = await firestore()
-                .collection('boards')
-                .where(`members.${currentUser.uid}.role`, '==', 'mentee')
-                .get();
+            setLoading(true);
+            console.log("Starting to fetch boards for user:", currentUser.uid);
+            const boardList = [];
 
-            const fetchedBoards = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+            try {
+                const boardsSnapshot = await firestore().collection('boards').get();
+                console.log("Fetched boards, total count:", boardsSnapshot.size);
 
-            setBoards(fetchedBoards);
+                for (const boardDoc of boardsSnapshot.docs) {
+                    console.log("Checking board:", boardDoc.id);
+                    const membersSnapshot = await boardDoc.ref.collection('members')
+                        .where('userId', '==', currentUser.uid)
+                        .where('role', '==', 'mentee')
+                        .get();
+
+                    console.log(`Checked members for board ${boardDoc.id}, found count:`, membersSnapshot.size);
+                    if (!membersSnapshot.empty) {
+                        console.log(`User ${currentUser.uid} is a mentee in board ${boardDoc.id}`);
+                        boardList.push({
+                            id: boardDoc.id,
+                            ...boardDoc.data()
+                        });
+                    }
+                }
+
+                if (boardList.length > 0) {
+                    console.log("Boards where user is a mentee found:", boardList.length);
+                } else {
+                    console.log("No boards found where user is a mentee.");
+                }
+                setBoards(boardList);
+            } catch (error) {
+                console.error("Error fetching boards:", error);
+            }
             setLoading(false);
         };
 
@@ -28,9 +51,16 @@ const MenteeBoardsList = ({ navigation }) => {
     }, []);
 
     if (loading) {
+        console.log("Loading boards...");
         return <View style={styles.container}><Text>Loading boards...</Text></View>;
     }
 
+    if (!boards.length) {
+        console.log("No boards to display after fetch.");
+        return <View style={styles.container}><Text>No boards found.</Text></View>;
+    }
+
+    console.log("Rendering boards list.");
     return (
         <View style={styles.container}>
             <FlatList
@@ -39,7 +69,10 @@ const MenteeBoardsList = ({ navigation }) => {
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         style={styles.boardItem}
-                        onPress={() => navigation.navigate('BoardDetails', { boardId: item.id })}
+                        onPress={() => {
+                            console.log("Navigating to details for board:", item.id);
+                            navigation.navigate('BoardDetails', { boardId: item.id });
+                        }}
                     >
                         <Text style={styles.boardTitle}>{item.title}</Text>
                         <Text style={styles.boardCreator}>Created by: {item.creatorEmail}</Text>
