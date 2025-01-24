@@ -120,7 +120,6 @@ const SubmissionList = ({ submissions, navigation, userId, boardId }) => (
 );
 
 
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,

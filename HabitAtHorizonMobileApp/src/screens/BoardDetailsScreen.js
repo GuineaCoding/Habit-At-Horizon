@@ -77,32 +77,32 @@ const BoardDetailsScreen = ({ route, navigation }) => {
         try {
             setErrorMessage('');
             const user = await findUserByUsername(username);
-    
+
             if (!user) {
                 setErrorMessage("User not found.");
                 return;
             }
-    
+
             const userId = user.id;
             const memberRef = firestore().collection('boards').doc(boardId).collection('members').doc(userId);
             const memberDoc = await memberRef.get();
-    
+
             if (memberDoc.exists) {
                 Alert.alert('Error', 'User is already a member of this board.');
                 return;
             }
-    
+
             await memberRef.set({
                 userId: userId,
                 email: user.email,
                 role: 'mentee',
                 joinedAt: firestore.FieldValue.serverTimestamp(),
             });
-    
+
             await firestore().collection('users').doc(userId).update({
                 boards: firestore.FieldValue.arrayUnion(boardId)
             });
-    
+
             Alert.alert('Success', 'User has been invited successfully!');
             setModalVisible(false);
             setUsername('');
@@ -184,7 +184,9 @@ const BoardDetailsScreen = ({ route, navigation }) => {
                 data={members}
                 keyExtractor={item => item.id}
                 renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => navigation.navigate('MemberDetails', { userId: item.id })}>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('MenteeLessonsActivityScreen', { boardId, userId: item.id })}
+                    >
                         <View style={styles.memberItem}>
                             <Text>{item.email}</Text>
                             <Text style={styles.memberRole}>Role: {item.role}</Text>
