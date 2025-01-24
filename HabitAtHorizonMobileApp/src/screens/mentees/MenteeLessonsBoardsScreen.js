@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TextInput, Button, Dimensions } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-import { Dimensions } from 'react-native';
 
 const initialLayout = { width: Dimensions.get('window').width };
 
@@ -39,29 +39,113 @@ const LessonsRoute = ({ boardId }) => {
     );
 };
 
-const TestsRoute = () => (
-    <View style={[styles.scene, { backgroundColor: '#fff' }]}>
-        <Text style={styles.contentText}>Tests Content</Text>
-    </View>
-);
+const TestsRoute = ({ boardId }) => {
+    const [tests, setTests] = useState([]);
+
+    useEffect(() => {
+        const unsubscribe = firestore()
+            .collection('boards')
+            .doc(boardId)
+            .collection('tests')
+            .onSnapshot(snapshot => {
+                const fetchedTests = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setTests(fetchedTests);
+            });
+
+        return () => unsubscribe();
+    }, [boardId]);
+
+    return (
+        <FlatList
+            data={tests}
+            renderItem={({ item }) => (
+                <View style={styles.testItem}>
+                    <Text style={styles.testTitle}>{item.testName}</Text>
+                    <Text style={styles.testContent}>{item.description}</Text>
+                </View>
+            )}
+            keyExtractor={item => item.id}
+        />
+    );
+};
 
 const ResultsRoute = () => (
-    <View style={[styles.scene, { backgroundColor: '#fff' }]}>
+    <View style={styles.scene}>
         <Text style={styles.contentText}>Results Content</Text>
     </View>
 );
 
-const CommunicationRoute = () => (
-    <View style={[styles.scene, { backgroundColor: '#fff' }]}>
-        <Text style={styles.contentText}>Communication Content</Text>
-    </View>
-);
+const CommunicationRoute = ({ boardId }) => {
+    const [messages, setMessages] = useState([]);
+    const [newMessage, setNewMessage] = useState('');
+    const currentUser = auth().currentUser; 
+
+    useEffect(() => {
+        const unsubscribe = firestore()
+            .collection('boards')
+            .doc(boardId)
+            .collection('chat')
+            .orderBy('timestamp', 'asc')
+            .onSnapshot(snapshot => {
+                const fetchedMessages = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setMessages(fetchedMessages);
+            });
+
+        return () => unsubscribe();
+    }, [boardId]);
+
+    const sendMessage = async () => {
+        if (newMessage.trim() === '') return;
+
+        await firestore()
+            .collection('boards')
+            .doc(boardId)
+            .collection('chat')
+            .add({
+                text: newMessage,
+                timestamp: firestore.FieldValue.serverTimestamp(),
+                senderId: currentUser.uid  
+            });
+
+        setNewMessage('');
+    };
+
+    return (
+        <View style={styles.scene}>
+            <FlatList
+                data={messages}
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => (
+                    <View style={styles.messageItem}>
+                        <Text style={styles.messageText}>{item.text}</Text>
+                    </View>
+                )}
+            />
+            <View style={styles.inputContainer}>
+                <TextInput
+                    style={styles.input}
+                    value={newMessage}
+                    onChangeText={setNewMessage}
+                    placeholder="Type a message..."
+                    onSubmitEditing={sendMessage}
+                />
+                <Button title="Send" onPress={sendMessage} />
+            </View>
+        </View>
+    );
+};
 
 const MenteesDashboardScreen = ({ route }) => {
     const { boardId } = route.params;
     const [index, setIndex] = useState(0);
     const [routes] = useState([
-        { key: 'lessons', title: 'Lessons', boardId },
+        { key: 'lessons', title: 'Lessons' },
         { key: 'tests', title: 'Tests' },
         { key: 'results', title: 'Results' },
         { key: 'communication', title: 'Communication' },
@@ -69,9 +153,9 @@ const MenteesDashboardScreen = ({ route }) => {
 
     const renderScene = SceneMap({
         lessons: () => <LessonsRoute boardId={boardId} />,
-        tests: TestsRoute,
+        tests: () => <TestsRoute boardId={boardId} />,
         results: ResultsRoute,
-        communication: CommunicationRoute,
+        communication: () => <CommunicationRoute boardId={boardId} />,
     });
 
     return (
@@ -112,16 +196,43 @@ const styles = StyleSheet.create({
         padding: 15,
         marginVertical: 8,
         backgroundColor: '#f0f0f0',
-        borderRadius: 5
+        borderRadius: 5,
     },
-    lessonTitle: {
+    testItem: {
+        padding: 15,
+        marginVertical: 8,
+        backgroundColor: '#f0f0f0',
+        borderRadius: 5,
+    },
+    testTitle: {
         fontSize: 16,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
     },
-    lessonContent: {
+    testContent: {
         fontSize: 14,
         color: '#666',
-    }
+    },
+    messageItem: {
+        padding: 10,
+        marginVertical: 4,
+        backgroundColor: '#f0f0f0',
+        borderRadius: 5,
+    },
+    messageText: {
+        fontSize: 14,
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    input: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        padding: 10,
+        marginRight: 10,
+    },
 });
 
 export default MenteesDashboardScreen;

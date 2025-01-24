@@ -36,29 +36,50 @@ const BoardsScreen = ({ navigation }) => {
             Alert.alert('Validation Error', 'Board name cannot be empty');
             return;
         }
-
+    
+        if (!user || !user.uid) {
+            Alert.alert('User Error', 'User information is not available. Please log in again.');
+            return;
+        }
+    
+        let username = '';
+        try {
+            const userDoc = await firestore().collection('users').doc(user.uid).get();
+            if (userDoc.exists) {
+                username = userDoc.data().username;
+            } else {
+                Alert.alert('User Error', 'User profile not found.');
+                return;
+            }
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+            Alert.alert('Error', 'Failed to fetch user profile. Please try again.');
+            return;
+        }
+    
         try {
             const existingBoards = await firestore()
                 .collection('boards')
                 .where('title', '==', boardTitle)
                 .get();
-
+    
             if (!existingBoards.empty && (!editBoardId || existingBoards.docs[0].id !== editBoardId)) {
                 Alert.alert('Validation Error', 'Board name must be unique');
                 return;
             }
-
+    
             if (editBoardId) {
                 await firestore()
                     .collection('boards')
                     .doc(editBoardId)
-                    .update({ title: boardTitle });
+                    .update({ title: boardTitle, username: username });
             } else {
                 const newBoardRef = firestore().collection('boards').doc();
                 await newBoardRef.set({
                     title: boardTitle,
                     creator: user.uid,
                     creatorEmail: user.email,
+                    username: username, 
                     createdAt: new Date(),
                 });
                 await newBoardRef.collection('members').doc(user.uid).set({
@@ -66,12 +87,13 @@ const BoardsScreen = ({ navigation }) => {
                     joinedAt: new Date(),
                 });
             }
-
+    
             setModalVisible(false);
             setBoardTitle('');
             setEditBoardId(null);
         } catch (error) {
             console.error('Error saving board:', error);
+            Alert.alert('Error', 'Failed to save the board. Please try again.');
         }
     };
 

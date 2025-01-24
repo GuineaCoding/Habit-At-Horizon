@@ -95,6 +95,7 @@ const BoardDetailsScreen = ({ route, navigation }) => {
             await memberRef.set({
                 userId: userId,
                 email: user.email,
+                username :user.username,
                 role: 'mentee',
                 joinedAt: firestore.FieldValue.serverTimestamp(),
             });
