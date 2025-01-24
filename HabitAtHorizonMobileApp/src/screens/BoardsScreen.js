@@ -14,32 +14,23 @@ const BoardsScreen = ({ navigation }) => {
     useEffect(() => {
         const fetchBoards = async () => {
             try {
-                const boardsSnapshot = await firestore().collection('boards').get();
-                const userBoards = [];
-
-                for (const boardDoc of boardsSnapshot.docs) {
-                    const memberDoc = await boardDoc.ref
-                        .collection('members')
-                        .doc(user.uid)
-                        .get();
-
-                    if (memberDoc.exists) {
-                        userBoards.push({
-                            id: boardDoc.id,
-                            ...boardDoc.data(),
-                        });
-                    }
-                }
-
+                const boardsSnapshot = await firestore().collection('boards')
+                    .where('creator', '==', user.uid) 
+                    .get();
+    
+                const userBoards = boardsSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+    
                 setBoards(userBoards);
             } catch (error) {
                 console.error('Error fetching boards:', error);
             }
         };
-
+    
         fetchBoards();
     }, [user]);
-
     const handleSaveBoard = async () => {
         if (!boardTitle.trim()) {
             Alert.alert('Validation Error', 'Board name cannot be empty');
