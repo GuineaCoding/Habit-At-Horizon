@@ -103,8 +103,6 @@ const TestViewScreen = ({ route, navigation }) => {
         }
     };
     
-    
-
     if (error) {
         return <View style={styles.container}><Text>Error: {error}</Text></View>;
     }

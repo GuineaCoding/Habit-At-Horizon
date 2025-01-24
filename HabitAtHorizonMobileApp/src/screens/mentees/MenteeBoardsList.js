@@ -71,7 +71,7 @@ const MenteeBoardsList = ({ navigation }) => {
                         style={styles.boardItem}
                         onPress={() => {
                             console.log("Navigating to details for board:", item.id);
-                            navigation.navigate('BoardDetails', { boardId: item.id });
+                            navigation.navigate('MenteeLessonsBoardsScreen', { boardId: item.id });
                         }}
                     >
                         <Text style={styles.boardTitle}>{item.title}</Text>
