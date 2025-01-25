@@ -27,7 +27,7 @@ const BoardDetailsScreen = ({ route, navigation }) => {
             } else {
                 setBoardData(null);
             }
-        });
+        });     
 
         const unsubscribeMembers = firestore().collection('boards').doc(boardId).collection('members').onSnapshot(snapshot => {
             const fetchedMembers = snapshot.docs.map(doc => ({
@@ -179,25 +179,26 @@ const BoardDetailsScreen = ({ route, navigation }) => {
         ]);
     };
 
-    const MembersRoute = () => (
-        <View style={styles.tabContainer}>
-            <FlatList
-                data={members}
-                keyExtractor={item => item.id}
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-                        onPress={() => navigation.navigate('MenteeLessonsActivityScreen', { boardId, userId: item.id })}
-                    >
-                        <View style={styles.memberItem}>
-                            <Text>{item.email}</Text>
-                            <Text style={styles.memberRole}>Role: {item.role}</Text>
-                        </View>
-                    </TouchableOpacity>
-                )}
-                ListFooterComponent={<Button title="Invite Member" onPress={() => setModalVisible(true)} />}
-            />
-        </View>
-    );
+const MembersRoute = () => (
+    <View style={styles.tabContainer}>
+        <FlatList
+            data={members}
+            keyExtractor={item => item.id}
+            renderItem={({ item }) => (
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('MenteeLessonsActivityScreen', { boardId, userId: item.id })}
+                >
+                    <View style={styles.memberItem}>
+                        <Text>{item.email}</Text>
+                        <Text style={styles.memberRole}>Username: {item.username || 'Not defined'}</Text>
+                    </View>
+                </TouchableOpacity>
+            )}
+            ListFooterComponent={<Button title="Invite Member" onPress={() => setModalVisible(true)} />}
+        />
+    </View>
+);
+    
 
     const renderScene = SceneMap({
         lessons: LessonsRoute,
@@ -252,7 +253,10 @@ const BoardDetailsScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-
+    memberRole: {
+        fontSize: 14,
+        color: '#0044cc', // Dark blue color for the username text
+    },
     testItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',

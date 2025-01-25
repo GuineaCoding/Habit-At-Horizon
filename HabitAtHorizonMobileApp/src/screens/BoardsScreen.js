@@ -84,6 +84,8 @@ const BoardsScreen = ({ navigation }) => {
                 });
                 await newBoardRef.collection('members').doc(user.uid).set({
                     role: 'Admin',
+                    creatorEmail: user.email,
+                    username: username, 
                     joinedAt: new Date(),
                 });
             }
@@ -133,7 +135,7 @@ const BoardsScreen = ({ navigation }) => {
                 onPress={() => navigation.navigate('BoardDetailsScreen', { boardId: item.id })}
             >
                 <Text style={styles.boardTitle}>{item.title}</Text>
-                <Text style={styles.boardCreator}>Created by: {item.creatorEmail}</Text>
+                <Text style={styles.boardCreator}>Created by Mentor: {item.username}</Text>
             </TouchableOpacity>
             <View style={styles.boardActions}>
                 <TouchableOpacity onPress={() => openEditModal(item)}>
