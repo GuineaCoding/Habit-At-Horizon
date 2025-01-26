@@ -12,7 +12,7 @@ import MentorshipScreen from '../screens/MentorshipScreen';
 import BoardsScreen from '../screens/BoardsScreen';
 import BoardDetailsScreen from '../screens/BoardDetailsScreen';
 import LessontBuilderScreen from '../screens/LessonBuilderScreen';
-import LessonScreen from '../screens/LessonScreen';
+import LessonScreen from '../screens/shared-environment-screens/LessonScreen';
 import TestCreateScreen from '../screens/TestCreateScreen';
 import TestViewScreen from '../screens/TestViewScreen';
 import MenteeLessonsActivityScreen from "../screens/MenteeLessonsActivityScreen"
