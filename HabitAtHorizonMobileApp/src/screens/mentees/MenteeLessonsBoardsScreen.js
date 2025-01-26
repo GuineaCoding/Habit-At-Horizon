@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TextInput, Button, Dimensions } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Dimensions, TextInput, Button } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
-import auth from '@react-native-firebase/auth';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-
+import auth from '@react-native-firebase/auth';
 const initialLayout = { width: Dimensions.get('window').width };
 
-const LessonsRoute = ({ boardId }) => {
+const LessonsRoute = ({ boardId, navigation }) => {
     const [lessons, setLessons] = useState([]);
 
     useEffect(() => {
@@ -29,10 +28,13 @@ const LessonsRoute = ({ boardId }) => {
         <FlatList
             data={lessons}
             renderItem={({ item }) => (
-                <View style={styles.lessonItem}>
+                <TouchableOpacity
+                    style={styles.lessonItem}
+                    onPress={() => navigation.navigate('LessonScreen', { boardId, lessonId: item.id })}
+                >
                     <Text style={styles.lessonTitle}>{item.title}</Text>
                     <Text style={styles.lessonContent}>{item.description}</Text>
-                </View>
+                </TouchableOpacity>
             )}
             keyExtractor={item => item.id}
         />
@@ -141,7 +143,7 @@ const CommunicationRoute = ({ boardId }) => {
     );
 };
 
-const MenteesDashboardScreen = ({ route }) => {
+const MenteesDashboardScreen = ({ route, navigation }) => {
     const { boardId } = route.params;
     const [index, setIndex] = useState(0);
     const [routes] = useState([
@@ -152,7 +154,7 @@ const MenteesDashboardScreen = ({ route }) => {
     ]);
 
     const renderScene = SceneMap({
-        lessons: () => <LessonsRoute boardId={boardId} />,
+        lessons: () => <LessonsRoute boardId={boardId} navigation={navigation} />,
         tests: () => <TestsRoute boardId={boardId} />,
         results: ResultsRoute,
         communication: () => <CommunicationRoute boardId={boardId} />,
