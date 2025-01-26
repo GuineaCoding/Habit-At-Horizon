@@ -3,7 +3,7 @@ import { View, Text, ScrollView, StyleSheet, TextInput, Button, Alert } from 're
 import { CheckBox } from 'react-native-elements';
 import { WebView } from 'react-native-webview';
 import firestore from '@react-native-firebase/firestore';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 const TestViewScreen = ({ route, navigation }) => {
     const { testId, boardId } = route.params;
