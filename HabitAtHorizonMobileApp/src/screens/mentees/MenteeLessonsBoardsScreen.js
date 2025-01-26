@@ -41,7 +41,7 @@ const LessonsRoute = ({ boardId, navigation }) => {
     );
 };
 
-const TestsRoute = ({ boardId }) => {
+const TestsRoute = ({ boardId, navigation }) => {
     const [tests, setTests] = useState([]);
 
     useEffect(() => {
@@ -64,10 +64,13 @@ const TestsRoute = ({ boardId }) => {
         <FlatList
             data={tests}
             renderItem={({ item }) => (
-                <View style={styles.testItem}>
+                <TouchableOpacity
+                    style={styles.testItem}
+                    onPress={() => navigation.navigate('TestViewScreen', { boardId, testId: item.id })}
+                >
                     <Text style={styles.testTitle}>{item.testName}</Text>
                     <Text style={styles.testContent}>{item.description}</Text>
-                </View>
+                </TouchableOpacity>
             )}
             keyExtractor={item => item.id}
         />
@@ -155,7 +158,7 @@ const MenteesDashboardScreen = ({ route, navigation }) => {
 
     const renderScene = SceneMap({
         lessons: () => <LessonsRoute boardId={boardId} navigation={navigation} />,
-        tests: () => <TestsRoute boardId={boardId} />,
+        tests: () => <TestsRoute boardId={boardId} navigation={navigation} />,
         results: ResultsRoute,
         communication: () => <CommunicationRoute boardId={boardId} />,
     });
