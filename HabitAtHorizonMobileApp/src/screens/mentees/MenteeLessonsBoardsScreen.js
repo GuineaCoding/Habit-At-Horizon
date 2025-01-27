@@ -108,7 +108,7 @@
         return (
             <View style={styles.scene}>
                 {submissions.map((submission) => (
-                    <TouchableOpacity key={submission.id} style={styles.testItem} onPress={() => navigation.navigate('TestFeedbackScreen', { submission })}>
+                    <TouchableOpacity key={submission.id} style={styles.testItem} onPress={() => navigation.navigate('MenteeTestResultScreen', { submission })}>
                         <Text style={styles.testName}>{submission.testName}</Text>
                     </TouchableOpacity>
                 ))}
@@ -122,6 +122,7 @@
         const [messages, setMessages] = useState([]);
         const [newMessage, setNewMessage] = useState('');
         const currentUser = auth().currentUser; 
+        console.log(currentUser)
 
         useEffect(() => {
             const unsubscribe = firestore()

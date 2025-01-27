@@ -21,7 +21,7 @@ import MenteesDashboardScreen from "../screens/mentees/MenteesDashboardScreen"
 import MenteeLessonsBoardsScreen from "../screens/mentees/MenteeLessonsBoardsScreen"
 import MenteeBoardsList from "../screens/mentees/MenteeBoardsList"
 import MenteeCheckedTestScreen from "../screens/mentees/MenteeCheckedTestScreen"
-
+import MenteeTestResultScreen from "../screens/mentees/MenteeTestResultScreen"
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -80,6 +80,8 @@ const AppNavigator = () => {
         <Stack.Screen name="MenteeLessonsBoardsScreen" component={MenteeLessonsBoardsScreen} options={{ title: 'Mentee Lesson' }} />
         <Stack.Screen name="MenteeBoardsList" component={MenteeBoardsList} options={{ title: 'Mentee Board List' }} />
         <Stack.Screen name="MenteeCheckedTestScreen" component={MenteeCheckedTestScreen} options={{ title: 'Checed Tests' }} />
+        <Stack.Screen name="MenteeTestResultScreen" component={MenteeTestResultScreen} options={{ title: 'Test Result' }} />
+     
       </Stack.Navigator>
 
     </NavigationContainer>
