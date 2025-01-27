@@ -4,6 +4,7 @@
     import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
     import auth from '@react-native-firebase/auth';
     const initialLayout = { width: Dimensions.get('window').width };
+    import { useNavigation } from '@react-navigation/native';
 
     const LessonsRoute = ({ boardId, navigation }) => {
         const [lessons, setLessons] = useState([]);
@@ -79,79 +80,42 @@
 
     const ResultsRoute = ({ boardId, userId }) => {
         const [loading, setLoading] = useState(true);
-        const [memberData, setMemberData] = useState(null);
-        const [checkedSubmissions, setCheckedSubmissions] = useState([]);
+        const [submissions, setSubmissions] = useState([]);
+        const navigation = useNavigation();
     
         useEffect(() => {
-            const fetchMemberData = async () => {
-                console.log("Accessing results for boardId:", boardId);
-                console.log("Accessing results for userId:", userId);
+            const fetchSubmissions = async () => {
+                const memberRef = firestore()
+                    .collection('boards')
+                    .doc(boardId)
+                    .collection('members')
+                    .doc(userId)
+                    .collection('submissions');
     
-                try {
-                    const memberRef = firestore()
-                        .collection('boards')
-                        .doc(boardId)
-                        .collection('members')
-                        .doc(userId);
-    
-                    const memberDoc = await memberRef.get();
-    
-                    if (memberDoc.exists) {
-                        console.log("Fetched member data:", memberDoc.data());
-                        setMemberData(memberDoc.data());
-    
-                        const submissionsSnapshot = await memberRef.collection('submissions').get();
-                        const filteredSubmissions = [];
-                        submissionsSnapshot.forEach(doc => {
-                            const data = doc.data();
-                            console.log(`Submission ${doc.id}:`, data);
-                            if (data.isTestCheckedByMentor) {
-                                filteredSubmissions.push(data.testName);
-                            }
-                        });
-                        setCheckedSubmissions(filteredSubmissions);
-                    } else {
-                        console.log("No member data found.");
-                        setMemberData(null);
-                        setCheckedSubmissions([]);
-                    }
-                } catch (error) {
-                    console.error("Error fetching member data:", error);
-                    setCheckedSubmissions([]);
-                }
+                const snapshot = await memberRef.where('isTestCheckedByMentor', '==', true).get();
+                const submissionsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                setSubmissions(submissionsData);
                 setLoading(false);
             };
     
-            fetchMemberData();
+            fetchSubmissions();
         }, [boardId, userId]);
     
         if (loading) {
-            return <View style={styles.loader}><ActivityIndicator size="large" color="#0000ff" /></View>;
-        }
-    
-        if (!memberData) {
-            return <View style={styles.container}><Text>No member data available.</Text></View>;
+            return <View style={styles.loader}><ActivityIndicator size="large" /></View>;
         }
     
         return (
             <View style={styles.scene}>
-                <Text style={styles.contentText}>Results Content</Text>
-                <Text style={styles.contentText}>Board ID: {boardId}</Text>
-                <Text style={styles.contentText}>User ID: {userId}</Text>
-                <Text style={styles.contentText}>Member Data: {JSON.stringify(memberData)}</Text>
-                {checkedSubmissions.length > 0 ? (
-                    <View>
-                        <Text style={styles.contentText}>Approved Test Names:</Text>
-                        {checkedSubmissions.map((name, index) => (
-                            <Text key={index} style={styles.contentText}>{name}</Text>
-                        ))}
-                    </View>
-                ) : (
-                    <Text style={styles.contentText}>No approved tests found.</Text>
-                )}
+                {submissions.map((submission) => (
+                    <TouchableOpacity key={submission.id} style={styles.testItem} onPress={() => navigation.navigate('TestFeedbackScreen', { submission })}>
+                        <Text style={styles.testName}>{submission.testName}</Text>
+                    </TouchableOpacity>
+                ))}
             </View>
         );
     };
+    
     
 
     const CommunicationRoute = ({ boardId }) => {
