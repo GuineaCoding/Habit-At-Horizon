@@ -118,53 +118,84 @@
     
     
 
+
     const CommunicationRoute = ({ boardId }) => {
         const [messages, setMessages] = useState([]);
         const [newMessage, setNewMessage] = useState('');
-        const currentUser = auth().currentUser; 
-        console.log(currentUser)
-
+        const currentUser = auth().currentUser;
+    
         useEffect(() => {
+            if (!currentUser) return;
+    
             const unsubscribe = firestore()
                 .collection('boards')
                 .doc(boardId)
                 .collection('chat')
+                .doc(currentUser.uid) 
+                .collection('messages')
                 .orderBy('timestamp', 'asc')
-                .onSnapshot(snapshot => {
-                    const fetchedMessages = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
+                .onSnapshot(async (snapshot) => {
+                    const fetchedMessages = await Promise.all(
+                        snapshot.docs.map(async (doc) => {
+                            const messageData = doc.data();
+                     
+                            const userDoc = await firestore()
+                                .collection('users')
+                                .doc(messageData.senderId)
+                                .get();
+                            const username = userDoc.data()?.username || 'Unknown User';
+                            return {
+                                id: doc.id,
+                                ...messageData,
+                                username, 
+                            };
+                        })
+                    );
                     setMessages(fetchedMessages);
                 });
-
+    
             return () => unsubscribe();
-        }, [boardId]);
-
+        }, [boardId, currentUser]);
+    
         const sendMessage = async () => {
-            if (newMessage.trim() === '') return;
+            if (!currentUser || newMessage.trim() === '') return;
+    
 
+            const userDoc = await firestore()
+                .collection('users')
+                .doc(currentUser.uid)
+                .get();
+            const username = userDoc.data()?.username || 'Unknown User';
+    
+            const messageData = {
+                text: newMessage,
+                timestamp: firestore.FieldValue.serverTimestamp(),
+                senderId: currentUser.uid,
+                username, 
+                participants: [currentUser.uid, 'recipientUserId'], 
+            };
+    
             await firestore()
                 .collection('boards')
                 .doc(boardId)
                 .collection('chat')
-                .add({
-                    text: newMessage,
-                    timestamp: firestore.FieldValue.serverTimestamp(),
-                    senderId: currentUser.uid  
-                });
-
+                .doc(currentUser.uid)
+                .collection('messages')
+                .add(messageData);
+    
             setNewMessage('');
         };
-
+    
         return (
             <View style={styles.scene}>
                 <FlatList
                     data={messages}
-                    keyExtractor={item => item.id}
+                    keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
                         <View style={styles.messageItem}>
-                            <Text style={styles.messageText}>{item.text}</Text>
+                            <Text style={styles.messageText}>
+                                {item.username}: {item.text}
+                            </Text>
                         </View>
                     )}
                 />
@@ -180,7 +211,8 @@
                 </View>
             </View>
         );
-    };
+    };    
+    
 
     const MenteeLessonBoardsScreen = ({ route, navigation }) => {
         const { boardId } = route.params;
