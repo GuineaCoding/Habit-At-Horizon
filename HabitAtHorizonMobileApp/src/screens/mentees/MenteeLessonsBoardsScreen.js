@@ -77,11 +77,21 @@
         );
     };
 
-    const ResultsRoute = () => (
-        <View style={styles.scene}>
-            <Text style={styles.contentText}>Results Content</Text>
-        </View>
-    );
+    const ResultsRoute = ({ boardId, userId }) => {
+        useEffect(() => {
+            console.log("Accessing results for boardId:", boardId);
+            console.log("Accessing results for userId:", userId);
+        }, [boardId, userId]); 
+    
+        return (
+            <View style={styles.scene}>
+                <Text style={styles.contentText}>Results Content</Text>
+                <Text style={styles.contentText}>Board ID: {boardId}</Text>
+                <Text style={styles.contentText}>User ID: {userId}</Text>
+            </View>
+        );
+    };
+    
 
     const CommunicationRoute = ({ boardId }) => {
         const [messages, setMessages] = useState([]);
@@ -146,8 +156,13 @@
         );
     };
 
-    const MenteesDashboardScreen = ({ route, navigation }) => {
+    const MenteeLessonBoardsScreen = ({ route, navigation }) => {
         const { boardId } = route.params;
+        const currentUser = auth().currentUser;
+        const userId = currentUser ? currentUser.uid : null;
+    
+        console.log("Current User ID:", userId); 
+    
         const [index, setIndex] = useState(0);
         const [routes] = useState([
             { key: 'lessons', title: 'Lessons' },
@@ -155,14 +170,15 @@
             { key: 'results', title: 'Results' },
             { key: 'communication', title: 'Communication' },
         ]);
-
+    
+      
         const renderScene = SceneMap({
             lessons: () => <LessonsRoute boardId={boardId} navigation={navigation} />,
             tests: () => <TestsRoute boardId={boardId} navigation={navigation} />,
-            results: ResultsRoute,
+            results: () => <ResultsRoute boardId={boardId} userId={userId} />,
             communication: () => <CommunicationRoute boardId={boardId} />,
         });
-
+    
         return (
             <TabView
                 navigationState={{ index, routes }}
@@ -240,4 +256,4 @@
         },
     });
 
-    export default MenteesDashboardScreen;
+    export default MenteeLessonBoardsScreen;

@@ -26,10 +26,11 @@ const MenteeBoardsList = ({ navigation }) => {
                         .get();
 
                     console.log(`Checked members for board ${boardDoc.id}, found count:`, membersSnapshot.size);
-                    if (!membersSnapshot.empty) {
-                        console.log(`User ${currentUser.uid} is a mentee in board ${boardDoc.id}`);
+                    for (const memberDoc of membersSnapshot.docs) {
+                        console.log(`User ${currentUser.uid} is a mentee in board ${boardDoc.id} with memberId ${memberDoc.id}`);
                         boardList.push({
                             id: boardDoc.id,
+                            memberId: memberDoc.id,
                             ...boardDoc.data()
                         });
                     }
@@ -70,8 +71,8 @@ const MenteeBoardsList = ({ navigation }) => {
                     <TouchableOpacity
                         style={styles.boardItem}
                         onPress={() => {
-                            console.log("Navigating to details for board:", item.id);
-                            navigation.navigate('MenteeLessonsBoardsScreen', { boardId: item.id });
+                            console.log("Navigating to details for board:", item.id, "with memberId:", item.memberId);
+                            navigation.navigate('MenteeLessonsBoardsScreen', { boardId: item.id, memberId: item.memberId });
                         }}
                     >
                         <Text style={styles.boardTitle}>{item.title}</Text>
