@@ -23,6 +23,7 @@ import MenteeBoardsList from "../screens/mentees/MenteeBoardsList"
 import MenteeCheckedTestScreen from "../screens/mentees/MenteeCheckedTestScreen"
 import MenteeTestResultScreen from "../screens/mentees/MenteeTestResultScreen"
 import PersonalSpaceScreen from "../screens/self-growth-screens/PersonalSpaceScreen"
+import TaskListScreen from "../screens/self-growth-screens/TaskListScreen"
 
 const Stack = createNativeStackNavigator();
 
@@ -84,8 +85,9 @@ const AppNavigator = () => {
         <Stack.Screen name="MenteeCheckedTestScreen" component={MenteeCheckedTestScreen} options={{ title: 'Checed Tests' }} />
         <Stack.Screen name="MenteeTestResultScreen" component={MenteeTestResultScreen} options={{ title: 'Test Result' }} />
         <Stack.Screen name="PersonalSpaceScreen" component={PersonalSpaceScreen} options={{ title: 'Personal Space Screen' }} />
+        <Stack.Screen name="TaskListScreen" component={TaskListScreen} options={{ title: 'Tasl List Screen' }} />
  
-
+        
         
       </Stack.Navigator>
 

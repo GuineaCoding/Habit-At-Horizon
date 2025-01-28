@@ -6,7 +6,7 @@ const PersonalSpaceScreen = () => {
   const navigation = useNavigation();
 
   const goToTaskManagement = () => {
-    navigation.navigate('TaskManagement');
+    navigation.navigate('TaskListScreen');
   };
 
   const goToNoteManagement = () => {
