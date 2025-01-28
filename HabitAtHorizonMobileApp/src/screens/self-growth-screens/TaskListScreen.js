@@ -36,7 +36,7 @@ const TaskList = ({ navigation }) => {
   }, [userId]); 
 
   const handleTaskPress = (task) => {
-    navigation.navigate('TaskDetails', { task });
+    navigation.navigate('TaskDetailsScreen', { task, userId });
   };
 
   const renderTaskItem = ({ item }) => (

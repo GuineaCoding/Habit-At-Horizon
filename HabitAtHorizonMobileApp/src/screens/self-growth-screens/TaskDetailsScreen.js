@@ -15,7 +15,8 @@ const TaskDetails = ({ navigation, route }) => {
   const [recurrence, setRecurrence] = useState(task.recurrence);
   const [status, setStatus] = useState(task.status);
   const [showDatePicker, setShowDatePicker] = useState(false);
-
+  console.log('Route Params:', route.params);
+  
   const handleUpdateTask = async () => {
     try {
       await firestore()
@@ -44,20 +45,36 @@ const TaskDetails = ({ navigation, route }) => {
 
   const handleMarkComplete = async () => {
     try {
-      await firestore()
+      console.log('User ID:', userId);
+      console.log('Task ID:', task.id);
+  
+      if (!userId || !task.id) {
+        throw new Error('User ID or Task ID is missing');
+      }
+  
+      const taskRef = firestore()
         .collection('users')
         .doc(userId)
         .collection('tasks')
-        .doc(task.id)
-        .update({
-          status: 'Completed',
-          updatedAt: firestore.Timestamp.fromDate(new Date()),
-        });
+        .doc(task.id);
+  
+      const doc = await taskRef.get();
+      if (!doc.exists) {
+        alert('Task not found. It may have been deleted.');
+        navigation.goBack();
+        return;
+      }
+  
+      await taskRef.update({
+        status: 'Completed',
+        updatedAt: firestore.Timestamp.fromDate(new Date()),
+      });
+  
       alert('Task marked as complete!');
       navigation.goBack();
     } catch (error) {
       console.error('Error marking task as complete: ', error);
-      alert('Failed to mark task as complete.');
+      alert(`Failed to mark task as complete: ${error.message}`);
     }
   };
 
