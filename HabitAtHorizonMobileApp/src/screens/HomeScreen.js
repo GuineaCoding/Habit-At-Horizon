@@ -25,7 +25,7 @@ const HomeScreen = () => {
 
   
     const goToMyPersonalSpace = () => {
-        navigation.navigate('MyPersonalSpace'); 
+        navigation.navigate('PersonalSpaceScreen'); 
     };
 
     const goToMentoring = () => {
