@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView, Picker } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import firestore from '@react-native-firebase/firestore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-const CreateTask = ({ navigation }) => {
+const CreateTask = ({ navigation, route }) => {
+  const { userId } = route.params; 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState(new Date());
@@ -15,7 +17,7 @@ const CreateTask = ({ navigation }) => {
 
   const handleAddTask = async () => {
     try {
-      await firestore().collection('tasks').add({
+      await firestore().collection('users').doc(userId).collection('tasks').add({
         title,
         description,
         dueDate: firestore.Timestamp.fromDate(dueDate),

@@ -1,12 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 
 const TaskList = ({ navigation }) => {
   const [tasks, setTasks] = useState([]);
+  const [userId, setUserId] = useState(null);
 
+ 
   useEffect(() => {
+    const user = auth().currentUser;
+    if (user) {
+      setUserId(user.uid);
+    }
+  }, []);
+
+ 
+  useEffect(() => {
+    if (!userId) return; 
+
     const unsubscribe = firestore()
+      .collection('users')
+      .doc(userId)
       .collection('tasks')
       .orderBy('dueDate', 'asc')
       .onSnapshot((snapshot) => {
@@ -18,7 +33,7 @@ const TaskList = ({ navigation }) => {
       });
 
     return () => unsubscribe();
-  }, []);
+  }, [userId]); 
 
   const handleTaskPress = (task) => {
     navigation.navigate('TaskDetails', { task });
@@ -41,7 +56,7 @@ const TaskList = ({ navigation }) => {
       />
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => navigation.navigate('CreateTask')}>
+        onPress={() => navigation.navigate('CreateTaskScreen', { userId })}>
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
     </View>
