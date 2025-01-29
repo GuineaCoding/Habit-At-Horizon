@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import firestore from '@react-native-firebase/firestore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const CreateTask = ({ navigation, route }) => {
-  const { userId } = route.params; 
+  const { userId } = route.params;
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState(new Date());
   const [priority, setPriority] = useState('Medium');
   const [category, setCategory] = useState('Work');
-  const [subtasks, setSubtasks] = useState([]);
+  const [subtasks, setSubtasks] = useState([]);  
+  const [newSubtask, setNewSubtask] = useState('');  
   const [recurrence, setRecurrence] = useState('None');
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -28,7 +29,7 @@ const CreateTask = ({ navigation, route }) => {
         status: 'In Progress',
         createdAt: firestore.Timestamp.fromDate(new Date()),
         updatedAt: firestore.Timestamp.fromDate(new Date()),
-        archived: false
+        archived: false,
       });
       alert('Task added successfully!');
       navigation.goBack();
@@ -45,8 +46,40 @@ const CreateTask = ({ navigation, route }) => {
     }
   };
 
-  return (
-    <ScrollView style={styles.container}>
+  const handleAddSubtask = () => {
+    if (newSubtask.trim()) {
+      setSubtasks([...subtasks, { id: Date.now().toString(), text: newSubtask, completed: false }]);
+      setNewSubtask('');  
+    }
+  };
+
+  const handleDeleteSubtask = (id) => {
+    setSubtasks(subtasks.filter((subtask) => subtask.id !== id));
+  };
+
+  const handleToggleSubtask = (id) => {
+    setSubtasks(
+      subtasks.map((subtask) =>
+        subtask.id === id ? { ...subtask, completed: !subtask.completed } : subtask
+      )
+    );
+  };
+
+  const renderSubtaskItem = ({ item }) => (
+    <View style={styles.subtaskItem}>
+      <TouchableOpacity onPress={() => handleToggleSubtask(item.id)}>
+        <Text style={[styles.subtaskText, item.completed && styles.completedSubtask]}>
+          {item.text}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => handleDeleteSubtask(item.id)}>
+        <Text style={styles.deleteSubtask}>Delete</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderHeader = () => (
+    <View>
       <Text style={styles.label}>Title</Text>
       <TextInput
         style={styles.input}
@@ -105,14 +138,35 @@ const CreateTask = ({ navigation, route }) => {
         <Picker.Item label="Monthly" value="Monthly" />
       </Picker>
 
-      <Button title="Add Task" onPress={handleAddTask} />
-    </ScrollView>
+      <Text style={styles.label}>Subtasks</Text>
+      <TextInput
+        style={styles.input}
+        value={newSubtask}
+        onChangeText={setNewSubtask}
+        placeholder="Enter a subtask"
+      />
+      <Button title="Add Subtask" onPress={handleAddSubtask} />
+    </View>
+  );
+
+  const renderFooter = () => (
+    <Button title="Add Task" onPress={handleAddTask} />
+  );
+
+  return (
+    <FlatList
+      data={subtasks}
+      renderItem={renderSubtaskItem}
+      keyExtractor={(item) => item.id}
+      ListHeaderComponent={renderHeader}
+      ListFooterComponent={renderFooter}
+      contentContainerStyle={styles.container}
+    />
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     padding: 20,
   },
   label: {
@@ -125,6 +179,25 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
+  },
+  subtaskItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  subtaskText: {
+    fontSize: 16,
+  },
+  completedSubtask: {
+    textDecorationLine: 'line-through',
+    color: '#888',
+  },
+  deleteSubtask: {
+    color: 'red',
+    fontSize: 14,
   },
 });
 
