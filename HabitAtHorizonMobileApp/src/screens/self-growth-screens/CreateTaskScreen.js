@@ -28,6 +28,7 @@ const CreateTask = ({ navigation, route }) => {
         status: 'In Progress',
         createdAt: firestore.Timestamp.fromDate(new Date()),
         updatedAt: firestore.Timestamp.fromDate(new Date()),
+        archived: false
       });
       alert('Task added successfully!');
       navigation.goBack();
