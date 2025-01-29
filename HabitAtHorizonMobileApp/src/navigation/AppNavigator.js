@@ -27,7 +27,7 @@ import TaskListScreen from "../screens/self-growth-screens/TaskListScreen"
 import CreateTaskScreen from "../screens/self-growth-screens/CreateTaskScreen"
 import TaskDetailsScreen from "../screens/self-growth-screens/TaskDetailsScreen"
 import NoteListScreen from "../screens/self-growth-screens/NoteListScreen"
-
+import CreateNoteScreen from "../screens/self-growth-screens/CreateNoteScreen"
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -92,6 +92,7 @@ const AppNavigator = () => {
         <Stack.Screen name="CreateTaskScreen" component={CreateTaskScreen} options={{ title: 'Create Task Screen' }} />
         <Stack.Screen name="TaskDetailsScreen" component={TaskDetailsScreen} options={{ title: 'Task Details Screen' }} />
         <Stack.Screen name="NoteListScreen" component={NoteListScreen} options={{ title: 'Note List Screen' }} />
+        <Stack.Screen name="CreateNoteScreen" component={CreateNoteScreen} options={{ title: 'Create Note Screen' }} />
        
       </Stack.Navigator>
 
