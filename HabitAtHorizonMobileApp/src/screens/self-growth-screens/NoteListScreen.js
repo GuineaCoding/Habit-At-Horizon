@@ -13,7 +13,7 @@ const NoteListScreen = ({ navigation }) => {
   ]);
   const [notes, setNotes] = useState([]); 
   const [archivedNotes, setArchivedNotes] = useState([]);  
-  const [tags, setTags] = useState([]); / 
+  const [tags, setTags] = useState([]); 
   const [filteredNotes, setFilteredNotes] = useState([]);  
   const [selectedTag, setSelectedTag] = useState(null);  
   const [userId, setUserId] = useState(null);
