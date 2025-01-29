@@ -30,7 +30,7 @@ import NoteListScreen from "../screens/self-growth-screens/NoteListScreen"
 import CreateNoteScreen from "../screens/self-growth-screens/CreateNoteScreen"
 import NoteViewScreen from "../screens/self-growth-screens/NoteViewScreen"
 import EditNoteScreen from "../screens/self-growth-screens/EditNoteScreen"
-
+import ViewTaskScreen from "../screens/self-growth-screens/ViewTaskScreen"
 
 const Stack = createNativeStackNavigator();
 
@@ -99,6 +99,7 @@ const AppNavigator = () => {
         <Stack.Screen name="CreateNoteScreen" component={CreateNoteScreen} options={{ title: 'Create Note Screen' }} />
         <Stack.Screen name="NoteViewScreen" component={NoteViewScreen} options={{ title: 'Note View Screen' }} />
         <Stack.Screen name="EditNoteScreen" component={EditNoteScreen} options={{ title: 'Note Edit Screen' }} />
+        <Stack.Screen name="ViewTaskScreen" component={ViewTaskScreen} options={{ title: 'View Task Screen' }} />
     
         
         
