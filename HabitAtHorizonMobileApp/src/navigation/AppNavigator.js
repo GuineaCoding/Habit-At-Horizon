@@ -26,6 +26,7 @@ import PersonalSpaceScreen from "../screens/self-growth-screens/PersonalSpaceScr
 import TaskListScreen from "../screens/self-growth-screens/TaskListScreen"
 import CreateTaskScreen from "../screens/self-growth-screens/CreateTaskScreen"
 import TaskDetailsScreen from "../screens/self-growth-screens/TaskDetailsScreen"
+import NoteListScreen from "../screens/self-growth-screens/NoteListScreen"
 
 const Stack = createNativeStackNavigator();
 
@@ -90,7 +91,8 @@ const AppNavigator = () => {
         <Stack.Screen name="TaskListScreen" component={TaskListScreen} options={{ title: 'Tasl List Screen' }} />
         <Stack.Screen name="CreateTaskScreen" component={CreateTaskScreen} options={{ title: 'Create Task Screen' }} />
         <Stack.Screen name="TaskDetailsScreen" component={TaskDetailsScreen} options={{ title: 'Task Details Screen' }} />
-        
+        <Stack.Screen name="NoteListScreen" component={NoteListScreen} options={{ title: 'Note List Screen' }} />
+       
       </Stack.Navigator>
 
     </NavigationContainer>

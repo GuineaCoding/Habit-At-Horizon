@@ -1,16 +1,22 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import auth from '@react-native-firebase/auth';
 
 const PersonalSpaceScreen = () => {
   const navigation = useNavigation();
+  const user = auth().currentUser; 
 
   const goToTaskManagement = () => {
     navigation.navigate('TaskListScreen');
   };
 
-  const goToNoteManagement = () => {
-    navigation.navigate('NoteManagement');
+  const goToNoteList = () => {
+    if (user) {
+      navigation.navigate('NoteListScreen', { userId: user.uid });
+    } else {
+      alert('User not logged in.');
+    }
   };
 
   const goToGoalTracking = () => {
@@ -27,7 +33,7 @@ const PersonalSpaceScreen = () => {
       <TouchableOpacity style={styles.button} onPress={goToTaskManagement}>
         <Text style={styles.buttonText}>Task Management</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={goToNoteManagement}>
+      <TouchableOpacity style={styles.button} onPress={goToNoteList}>
         <Text style={styles.buttonText}>Note Management</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={goToGoalTracking}>
