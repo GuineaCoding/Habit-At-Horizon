@@ -5,13 +5,13 @@ import auth from '@react-native-firebase/auth';
 
 const PersonalSpaceScreen = () => {
   const navigation = useNavigation();
-  const user = auth().currentUser; 
 
   const goToTaskManagement = () => {
     navigation.navigate('TaskListScreen');
   };
 
   const goToNoteList = () => {
+    const user = auth().currentUser;  
     if (user) {
       navigation.navigate('NoteListScreen', { userId: user.uid });
     } else {

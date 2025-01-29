@@ -8,7 +8,6 @@ const NoteListScreen = ({ navigation, route }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [userId, setUserId] = useState(null);
 
-
   useEffect(() => {
     if (route.params?.userId) {
       setUserId(route.params.userId);
@@ -18,13 +17,13 @@ const NoteListScreen = ({ navigation, route }) => {
         setUserId(user.uid);
       } else {
         Alert.alert('Error', 'User not logged in.');
-        navigation.goBack(); 
+        navigation.goBack();
       }
     }
   }, [route.params]);
 
   useEffect(() => {
-    if (!userId) return; 
+    if (!userId) return;
 
     const unsubscribe = firestore()
       .collection('users')
@@ -43,13 +42,12 @@ const NoteListScreen = ({ navigation, route }) => {
   }, [userId]);
 
   const handleNotePress = (note) => {
-    navigation.navigate('NoteDetailsScreen', { note, userId });
+    navigation.navigate('NoteViewScreen', { noteId: note.id, userId }); // This navigates to the NoteViewScreen
   };
 
   const filteredNotes = notes.filter(
-    (note) =>
-      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      note.content.toLowerCase().includes(searchQuery.toLowerCase()),
+    note => note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            note.content.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const renderNoteItem = ({ item }) => (
