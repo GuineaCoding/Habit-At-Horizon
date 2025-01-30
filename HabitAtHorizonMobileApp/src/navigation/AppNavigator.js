@@ -28,10 +28,10 @@ import TaskListScreen from "../screens/self-growth-screens/tasks-feature/TaskLis
 import CreateTaskScreen from "../screens/self-growth-screens/tasks-feature/CreateTaskScreen"
 import TaskDetailsScreen from "../screens/self-growth-screens/tasks-feature/TaskDetailsScreen"
 //note
-import NoteListScreen from "../screens/self-growth-screens/NoteListScreen"
-import CreateNoteScreen from "../screens/self-growth-screens/CreateNoteScreen"
-import NoteViewScreen from "../screens/self-growth-screens/NoteViewScreen"
-import EditNoteScreen from "../screens/self-growth-screens/EditNoteScreen"
+import NoteListScreen from "../screens/self-growth-screens/notes-feature/NoteListScreen"
+import CreateNoteScreen from "../screens/self-growth-screens/notes-feature/CreateNoteScreen"
+import NoteViewScreen from "../screens/self-growth-screens/notes-feature/NoteViewScreen"
+import EditNoteScreen from "../screens/self-growth-screens/notes-feature/EditNoteScreen"
 import ViewTaskScreen from "../screens/self-growth-screens/tasks-feature/ViewTaskScreen"
 //goals
 import MainGoalScreen from "../screens/self-growth-screens/goals-feature/MainGoalScreen"
