@@ -35,6 +35,7 @@ import EditNoteScreen from "../screens/self-growth-screens/notes-feature/EditNot
 import ViewTaskScreen from "../screens/self-growth-screens/tasks-feature/ViewTaskScreen"
 //goals
 import MainGoalScreen from "../screens/self-growth-screens/goals-feature/MainGoalScreen"
+import CreateGoalScreen from "../screens/self-growth-screens/goals-feature/CreateGoalScreen"
 
 const Stack = createNativeStackNavigator();
 
@@ -105,6 +106,7 @@ const AppNavigator = () => {
         <Stack.Screen name="EditNoteScreen" component={EditNoteScreen} options={{ title: 'Note Edit Screen' }} />
         <Stack.Screen name="ViewTaskScreen" component={ViewTaskScreen} options={{ title: 'View Task Screen' }} />
         <Stack.Screen name="MainGoalScreen" component={MainGoalScreen} options={{ title: 'Goals Screen' }} />
+        <Stack.Screen name="CreateGoalScreen" component={CreateGoalScreen} options={{ title: 'Create Goals Screen' }} />
     
         
         

@@ -11,6 +11,8 @@ const MainGoalPage = ({ navigation }) => {
     const user = auth().currentUser;
     if (user) {
       setUserId(user.uid);
+    } else {
+      alert('User not logged in.');
     }
   }, []);
 
@@ -54,7 +56,7 @@ const MainGoalPage = ({ navigation }) => {
       />
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => navigation.navigate('CreateGoal')}
+        onPress={() => navigation.navigate('CreateGoalScreen', { userId })}
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
