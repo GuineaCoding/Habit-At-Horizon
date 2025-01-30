@@ -24,15 +24,15 @@ import MenteeCheckedTestScreen from "../screens/mentees/MenteeCheckedTestScreen"
 import MenteeTestResultScreen from "../screens/mentees/MenteeTestResultScreen"
 //tast
 import PersonalSpaceScreen from "../screens/self-growth-screens/PersonalSpaceScreen"
-import TaskListScreen from "../screens/self-growth-screens/TaskListScreen"
-import CreateTaskScreen from "../screens/self-growth-screens/CreateTaskScreen"
-import TaskDetailsScreen from "../screens/self-growth-screens/TaskDetailsScreen"
+import TaskListScreen from "../screens/self-growth-screens/tasks-feature/TaskListScreen"
+import CreateTaskScreen from "../screens/self-growth-screens/tasks-feature/CreateTaskScreen"
+import TaskDetailsScreen from "../screens/self-growth-screens/tasks-feature/TaskDetailsScreen"
 //note
 import NoteListScreen from "../screens/self-growth-screens/NoteListScreen"
 import CreateNoteScreen from "../screens/self-growth-screens/CreateNoteScreen"
 import NoteViewScreen from "../screens/self-growth-screens/NoteViewScreen"
 import EditNoteScreen from "../screens/self-growth-screens/EditNoteScreen"
-import ViewTaskScreen from "../screens/self-growth-screens/ViewTaskScreen"
+import ViewTaskScreen from "../screens/self-growth-screens/tasks-feature/ViewTaskScreen"
 //goals
 import MainGoalScreen from "../screens/self-growth-screens/goals-feature/MainGoalScreen"
 
