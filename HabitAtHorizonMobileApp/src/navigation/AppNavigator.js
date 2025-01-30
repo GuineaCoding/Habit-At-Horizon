@@ -22,15 +22,19 @@ import MenteeLessonsBoardsScreen from "../screens/mentees/MenteeLessonsBoardsScr
 import MenteeBoardsList from "../screens/mentees/MenteeBoardsList"
 import MenteeCheckedTestScreen from "../screens/mentees/MenteeCheckedTestScreen"
 import MenteeTestResultScreen from "../screens/mentees/MenteeTestResultScreen"
+//tast
 import PersonalSpaceScreen from "../screens/self-growth-screens/PersonalSpaceScreen"
 import TaskListScreen from "../screens/self-growth-screens/TaskListScreen"
 import CreateTaskScreen from "../screens/self-growth-screens/CreateTaskScreen"
 import TaskDetailsScreen from "../screens/self-growth-screens/TaskDetailsScreen"
+//note
 import NoteListScreen from "../screens/self-growth-screens/NoteListScreen"
 import CreateNoteScreen from "../screens/self-growth-screens/CreateNoteScreen"
 import NoteViewScreen from "../screens/self-growth-screens/NoteViewScreen"
 import EditNoteScreen from "../screens/self-growth-screens/EditNoteScreen"
 import ViewTaskScreen from "../screens/self-growth-screens/ViewTaskScreen"
+//goals
+import MainGoalScreen from "../screens/self-growth-screens/goals-feature/MainGoalScreen"
 
 const Stack = createNativeStackNavigator();
 
@@ -100,6 +104,7 @@ const AppNavigator = () => {
         <Stack.Screen name="NoteViewScreen" component={NoteViewScreen} options={{ title: 'Note View Screen' }} />
         <Stack.Screen name="EditNoteScreen" component={EditNoteScreen} options={{ title: 'Note Edit Screen' }} />
         <Stack.Screen name="ViewTaskScreen" component={ViewTaskScreen} options={{ title: 'View Task Screen' }} />
+        <Stack.Screen name="MainGoalScreen" component={MainGoalScreen} options={{ title: 'Goals Screen' }} />
     
         
         

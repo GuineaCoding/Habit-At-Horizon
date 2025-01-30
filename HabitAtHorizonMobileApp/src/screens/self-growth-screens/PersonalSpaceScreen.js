@@ -20,12 +20,15 @@ const PersonalSpaceScreen = () => {
   };
 
   const goToGoalTracking = () => {
-    navigation.navigate('GoalTracking');
+    navigation.navigate('MainGoalScreen');
   };
 
   const goToMotivationRewards = () => {
     navigation.navigate('MotivationRewards');
   };
+  
+
+  
 
   return (
     <View style={styles.container}>
