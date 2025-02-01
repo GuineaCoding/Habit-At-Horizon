@@ -37,7 +37,7 @@ const MainGoalPage = ({ navigation }) => {
   const renderGoalItem = ({ item }) => (
     <TouchableOpacity
       style={styles.goalItem}
-      onPress={() => navigation.navigate('GoalDetails', { goal: item, userId })}
+      onPress={() => navigation.navigate('GoalDetailsScreen', { goal: item, userId })}
     >
       <Text style={styles.goalTitle}>{item.title}</Text>
       <Text style={styles.goalCategory}>{item.category}</Text>
