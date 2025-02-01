@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 
 const MainGoalPage = ({ navigation }) => {
   const [goals, setGoals] = useState([]);
   const [userId, setUserId] = useState(null);
+  const [index, setIndex] = useState(0);
+  const [routes] = useState([
+    { key: 'ongoing', title: 'Ongoing' },
+    { key: 'achieved', title: 'Achieved' },
+    { key: 'abandoned', title: 'Abandoned' },
+  ]);
 
   useEffect(() => {
     const user = auth().currentUser;
@@ -45,14 +52,54 @@ const MainGoalPage = ({ navigation }) => {
     </TouchableOpacity>
   );
 
+  const OngoingGoals = () => (
+    <FlatList
+      data={goals.filter((goal) => goal.status === 'ongoing')}
+      renderItem={renderGoalItem}
+      keyExtractor={(item) => item.id}
+      ListEmptyComponent={<Text style={styles.emptyText}>No ongoing goals.</Text>}
+    />
+  );
+
+  const AchievedGoals = () => (
+    <FlatList
+      data={goals.filter((goal) => goal.status === 'completed')}
+      renderItem={renderGoalItem}
+      keyExtractor={(item) => item.id}
+      ListEmptyComponent={<Text style={styles.emptyText}>No achieved goals.</Text>}
+    />
+  );
+
+  const AbandonedGoals = () => (
+    <FlatList
+      data={goals.filter((goal) => goal.status === 'abandoned')}
+      renderItem={renderGoalItem}
+      keyExtractor={(item) => item.id}
+      ListEmptyComponent={<Text style={styles.emptyText}>No abandoned goals.</Text>}
+    />
+  );
+
+  const renderScene = SceneMap({
+    ongoing: OngoingGoals,
+    achieved: AchievedGoals,
+    abandoned: AbandonedGoals,
+  });
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>My Goals</Text>
-      <FlatList
-        data={goals}
-        renderItem={renderGoalItem}
-        keyExtractor={(item) => item.id}
-        ListEmptyComponent={<Text style={styles.emptyText}>No goals added yet.</Text>}
+      <TabView
+        navigationState={{ index, routes }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        renderTabBar={(props) => (
+          <TabBar
+            {...props}
+            style={styles.tabBar}
+            indicatorStyle={styles.indicator}
+            labelStyle={styles.tabLabel}
+          />
+        )}
       />
       <TouchableOpacity
         style={styles.addButton}
@@ -67,20 +114,20 @@ const MainGoalPage = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#f5f5f5',
   },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    padding: 20,
     color: '#333',
   },
   goalItem: {
     backgroundColor: '#fff',
     padding: 15,
-    borderRadius: 10,
+    marginHorizontal: 20,
     marginBottom: 10,
+    borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -122,6 +169,16 @@ const styles = StyleSheet.create({
   addButtonText: {
     fontSize: 30,
     color: '#fff',
+  },
+  tabBar: {
+    backgroundColor: '#6200EE',
+  },
+  indicator: {
+    backgroundColor: '#fff',
+  },
+  tabLabel: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
 
