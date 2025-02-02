@@ -26,23 +26,20 @@ const PersonalSpaceScreen = () => {
   const goToMotivationRewards = () => {
     navigation.navigate('MotivationRewards');
   };
-  
-
-  
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Personal Space</Text>
-      <TouchableOpacity style={styles.button} onPress={goToTaskManagement}>
+      <TouchableOpacity style={[styles.button, { backgroundColor: '#6D9773' }]} onPress={goToTaskManagement}>
         <Text style={styles.buttonText}>Task Management</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={goToNoteList}>
+      <TouchableOpacity style={[styles.button, { backgroundColor: '#B46617' }]} onPress={goToNoteList}>
         <Text style={styles.buttonText}>Note Management</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={goToGoalTracking}>
+      <TouchableOpacity style={[styles.button, { backgroundColor: '#FFBA00' }]} onPress={goToGoalTracking}>
         <Text style={styles.buttonText}>Goal Tracking</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={goToMotivationRewards}>
+      <TouchableOpacity style={[styles.button, { backgroundColor: '#6D9773' }]} onPress={goToMotivationRewards}>
         <Text style={styles.buttonText}>Motivation & Rewards</Text>
       </TouchableOpacity>
     </View>
@@ -54,15 +51,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#0C3B2E', 
     padding: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: '#FFFFFF', 
   },
   button: {
-    backgroundColor: '#6200EE',
     padding: 15,
     borderRadius: 10,
     width: '80%',
@@ -70,7 +68,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   buttonText: {
-    color: 'white',
+    color: '#FFFFFF', 
     fontSize: 18,
   },
 });
