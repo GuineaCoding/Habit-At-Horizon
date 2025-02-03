@@ -56,9 +56,9 @@ const TaskList = ({ navigation }) => {
   const renderTabBar = (props) => (
     <TabBar
       {...props}
-      indicatorStyle={{ backgroundColor: 'white' }}
-      style={{ backgroundColor: '#6200EE' }}
-      labelStyle={{ color: 'white', fontWeight: 'bold' }}
+      indicatorStyle={{ backgroundColor: '#FFBA00' }}
+      style={{ backgroundColor: '#0C3B2E' }}
+      labelStyle={{ color: '#FFFFFF', fontWeight: 'bold' }}
     />
   );
 
@@ -119,7 +119,7 @@ const TaskTab = ({ tasks, navigation, userId }) => {
       </View>
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
-          style={styles.smallButton}
+          style={[styles.smallButton, { backgroundColor: '#6D9773' }]}
           onPress={(e) => {
             e.stopPropagation();
             markTaskComplete(item.id);
@@ -127,7 +127,7 @@ const TaskTab = ({ tasks, navigation, userId }) => {
           <Text style={styles.buttonText}>✓</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.smallButton}
+          style={[styles.smallButton, { backgroundColor: '#B46617' }]}
           onPress={(e) => {
             e.stopPropagation();
             handleEditTask(item);
@@ -135,7 +135,7 @@ const TaskTab = ({ tasks, navigation, userId }) => {
           <Text style={styles.buttonText}>✎</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.smallButton}
+          style={[styles.smallButton, { backgroundColor: '#FFBA00' }]}
           onPress={(e) => {
             e.stopPropagation();
             deleteTask(item.id);
@@ -158,6 +158,7 @@ const TaskTab = ({ tasks, navigation, userId }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#0C3B2E',
     paddingTop: 20,
   },
   taskItem: {
@@ -165,18 +166,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    backgroundColor: 'white',
-  },
-  taskDetails: {
-    flex: 1,
+    borderBottomColor: '#6D9773',
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 10,
+    marginVertical: 5,
+    borderRadius: 10,
+    elevation: 3,
   },
   overdueTask: {
     backgroundColor: '#ffcccc',
   },
+  taskDetails: {
+    flex: 1,
+  },
   taskTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#0C3B2E',
   },
   taskDueDate: {
     fontSize: 14,
@@ -194,16 +200,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     right: 20,
-    backgroundColor: '#6200EE',
+    backgroundColor: '#FFBA00',
     width: 60,
     height: 60,
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 5,
   },
   addButtonText: {
     fontSize: 30,
-    color: 'white',
+    color: '#0C3B2E',
+    fontWeight: 'bold',
   },
   buttonsContainer: {
     flexDirection: 'row',
@@ -212,14 +220,13 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#6200EE',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 10,
   },
   buttonText: {
-    color: 'white',
-    fontSize: 20,
+    color: '#FFFFFF',
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });
