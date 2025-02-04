@@ -65,7 +65,7 @@ const NoteViewScreen = ({ route, navigation }) => {
   if (!note) {
     return (
       <View style={styles.container}>
-        <Text>Loading note...</Text>
+        <Text style={styles.loadingText}>Loading note...</Text>
       </View>
     );
   }
@@ -96,11 +96,11 @@ const NoteViewScreen = ({ route, navigation }) => {
         </View>
       )}
 
-      <TouchableOpacity style={styles.button} onPress={handleEditNote}>
+      <TouchableOpacity style={[styles.button, { backgroundColor: '#6D9773' }]} onPress={handleEditNote}>
         <Text style={styles.buttonText}>Edit Note</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={handleDeleteNote}>
+      <TouchableOpacity style={[styles.button, { backgroundColor: '#B46617' }]} onPress={handleDeleteNote}>
         <Text style={styles.buttonText}>Delete Note</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -111,18 +111,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#0C3B2E',
+  },
+  loadingText: {
+    fontSize: 18,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginTop: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: '#333',
+    color: '#FFFFFF',
   },
   content: {
     fontSize: 16,
     marginBottom: 20,
-    color: '#555',
+    color: '#FFFFFF',
     lineHeight: 24,
   },
   section: {
@@ -132,22 +138,23 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#333',
+    color: '#FFBA00',
   },
   sectionContent: {
     fontSize: 16,
-    color: '#555',
+    color: '#FFFFFF',
   },
   button: {
-    padding: 10,
+    padding: 15,
     marginVertical: 10,
-    backgroundColor: '#007BFF',
     alignItems: 'center',
-    borderRadius: 5,
+    borderRadius: 10,
+    elevation: 3,
   },
   buttonText: {
-    color: 'white',
+    color: '#FFFFFF',
     fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 
