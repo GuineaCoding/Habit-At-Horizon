@@ -120,10 +120,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#FFFFFF',
+    textAlign: 'center',
   },
   content: {
     fontSize: 16,
@@ -133,9 +134,14 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 20,
+    padding: 15,
+    backgroundColor: '#1A4A3C',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#6D9773',
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
     color: '#FFBA00',
