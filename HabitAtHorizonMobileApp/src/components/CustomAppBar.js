@@ -24,7 +24,10 @@ const CustomAppBar = ({ title, showBackButton = false, menuItems = [] }) => {
 
   return (
     <Appbar.Header style={styles.appbar}>
-      {showBackButton && <Appbar.BackAction onPress={() => navigation.goBack()} />}
+   
+      {showBackButton && (
+        <Appbar.BackAction onPress={() => navigation.goBack()} color="#FFFFFF" />
+      )}
       <Appbar.Content title={title} titleStyle={styles.appbarTitle} />
       <Menu
         visible={menuVisible}
