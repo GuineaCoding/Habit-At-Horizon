@@ -1,27 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Appbar, Menu } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import auth from '@react-native-firebase/auth';
+import CustomAppBar from '../components/CustomAppBar'; 
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const [visible, setVisible] = useState(false);
-
-  const openMenu = () => setVisible(true);
-  const closeMenu = () => setVisible(false);
-
-  const handleLogout = async () => {
-    try {
-      await auth().signOut();
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Welcome' }],
-      });
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  };
 
   const goToMyPersonalSpace = () => {
     navigation.navigate('PersonalSpaceScreen');
@@ -35,23 +18,15 @@ const HomeScreen = () => {
     navigation.navigate('MenteesDashboardScreen');
   };
 
+  const menuItems = [
+    { title: 'My Personal Space', onPress: goToMyPersonalSpace },
+    { title: 'Mentoring Space', onPress: goToMentoring },
+    { title: 'Mentee Space', onPress: goToMenteeScreen },
+  ];
+
   return (
     <View style={styles.container}>
-      <Appbar.Header style={styles.appbar}>
-        <Appbar.Content title="Home Screen" titleStyle={styles.appbarTitle} />
-        <Menu
-          visible={visible}
-          onDismiss={closeMenu}
-          anchor={
-            <Appbar.Action
-              icon="menu"
-              color="#FFFFFF"
-              onPress={openMenu}
-            />
-          }>
-          <Menu.Item onPress={handleLogout} title="Logout" titleStyle={styles.menuItemText} />
-        </Menu>
-      </Appbar.Header>
+      <CustomAppBar title="Home Screen" showBackButton={false} menuItems={menuItems} />
       <View style={styles.listContainer}>
         <TouchableOpacity style={[styles.listItem, { backgroundColor: '#6D9773' }]} onPress={goToMyPersonalSpace}>
           <Text style={styles.listText}>My Personal Space</Text>
@@ -72,14 +47,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0C3B2E',
   },
-  appbar: {
-    backgroundColor: '#0C3B2E',
-  },
-  appbarTitle: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
   listContainer: {
     marginTop: 20,
     paddingHorizontal: 20,
@@ -95,9 +62,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#FFFFFF',
     fontWeight: 'bold',
-  },
-  menuItemText: {
-    color: '#0C3B2E',
   },
 });
 
