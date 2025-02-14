@@ -9,7 +9,7 @@ import LoginScreen from '../screens/user-auth/LoginScreen';
 import SignupScreen from '../screens/user-auth/SignUpScreen';
 import PasswordResetScreen from '../screens/user-auth/PasswordResetScreen';
 import AboutScreen from '../screens/AboutScreen';
-import HomeScreen from '../screens/HomeScreen'; // Pop-up logic is in this component
+import HomeScreen from '../screens/HomeScreen'; 
 import MentorshipScreen from '../screens/MentorshipScreen';
 import BoardsScreen from '../screens/BoardsScreen';
 import BoardDetailsScreen from '../screens/BoardDetailsScreen';
@@ -39,7 +39,8 @@ import ViewTaskScreen from '../screens/self-growth-screens/tasks-feature/ViewTas
 import MainGoalScreen from '../screens/self-growth-screens/goals-feature/MainGoalScreen';
 import CreateGoalScreen from '../screens/self-growth-screens/goals-feature/CreateGoalScreen';
 import GoalDetailsScreen from '../screens/self-growth-screens/goals-feature/GoalDetailsScreen';
-
+//mentor
+import MentorListPage from '../screens/mentors/MentorListPage'
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -236,6 +237,11 @@ const AppNavigator = () => {
               name="GoalDetailsScreen"
               component={GoalDetailsScreen}
               options={{ title: 'Goal Details Screen' }}
+            />
+                        <Stack.Screen
+              name="MentorListPage"
+              component={MentorListPage}
+              options={{ title: 'Mentor List' }}
             />
           </>
         ) : (
