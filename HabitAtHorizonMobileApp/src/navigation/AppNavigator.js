@@ -9,7 +9,7 @@ import LoginScreen from '../screens/user-auth/LoginScreen';
 import SignupScreen from '../screens/user-auth/SignUpScreen';
 import PasswordResetScreen from '../screens/user-auth/PasswordResetScreen';
 import AboutScreen from '../screens/AboutScreen';
-import HomeScreen from '../screens/HomeScreen';
+import HomeScreen from '../screens/HomeScreen'; // Pop-up logic is in this component
 import MentorshipScreen from '../screens/MentorshipScreen';
 import BoardsScreen from '../screens/BoardsScreen';
 import BoardDetailsScreen from '../screens/BoardDetailsScreen';
@@ -44,9 +44,8 @@ const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
   const navigationRef = useRef(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(null); 
-  const [isNavigationReady, setIsNavigationReady] = useState(false); 
-
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
+  const [isNavigationReady, setIsNavigationReady] = useState(false);
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -54,18 +53,16 @@ const AppNavigator = () => {
       const user = auth().currentUser;
 
       if (user || storedLoginStatus === 'true') {
-       
         setIsLoggedIn(true);
         if (isNavigationReady) {
           navigationRef.current?.dispatch(
             CommonActions.reset({
               index: 0,
-              routes: [{ name: 'Home' }], 
+              routes: [{ name: 'Home' }],
             })
           );
         }
       } else {
-      
         setIsLoggedIn(false);
         if (isNavigationReady) {
           navigationRef.current?.navigate('Welcome');
@@ -79,28 +76,26 @@ const AppNavigator = () => {
   useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged(async (user) => {
       if (user) {
-      
         setIsLoggedIn(true);
-        await AsyncStorage.setItem('isLoggedIn', 'true'); 
+        await AsyncStorage.setItem('isLoggedIn', 'true');
         if (isNavigationReady) {
           navigationRef.current?.dispatch(
             CommonActions.reset({
               index: 0,
-              routes: [{ name: 'Home' }], 
+              routes: [{ name: 'Home' }],
             })
           );
         }
       } else {
-      
         setIsLoggedIn(false);
-        await AsyncStorage.setItem('isLoggedIn', 'false'); 
+        await AsyncStorage.setItem('isLoggedIn', 'false');
         if (isNavigationReady) {
           navigationRef.current?.navigate('Welcome');
         }
       }
     });
 
-    return unsubscribe; 
+    return unsubscribe;
   }, [isNavigationReady]);
 
   if (isLoggedIn === null) {
@@ -114,11 +109,10 @@ const AppNavigator = () => {
   return (
     <NavigationContainer
       ref={navigationRef}
-      onReady={() => setIsNavigationReady(true)} 
+      onReady={() => setIsNavigationReady(true)}
     >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isLoggedIn ? (
-     
           <>
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="MentorshipScreen" component={MentorshipScreen} />

@@ -1,24 +1,25 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, BackHandler, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native'; 
 import CustomAppBar from '../components/CustomAppBar';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const backAction = () => {
-      Alert.alert('Exit App', 'Are you sure you want to exit?', [
-        { text: 'Cancel', onPress: () => null, style: 'cancel' },
-        { text: 'Exit', onPress: () => BackHandler.exitApp() },
-      ]);
-      return true;  
-    };
+  useFocusEffect(
+    React.useCallback(() => {
+      const backAction = () => {
+        Alert.alert('Exit App', 'Are you sure you wan111t to exit?', [
+          { text: 'Cancel', onPress: () => null, style: 'cancel' },
+          { text: 'Exit', onPress: () => BackHandler.exitApp() },
+        ]);
+        return true;
+      };
 
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-
-    return () => backHandler.remove();  
-  }, []);
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+      return () => backHandler.remove();
+    }, []) 
+  );
 
   const goToMyPersonalSpace = () => {
     navigation.navigate('PersonalSpaceScreen');
