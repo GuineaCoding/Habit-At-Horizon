@@ -40,7 +40,7 @@ import MainGoalScreen from '../screens/self-growth-screens/goals-feature/MainGoa
 import CreateGoalScreen from '../screens/self-growth-screens/goals-feature/CreateGoalScreen';
 import GoalDetailsScreen from '../screens/self-growth-screens/goals-feature/GoalDetailsScreen';
 //mentor
-import MentorListPage from '../screens/mentors/MentorListPage'
+import MentorListPage from '../screens/mentorsLayout/MentorListPage'
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
