@@ -4,9 +4,9 @@ import CustomAppBar from '../../components/CustomAppBar';
 const MentorshipScreen = ({ navigation }) => {
     const menuItems = [
         { id: '1', title: 'Boards', navigateTo: 'BoardsScreen' },
-        { id: '2', title: 'View Mentor List', navigateTo: 'MentorListPage' }, 
-        { id: '3', title: 'Create Mentor Profile', navigateTo: 'AddMentorScreen' }, 
-        { id: '4', title: 'Go Back', navigateTo: null }, 
+        { id: '2', title: 'View Mentor List', navigateTo: 'MentorListPage' },
+        { id: '3', title: 'Create Mentor Profile', navigateTo: 'AddMentorScreen' },
+        { id: '4', title: 'Go Back', navigateTo: null },
     ];
 
     const handleNavigation = (navigateTo) => {
@@ -16,14 +16,14 @@ const MentorshipScreen = ({ navigation }) => {
             if (navigation.canGoBack()) {
                 navigation.goBack();
             } else {
-                navigation.navigate('Home'); 
+                navigation.navigate('Home');
             }
         }
     };
 
     const renderItem = ({ item }) => (
         <TouchableOpacity
-            style={[styles.listItem, { backgroundColor: '#6D9773' }]} 
+            style={[styles.listItem, { backgroundColor: '#6D9773' }]}
             onPress={() => handleNavigation(item.navigateTo)}
         >
             <Text style={styles.listText}>{item.title}</Text>
@@ -32,7 +32,7 @@ const MentorshipScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-      <CustomAppBar title="Home Screen" showBackButton={false} menuItems={menuItems} />
+            <CustomAppBar title="Home Screen" showBackButton={false} />
 
             <View style={styles.content}>
                 <Text style={styles.header}>Mentorship Environment</Text>
@@ -50,19 +50,19 @@ const MentorshipScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0C3B2E', 
+        backgroundColor: '#0C3B2E',
     },
     topBar: {
         height: 60,
-        backgroundColor: '#6D9773', 
+        backgroundColor: '#6D9773',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingTop: StatusBar.currentHeight, 
+        paddingTop: StatusBar.currentHeight,
     },
     topBarText: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#FFFFFF', 
+        color: '#FFFFFF',
     },
     content: {
         flex: 1,
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         marginBottom: 20,
         textAlign: 'center',
-        color: '#FFFFFF', 
+        color: '#FFFFFF',
     },
     listContainer: {
         flexGrow: 1,

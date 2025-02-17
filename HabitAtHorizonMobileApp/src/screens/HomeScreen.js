@@ -33,15 +33,9 @@ const HomeScreen = () => {
     navigation.navigate('MenteesDashboardScreen');
   };
 
-  const menuItems = [
-    { title: 'My Personal Space', onPress: goToMyPersonalSpace },
-    { title: 'Mentoring Space', onPress: goToMentoring },
-    { title: 'Mentee Space', onPress: goToMenteeScreen },
-  ];
-
   return (
     <View style={styles.container}>
-      <CustomAppBar title="Home Screen" showBackButton={false} menuItems={menuItems} />
+      <CustomAppBar title="Home Screen" showBackButton={false} />
       <View style={styles.listContainer}>
         <TouchableOpacity style={[styles.listItem, { backgroundColor: '#6D9773' }]} onPress={goToMyPersonalSpace}>
           <Text style={styles.listText}>My Personal Space</Text>

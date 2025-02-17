@@ -28,17 +28,10 @@ const PersonalSpaceScreen = () => {
     navigation.navigate('MotivationRewards');
   };
 
-  const menuItems = [
-    { title: 'Task Management', onPress: goToTaskManagement },
-    { title: 'Note Management', onPress: goToNoteList },
-    { title: 'Goal Tracking', onPress: goToGoalTracking },
-    { title: 'Motivation & Rewards', onPress: goToMotivationRewards },
-  ];
-
   return (
     <View style={styles.container}>
  
-      <CustomAppBar title="Personal Space" showBackButton={true} menuItems={menuItems} />
+      <CustomAppBar title="Personal Space" showBackButton={true}/>
       <View style={styles.content}>
         <TouchableOpacity style={[styles.button, { backgroundColor: '#6D9773' }]} onPress={goToTaskManagement}>
           <Text style={styles.buttonText}>Task Management</Text>

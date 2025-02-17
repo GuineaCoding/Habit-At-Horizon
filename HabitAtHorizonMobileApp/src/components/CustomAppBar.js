@@ -3,7 +3,7 @@ import { Appbar, Menu } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 
-const CustomAppBar = ({ title, showBackButton = false, menuItems = [] }) => {
+const CustomAppBar = ({ title, showBackButton = false }) => {
   const navigation = useNavigation();
   const [menuVisible, setMenuVisible] = useState(false);
 
@@ -22,9 +22,15 @@ const CustomAppBar = ({ title, showBackButton = false, menuItems = [] }) => {
     }
   };
 
+  const menuItems = [
+    { title: 'My Personal Space', onPress: () => navigation.navigate('PersonalSpaceScreen') },
+    { title: 'Mentoring Space', onPress: () => navigation.navigate('MentorshipScreen') },
+    { title: 'Mentee Space', onPress: () => navigation.navigate('MenteesDashboardScreen') },
+    { title: 'Logout', onPress: handleLogout },
+  ];
+
   return (
     <Appbar.Header style={styles.appbar}>
-   
       {showBackButton && (
         <Appbar.BackAction onPress={() => navigation.goBack()} color="#FFFFFF" />
       )}
@@ -38,7 +44,6 @@ const CustomAppBar = ({ title, showBackButton = false, menuItems = [] }) => {
         {menuItems.map((item, index) => (
           <Menu.Item key={index} onPress={item.onPress} title={item.title} />
         ))}
-        <Menu.Item onPress={handleLogout} title="Logout" />
       </Menu>
     </Appbar.Header>
   );
