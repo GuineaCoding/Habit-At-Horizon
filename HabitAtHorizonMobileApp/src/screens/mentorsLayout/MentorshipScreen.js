@@ -5,7 +5,7 @@ const MentorshipScreen = ({ navigation }) => {
     const menuItems = [
         { id: '1', title: 'Boards', navigateTo: 'BoardsScreen' },
         { id: '2', title: 'View Mentor List', navigateTo: 'MentorListPage' },
-        { id: '3', title: 'Create Mentor Profile', navigateTo: 'AddMentorScreen' },
+        { id: '3', title: 'Create Mentor Profile', navigateTo: 'MentorProfileCreationStartScreen' },
         { id: '4', title: 'Go Back', navigateTo: null },
     ];
 

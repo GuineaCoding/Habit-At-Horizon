@@ -9,7 +9,7 @@ import LoginScreen from '../screens/user-auth/LoginScreen';
 import SignupScreen from '../screens/user-auth/SignUpScreen';
 import PasswordResetScreen from '../screens/user-auth/PasswordResetScreen';
 import AboutScreen from '../screens/AboutScreen';
-import HomeScreen from '../screens/HomeScreen'; 
+import HomeScreen from '../screens/HomeScreen';
 import MentorshipScreen from '../screens/mentorsLayout/MentorshipScreen';
 import BoardsScreen from '../screens/BoardsScreen';
 import BoardDetailsScreen from '../screens/BoardDetailsScreen';
@@ -42,6 +42,8 @@ import GoalDetailsScreen from '../screens/self-growth-screens/goals-feature/Goal
 //mentor
 import MentorListPage from '../screens/mentorsLayout/MentorListPage'
 import AddMentorScreen from '../screens/mentorsLayout/CreateMentorProfileScreen'
+import MentorProfileCreationStartScreen from '../screens/mentorsLayout/MentorProfileCreationStartScreen'
+
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -239,19 +241,24 @@ const AppNavigator = () => {
               component={GoalDetailsScreen}
               options={{ title: 'Goal Details Screen' }}
             />
-                        <Stack.Screen
+            <Stack.Screen
               name="MentorListPage"
               component={MentorListPage}
               options={{ title: 'Mentor List' }}
             />
-                                    <Stack.Screen
+            <Stack.Screen
               name="AddMentorScreen"
               component={AddMentorScreen}
               options={{ title: 'Mentor Screen' }}
             />
+            <Stack.Screen
+              name="MentorProfileCreationStartScreen"
+              component={MentorProfileCreationStartScreen}
+              options={{ title: 'Mentor Screen' }}
+            />
           </>
         ) : (
-          
+
           <>
             <Stack.Screen name="Welcome" component={WelcomeScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
