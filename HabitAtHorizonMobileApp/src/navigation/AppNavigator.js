@@ -41,6 +41,7 @@ import CreateGoalScreen from '../screens/self-growth-screens/goals-feature/Creat
 import GoalDetailsScreen from '../screens/self-growth-screens/goals-feature/GoalDetailsScreen';
 //mentor
 import MentorListPage from '../screens/mentorsLayout/MentorListPage'
+import AddMentorScreen from '../screens/mentorsLayout/CreateMentorProfileScreen'
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -242,6 +243,11 @@ const AppNavigator = () => {
               name="MentorListPage"
               component={MentorListPage}
               options={{ title: 'Mentor List' }}
+            />
+                                    <Stack.Screen
+              name="AddMentorScreen"
+              component={AddMentorScreen}
+              options={{ title: 'Mentor Screen' }}
             />
           </>
         ) : (
