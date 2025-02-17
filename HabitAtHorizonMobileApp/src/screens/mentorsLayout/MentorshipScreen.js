@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 
 const MentorshipScreen = ({ navigation }) => {
     const menuItems = [
@@ -26,13 +26,19 @@ const MentorshipScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.header}>Mentorship Environment</Text>
-            <FlatList
-                data={menuItems}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.listContainer}
-            />
+            <View style={styles.topBar}>
+                <Text style={styles.topBarText}>Mentorship</Text>
+            </View>
+
+            <View style={styles.content}>
+                <Text style={styles.header}>Mentorship Environment</Text>
+                <FlatList
+                    data={menuItems}
+                    renderItem={renderItem}
+                    keyExtractor={(item) => item.id}
+                    contentContainerStyle={styles.listContainer}
+                />
+            </View>
         </View>
     );
 };
@@ -40,8 +46,23 @@ const MentorshipScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
         backgroundColor: '#fff',
+    },
+    topBar: {
+        height: 60,
+        backgroundColor: '#6200ee', 
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop: StatusBar.currentHeight, 
+    },
+    topBarText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#fff',
+    },
+    content: {
+        flex: 1,
+        padding: 20,
     },
     header: {
         fontSize: 20,

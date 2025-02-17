@@ -1,83 +1,79 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, BackHandler, Alert } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native'; 
-import CustomAppBar from '../components/CustomAppBar';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import CustomAppBar from '../components/CustomAppBar'; 
 
-const HomeScreen = () => {
-  const navigation = useNavigation();
+const MentorshipScreen = ({ navigation }) => {
+    const menuItems = [
+        { id: '1', title: 'Boards', navigateTo: 'BoardsScreen' },
+        { id: '2', title: 'Go Back', navigateTo: null }, 
+    ];
 
-  useFocusEffect(
-    React.useCallback(() => {
-      const backAction = () => {
-        Alert.alert('Exit App', 'Are you sure you wan111t to exit?', [
-          { text: 'Cancel', onPress: () => null, style: 'cancel' },
-          { text: 'Exit', onPress: () => BackHandler.exitApp() },
-        ]);
-        return true;
-      };
+    const handleNavigation = (navigateTo) => {
+        if (navigateTo) {
+            navigation.navigate(navigateTo);
+        } else {
+            navigation.goBack();
+        }
+    };
 
-      const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-      return () => backHandler.remove();
-    }, []) 
-  );
-
-  const goToMyPersonalSpace = () => {
-    navigation.navigate('PersonalSpaceScreen');
-  };
-
-  const goToMentoring = () => {
-    navigation.navigate('MentorshipScreen');
-  };
-
-  const goToMenteeScreen = () => {
-    navigation.navigate('MenteesDashboardScreen');
-  };
-
-  const menuItems = [
-    { title: 'My Personal Space', onPress: goToMyPersonalSpace },
-    { title: 'Mentoring Space', onPress: goToMentoring },
-    { title: 'Mentee Space', onPress: goToMenteeScreen },
-  ];
-
-  return (
-    <View style={styles.container}>
-      <CustomAppBar title="Home Screen" showBackButton={false} menuItems={menuItems} />
-      <View style={styles.listContainer}>
-        <TouchableOpacity style={[styles.listItem, { backgroundColor: '#6D9773' }]} onPress={goToMyPersonalSpace}>
-          <Text style={styles.listText}>My Personal Space</Text>
+    const renderItem = ({ item }) => (
+        <TouchableOpacity
+            style={[styles.listItem, { backgroundColor: '#6D9773' }]} 
+            onPress={() => handleNavigation(item.navigateTo)}
+        >
+            <Text style={styles.listText}>{item.title}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.listItem, { backgroundColor: '#B46617' }]} onPress={goToMentoring}>
-          <Text style={styles.listText}>Mentoring Space</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.listItem, { backgroundColor: '#FFBA00' }]} onPress={goToMenteeScreen}>
-          <Text style={styles.listText}>Mentee Space</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+    );
+
+    return (
+        <View style={styles.container}>
+          
+            <CustomAppBar title="Mentorship" showBackButton={true} />
+
+          
+            <View style={styles.content}>
+                <Text style={styles.header}>Mentorship Environment</Text>
+                <FlatList
+                    data={menuItems}
+                    renderItem={renderItem}
+                    keyExtractor={(item) => item.id}
+                    contentContainerStyle={styles.listContainer}
+                />
+            </View>
+        </View>
+    );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0C3B2E',
-  },
-  listContainer: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-  },
-  listItem: {
-    padding: 20,
-    borderRadius: 10,
-    marginBottom: 15,
-    elevation: 3,
-    alignItems: 'center',
-  },
-  listText: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
+    container: {
+        flex: 1,
+        backgroundColor: '#0C3B2E', 
+    },
+    content: {
+        flex: 1,
+        padding: 20,
+    },
+    header: {
+        fontSize: 20,
+        marginBottom: 20,
+        textAlign: 'center',
+        color: '#FFFFFF', 
+    },
+    listContainer: {
+        flexGrow: 1,
+    },
+    listItem: {
+        padding: 20,
+        borderRadius: 10,
+        marginBottom: 15,
+        elevation: 3,
+        alignItems: 'center',
+    },
+    listText: {
+        fontSize: 18,
+        color: '#FFFFFF', 
+        fontWeight: 'bold',
+    },
 });
 
-export default HomeScreen;
+export default MentorshipScreen;

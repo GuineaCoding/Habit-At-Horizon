@@ -10,7 +10,7 @@ import SignupScreen from '../screens/user-auth/SignUpScreen';
 import PasswordResetScreen from '../screens/user-auth/PasswordResetScreen';
 import AboutScreen from '../screens/AboutScreen';
 import HomeScreen from '../screens/HomeScreen'; 
-import MentorshipScreen from '../screens/MentorshipScreen';
+import MentorshipScreen from '../screens/mentorsLayout/MentorshipScreen';
 import BoardsScreen from '../screens/BoardsScreen';
 import BoardDetailsScreen from '../screens/BoardDetailsScreen';
 import LessontBuilderScreen from '../screens/LessonBuilderScreen';
