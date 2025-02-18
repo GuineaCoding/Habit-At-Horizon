@@ -32,7 +32,7 @@ const MentorshipScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <CustomAppBar title="Home Screen" showBackButton={false} />
+            <CustomAppBar title="Home Screen" showBackButton={true} />
 
             <View style={styles.content}>
                 <Text style={styles.header}>Mentorship Environment</Text>

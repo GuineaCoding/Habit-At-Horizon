@@ -97,7 +97,7 @@ const AddMentorForm = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <CustomAppBar title="Create Mentor Profile" showBackButton={false} />
+      <CustomAppBar title="Create Mentor Profile" showBackButton={true} />
       <ScrollView contentContainerStyle={styles.content}>
         <TextInput
           placeholder="Name"
