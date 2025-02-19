@@ -27,6 +27,9 @@ const PersonalSpaceScreen = () => {
   const goToMotivationRewards = () => {
     navigation.navigate('MotivationRewards');
   };
+  const goToMenteeProfileCreationStartScreen = () => {
+    navigation.navigate('MenteeProfileCreationStartScreen');
+  };
 
   return (
     <View style={styles.container}>
@@ -44,6 +47,9 @@ const PersonalSpaceScreen = () => {
         </TouchableOpacity>
         <TouchableOpacity style={[styles.button, { backgroundColor: '#6D9773' }]} onPress={goToMotivationRewards}>
           <Text style={styles.buttonText}>Motivation & Rewards</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.button, { backgroundColor: '#6D9773' }]} onPress={goToMenteeProfileCreationStartScreen}>
+          <Text style={styles.buttonText}>My Mentee Profile</Text>
         </TouchableOpacity>
       </View>
     </View>

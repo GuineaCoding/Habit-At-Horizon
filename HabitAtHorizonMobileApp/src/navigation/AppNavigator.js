@@ -24,6 +24,9 @@ import MenteeLessonsBoardsScreen from '../screens/mentees/MenteeLessonsBoardsScr
 import MenteeBoardsList from '../screens/mentees/MenteeBoardsList';
 import MenteeCheckedTestScreen from '../screens/mentees/MenteeCheckedTestScreen';
 import MenteeTestResultScreen from '../screens/mentees/MenteeTestResultScreen';
+
+//mentee
+import MenteeProfileCreationStartScreen from '../screens/self-growth-screens/MenteeProfileCreationStartScreen';
 // Tasks
 import PersonalSpaceScreen from '../screens/self-growth-screens/PersonalSpaceScreen';
 import TaskListScreen from '../screens/self-growth-screens/tasks-feature/TaskListScreen';
@@ -263,6 +266,13 @@ const AppNavigator = () => {
               component={MentorProfileViewScreen}
               options={{ title: 'Mentor Screen' }}
             />
+            <Stack.Screen
+              name="MenteeProfileCreationStartScreen"
+              component={MenteeProfileCreationStartScreen}
+              options={{ title: 'Mentor Screen' }}
+            />
+
+MenteeProfileCreationStartScreen
 
           </>
         ) : (
