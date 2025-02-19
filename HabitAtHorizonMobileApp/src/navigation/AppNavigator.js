@@ -29,6 +29,8 @@ import MenteeTestResultScreen from '../screens/mentees/MenteeTestResultScreen';
 import MenteeProfileCreationStartScreen from '../screens/self-growth-screens/MenteeProfileCreationStartScreen';
 import CreateMenteeProfile from '../screens/self-growth-screens/CreateMenteeScreen'
 import MenteeListScreen from '../screens/self-growth-screens/MenteeListScreen'
+import MenteeProfileViewScreen from '../screens/self-growth-screens/MenteeProfileViewScreen'
+
 
 // Tasks
 import PersonalSpaceScreen from '../screens/self-growth-screens/PersonalSpaceScreen';
@@ -284,6 +286,11 @@ const AppNavigator = () => {
               name="MenteeListScreen"
               component={MenteeListScreen}
               options={{ title: 'Mentee List' }}
+            />
+                        <Stack.Screen
+              name="MenteeProfileViewScreen"
+              component={MenteeProfileViewScreen}
+              options={{ title: 'Mentee Profile' }}
             />
 
 
