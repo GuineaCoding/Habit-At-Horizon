@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
-import CustomAppBar from '../components/CustomAppBar';
+import CustomAppBar from '../../components/CustomAppBar';
 
-const MenteeListPage = ({ navigation }) => {
+const MenteeListScreen = ({ navigation }) => {
   const [mentees, setMentees] = useState([]);
 
   useEffect(() => {
@@ -119,4 +119,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MenteeListPage;
+export default MenteeListScreen;
