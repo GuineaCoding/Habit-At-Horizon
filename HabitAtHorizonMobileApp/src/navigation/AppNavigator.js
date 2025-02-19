@@ -271,9 +271,6 @@ const AppNavigator = () => {
               component={MenteeProfileCreationStartScreen}
               options={{ title: 'Mentor Screen' }}
             />
-
-MenteeProfileCreationStartScreen
-
           </>
         ) : (
 

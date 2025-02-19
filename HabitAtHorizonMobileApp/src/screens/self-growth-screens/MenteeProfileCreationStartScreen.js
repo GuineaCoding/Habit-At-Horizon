@@ -5,16 +5,13 @@ import CustomAppBar from '../../components/CustomAppBar';
 const MenteeProfileCreationStartScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
-
       <CustomAppBar title="Become a Mentee" showBackButton={true} />
 
-
       <ScrollView contentContainerStyle={styles.content}>
- 
-        <Image
-        //   source={require('../assets/mentee_intro.png')} 
+        {/* <Image
+          source={require('../assets/mentee_intro.png')}
           style={styles.image}
-        />
+        /> */}
 
         <Text style={styles.heading}>Why Create a Mentee Profile?</Text>
         <Text style={styles.text}>
@@ -32,7 +29,7 @@ const MenteeProfileCreationStartScreen = ({ navigation }) => {
 
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate('CreateMenteeProfile')} 
+          onPress={() => navigation.navigate('CreateMenteeProfile')}
         >
           <Text style={styles.buttonText}>Create Your Mentee Profile</Text>
         </TouchableOpacity>
@@ -44,7 +41,7 @@ const MenteeProfileCreationStartScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0C3B2E', 
+    backgroundColor: '#0C3B2E',
   },
   content: {
     flexGrow: 1,
@@ -59,7 +56,7 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FFBA00', 
+    color: '#FFBA00',
     marginBottom: 10,
     textAlign: 'center',
   },
@@ -73,7 +70,7 @@ const styles = StyleSheet.create({
   subHeading: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#B46617', 
+    color: '#B46617',
     marginBottom: 10,
     textAlign: 'center',
   },
@@ -82,22 +79,22 @@ const styles = StyleSheet.create({
   },
   benefitText: {
     fontSize: 16,
-    color: '#FFFFFF', 
+    color: '#FFFFFF',
     marginBottom: 8,
     textAlign: 'center',
   },
   button: {
-    backgroundColor: '#6D9773', 
+    backgroundColor: '#6D9773',
     padding: 15,
     borderRadius: 10,
     width: '80%',
     alignItems: 'center',
-    elevation: 3, 
+    elevation: 3,
   },
   buttonText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#FFFFFF', 
+    color: '#FFFFFF',
   },
 });
 
