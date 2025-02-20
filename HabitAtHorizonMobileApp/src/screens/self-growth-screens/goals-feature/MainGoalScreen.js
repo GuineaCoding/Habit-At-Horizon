@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import CustomAppBar from '../../../components/CustomAppBar'; 
 
 const MainGoalPage = ({ navigation }) => {
   const [goals, setGoals] = useState([]);
@@ -87,7 +88,10 @@ const MainGoalPage = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>My Goals</Text>
+      {/* CustomAppBar */}
+      <CustomAppBar title="My Goals" showBackButton={true} />
+
+      {/* TabView for Goals */}
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}
@@ -101,6 +105,8 @@ const MainGoalPage = ({ navigation }) => {
           />
         )}
       />
+
+      {/* Add Goal Button */}
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => navigation.navigate('CreateGoalScreen', { userId })}
@@ -114,16 +120,10 @@ const MainGoalPage = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    padding: 20,
-    color: '#333',
+    backgroundColor: '#0C3B2E',
   },
   goalItem: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF', 
     padding: 15,
     marginHorizontal: 20,
     marginBottom: 10,
@@ -137,21 +137,21 @@ const styles = StyleSheet.create({
   goalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#0C3B2E',
   },
   goalCategory: {
     fontSize: 14,
-    color: '#666',
+    color: '#6D9773',
     marginTop: 5,
   },
   goalStatus: {
     fontSize: 14,
-    color: '#888',
+    color: '#B46617',
     marginTop: 5,
   },
   emptyText: {
     fontSize: 16,
-    color: '#888',
+    color: '#FFFFFF',
     textAlign: 'center',
     marginTop: 20,
   },
@@ -159,25 +159,26 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     right: 20,
-    backgroundColor: '#6200EE',
+    backgroundColor: '#6D9773',
     width: 60,
     height: 60,
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 3, 
   },
   addButtonText: {
     fontSize: 30,
-    color: '#fff',
+    color: '#FFFFFF',
   },
   tabBar: {
-    backgroundColor: '#6200EE',
+    backgroundColor: '#6D9773', 
   },
   indicator: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFBA00', 
   },
   tabLabel: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontWeight: 'bold',
   },
 });
