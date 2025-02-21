@@ -2,15 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Alert } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { ProgressBar } from 'react-native-paper';
-import CustomAppBar from '../../../components/CustomAppBar'; 
+import CustomAppBar from '../../../components/CustomAppBar';
 
 const GoalDetailsScreen = ({ navigation, route }) => {
   const { goal: initialGoal, userId } = route.params;
   const [goal, setGoal] = useState(initialGoal);
   const [milestones, setMilestones] = useState(initialGoal.milestones || []);
   const [progress, setProgress] = useState(0);
-  const [userPoints, setUserPoints] = useState(0);
-
 
   useEffect(() => {
     const unsubscribe = firestore()
@@ -26,14 +24,6 @@ const GoalDetailsScreen = ({ navigation, route }) => {
         }
       });
 
-    const fetchUserPoints = async () => {
-      const userDoc = await firestore().collection('users').doc(userId).get();
-      if (userDoc.exists) {
-        setUserPoints(userDoc.data().points || 0);
-      }
-    };
-
-    fetchUserPoints();
     return () => unsubscribe();
   }, [initialGoal.id, userId]);
 
@@ -48,25 +38,28 @@ const GoalDetailsScreen = ({ navigation, route }) => {
     }
   }, [milestones, goal.status]);
 
+  const calculateLevel = (xp) => {
+    return Math.floor(Math.sqrt(xp / 100));
+  };
+
   const handleMarkGoalCompleted = async () => {
     try {
-  
       const userRef = firestore().collection('users').doc(userId);
       const userDoc = await userRef.get();
       const userData = userDoc.data();
-  
+
       const today = new Date().toISOString().split('T')[0];
 
       const lastPointsEarnedDate = userData.lastPointsEarnedDate || '';
       const pointsEarnedToday = userData.pointsEarnedToday || 0;
-  
+
       const hasReachedDailyLimit = lastPointsEarnedDate === today && pointsEarnedToday >= 10;
-  
+
       const updatedMilestones = milestones.map((m) => ({
         ...m,
         status: 'completed',
       }));
-  
+
       await firestore()
         .collection('users')
         .doc(userId)
@@ -77,22 +70,19 @@ const GoalDetailsScreen = ({ navigation, route }) => {
           milestones: updatedMilestones,
           updatedAt: firestore.Timestamp.fromDate(new Date()),
         });
-  
+
       if (!hasReachedDailyLimit) {
         let updatedPointsEarnedToday = pointsEarnedToday;
         if (lastPointsEarnedDate !== today) {
           updatedPointsEarnedToday = 0;
         }
-  
+
         await userRef.update({
           points: firestore.FieldValue.increment(10),
-          pointsEarnedToday: updatedPointsEarnedToday + 10, 
-          lastPointsEarnedDate: today, 
+          pointsEarnedToday: updatedPointsEarnedToday + 10,
+          lastPointsEarnedDate: today,
         });
-  
-        const updatedUserDoc = await userRef.get();
-        setUserPoints(updatedUserDoc.data().points || 0);
-  
+
         Alert.alert(
           'Success',
           'Goal and all milestones marked as completed! 10 points added.'
@@ -103,7 +93,62 @@ const GoalDetailsScreen = ({ navigation, route }) => {
           'Goal and all milestones marked as completed. No points awarded (daily limit reached).'
         );
       }
-  
+
+      await userRef.update({
+        xp: firestore.FieldValue.increment(10),
+      });
+
+      const updatedUserDoc = await userRef.get();
+      const updatedXp = updatedUserDoc.data().xp || 0;
+      const updatedLevel = calculateLevel(updatedXp);
+
+      if (updatedLevel > userData.level) {
+        await userRef.update({
+          level: updatedLevel,
+        });
+
+        Alert.alert(
+          'Level Up!',
+          `Congratulations! You've reached Level ${updatedLevel}.`
+        );
+      }
+
+      const lastGoalCompletionDate = userData.lastGoalCompletionDate || '';
+      const streak = userData.streak || 0;
+
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayFormatted = yesterday.toISOString().split('T')[0];
+
+      let updatedStreak = streak;
+      if (lastGoalCompletionDate === yesterdayFormatted) {
+        updatedStreak += 1;
+      } else if (lastGoalCompletionDate !== today) {
+        updatedStreak = 1;
+      }
+
+      let updatedLongestStreak = userData.longestStreak || 0;
+      if (updatedStreak > updatedLongestStreak) {
+        updatedLongestStreak = updatedStreak;
+      }
+
+      if (updatedStreak === 7) {
+        await userRef.update({
+          points: firestore.FieldValue.increment(30),
+        });
+
+        Alert.alert(
+          'Streak Bonus!',
+          'You completed goals for 7 consecutive days! 30 points awarded.'
+        );
+      }
+
+      await userRef.update({
+        streak: updatedStreak,
+        longestStreak: updatedLongestStreak,
+        lastGoalCompletionDate: today,
+      });
+
       navigation.goBack();
     } catch (error) {
       console.error('Error marking goal as completed: ', error);
@@ -163,12 +208,11 @@ const GoalDetailsScreen = ({ navigation, route }) => {
       <Text style={styles.header}>{goal.title}</Text>
       <Text style={styles.category}>Category: {goal.category}</Text>
       <Text style={styles.description}>{goal.description}</Text>
-      <Text style={styles.points}>Points: {userPoints}</Text>
 
       <Text style={styles.progressLabel}>Progress</Text>
       <ProgressBar
         progress={progress}
-        color="#FFBA00" 
+        color="#FFBA00"
         style={styles.progressBar}
       />
       <Text style={styles.progressText}>{Math.round(progress * 100)}% completed</Text>
@@ -194,17 +238,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#0C3B2E', 
+    backgroundColor: '#0C3B2E',
   },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#FFFFFF', 
+    color: '#FFFFFF',
   },
   category: {
     fontSize: 16,
-    color: '#B46617', 
+    color: '#B46617',
     marginBottom: 10,
   },
   description: {
@@ -212,17 +256,11 @@ const styles = StyleSheet.create({
     color: '#6D9773',
     marginBottom: 20,
   },
-  points: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFBA00', 
-    marginBottom: 10,
-  },
   progressLabel: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
-    color: '#FFFFFF', 
+    color: '#FFFFFF',
   },
   progressBar: {
     height: 10,
@@ -231,7 +269,7 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 14,
-    color: '#6D9773', 
+    color: '#6D9773',
     marginBottom: 20,
   },
   milestonesHeader: {
@@ -241,7 +279,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   milestoneItem: {
-    backgroundColor: '#6D9773', 
+    backgroundColor: '#6D9773',
     padding: 15,
     borderRadius: 10,
     marginBottom: 10,
@@ -254,11 +292,11 @@ const styles = StyleSheet.create({
   milestoneTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FFFFFF', 
+    color: '#FFFFFF',
   },
   milestoneDeadline: {
     fontSize: 14,
-    color: '#B46617', 
+    color: '#B46617',
     marginTop: 5,
   },
   milestoneStatus: {
@@ -267,25 +305,25 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   completeButton: {
-    backgroundColor: '#B46617', 
+    backgroundColor: '#B46617',
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
     marginTop: 10,
   },
   completeButtonText: {
-    color: '#FFFFFF', 
+    color: '#FFFFFF',
     fontSize: 14,
   },
   completeGoalButton: {
-    backgroundColor: '#FFBA00', 
+    backgroundColor: '#FFBA00',
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',
     marginTop: 20,
   },
   completeGoalButtonText: {
-    color: '#0C3B2E', 
+    color: '#0C3B2E',
     fontSize: 16,
     fontWeight: 'bold',
   },

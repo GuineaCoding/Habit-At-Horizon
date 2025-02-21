@@ -70,7 +70,9 @@ const MainGoalPage = ({ navigation }) => {
       ListEmptyComponent={<Text style={styles.emptyText}>No achieved goals.</Text>}
     />
   );
-
+  const goToProgressScreen = () => {
+    navigation.navigate('ProgressScreen');
+  };
   const AbandonedGoals = () => (
     <FlatList
       data={goals.filter((goal) => goal.status === 'abandoned')}
@@ -113,6 +115,9 @@ const MainGoalPage = ({ navigation }) => {
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
+              <TouchableOpacity style={[styles.button, { backgroundColor: '#6D9773' }]} onPress={goToProgressScreen}>
+                <Text style={styles.buttonText}>Motivation & Rewards</Text>
+              </TouchableOpacity>
     </View>
   );
 };

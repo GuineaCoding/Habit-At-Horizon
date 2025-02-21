@@ -30,6 +30,7 @@ import MenteeProfileCreationStartScreen from '../screens/self-growth-screens/Men
 import CreateMenteeProfile from '../screens/self-growth-screens/CreateMenteeScreen'
 import MenteeListScreen from '../screens/self-growth-screens/MenteeListScreen'
 import MenteeProfileViewScreen from '../screens/self-growth-screens/MenteeProfileViewScreen'
+import ProgressScreen from '../screens/self-growth-screens/ProgressScreen'
 
 
 // Tasks
@@ -292,7 +293,11 @@ const AppNavigator = () => {
               component={MenteeProfileViewScreen}
               options={{ title: 'Mentee Profile' }}
             />
-
+                        <Stack.Screen
+              name="ProgressScreen"
+              component={ProgressScreen}
+              options={{ title: 'Progress Screen' }}
+            />
 
           </>
         ) : (
