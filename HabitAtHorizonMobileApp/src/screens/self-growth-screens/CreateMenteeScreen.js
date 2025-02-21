@@ -26,8 +26,8 @@ const CreateMenteeProfile = ({ navigation }) => {
           const userDoc = await firestore().collection('users').doc(userId).get();
           if (userDoc.exists) {
             const userData = userDoc.data();
-            setName(userData.name || ''); 
-            setUsername(userData.username || ''); 
+            setName(userData.name || '');
+            setUsername(userData.username || '');
           }
 
           const menteeSnapshot = await firestore()
@@ -38,13 +38,13 @@ const CreateMenteeProfile = ({ navigation }) => {
           if (!menteeSnapshot.empty) {
             const menteeData = menteeSnapshot.docs[0].data();
             const menteeDocId = menteeSnapshot.docs[0].id;
-            setBio(menteeData.bio);
-            setGoals(menteeData.goals);
-            setSkills(menteeData.skills);
-            setAvailability(menteeData.availability);
-            setProfileImage(menteeData.profileImage);
-            setLinkedIn(menteeData.linkedIn);
-            setTwitter(menteeData.twitter);
+            setBio(menteeData.bio || '');
+            setGoals(menteeData.goals?.join(', ') || '');
+            setSkills(menteeData.skills?.join(', ') || '');
+            setAvailability(menteeData.availability?.join(', ') || '');
+            setProfileImage(menteeData.profileImage || '');
+            setLinkedIn(menteeData.linkedIn || '');
+            setTwitter(menteeData.twitter || '');
             setMenteeId(menteeDocId); 
           }
         } catch (error) {
@@ -80,15 +80,13 @@ const CreateMenteeProfile = ({ navigation }) => {
         profileImage,
         linkedIn,
         twitter,
-        userId,
+        userId, 
       };
 
       if (menteeId) {
-     
         await firestore().collection('mentees').doc(menteeId).update(menteeData);
         Alert.alert('Success', 'Mentee profile updated successfully!');
       } else {
-
         await firestore().collection('mentees').add(menteeData);
         Alert.alert('Success', 'Mentee profile created successfully!');
       }
@@ -114,19 +112,16 @@ const CreateMenteeProfile = ({ navigation }) => {
       />
 
       <ScrollView contentContainerStyle={styles.content}>
-        {/* Name Field (Read-only) */}
         <View style={styles.readOnlyField}>
           <Text style={styles.readOnlyLabel}>Name</Text>
           <Text style={styles.readOnlyText}>{name}</Text>
         </View>
 
-        {/* Username Field (Read-only) */}
         <View style={styles.readOnlyField}>
           <Text style={styles.readOnlyLabel}>Username</Text>
           <Text style={styles.readOnlyText}>{username}</Text>
         </View>
 
-        {/* Editable Fields */}
         <TextInput
           placeholder="Bio *"
           value={bio}
@@ -210,9 +205,9 @@ const styles = StyleSheet.create({
   },
   readOnlyText: {
     fontSize: 16,
-    color: '#FFFFFF', 
+    color: '#FFFFFF',
     padding: 12,
-    backgroundColor: '#6D9773', 
+    backgroundColor: '#6D9773',
     borderRadius: 10,
   },
   input: {
@@ -242,4 +237,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreateMenteeProfile;
+export default CreateMenteeProfile; 
