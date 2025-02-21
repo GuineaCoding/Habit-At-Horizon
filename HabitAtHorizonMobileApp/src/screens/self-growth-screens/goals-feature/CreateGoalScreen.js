@@ -4,6 +4,7 @@ import { Picker } from '@react-native-picker/picker';
 import firestore from '@react-native-firebase/firestore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
+import CustomAppBar from '../../../components/CustomAppBar';
 const CreateGoalScreen = ({ navigation, route }) => {
   const { userId } = route.params || {};
   const [title, setTitle] = useState('');
@@ -103,6 +104,7 @@ const CreateGoalScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
+      <CustomAppBar title="Create Goal" showBackButton={true} />
       <Text style={styles.header}>Create a New Goal</Text>
 
       <Text style={styles.label}>Goal Title</Text>
@@ -138,11 +140,12 @@ const CreateGoalScreen = ({ navigation, route }) => {
 
       <Text style={styles.label}>Description (Optional)</Text>
       <TextInput
-        style={[styles.input, { height: 100 }]}
+        style={[styles.input, { height: 120 }]}
         value={description}
         onChangeText={setDescription}
         placeholder="Enter goal description"
-        multiline
+        multiline={true}
+        numberOfLines={4}
       />
 
       <Text style={styles.label}>Add Milestones</Text>
@@ -190,19 +193,19 @@ const CreateGoalScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#0C3B2E',
     padding: 20,
-    backgroundColor: '#f5f5f5',
   },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: '#333',
+    color: '#FFFFFF',
   },
   label: {
     fontSize: 16,
     marginTop: 10,
-    color: '#333',
+    color: '#FFFFFF',
   },
   input: {
     borderWidth: 1,
@@ -211,6 +214,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     backgroundColor: '#fff',
+     textAlignVertical: 'top'
   },
   picker: {
     borderWidth: 1,
@@ -218,9 +222,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 10,
     backgroundColor: '#fff',
+   
   },
   createButton: {
-    backgroundColor: '#6200EE',
+    backgroundColor: '#B46617',
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',
@@ -238,7 +243,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   dateButton: {
-    backgroundColor: '#6200EE',
+    backgroundColor: '#FFBA00',
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
@@ -249,7 +254,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   addMilestoneButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#6D9773',
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
