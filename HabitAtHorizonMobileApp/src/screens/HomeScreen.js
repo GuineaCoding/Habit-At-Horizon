@@ -1,15 +1,20 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, BackHandler, Alert } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native'; 
+import { View, Text, StyleSheet, TouchableOpacity, BackHandler, Alert, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CustomAppBar from '../components/CustomAppBar';
+import { useQuote } from '../components/useQuote'; 
 
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const { quote, isLoading, error, fetchQuote } = useQuote(); 
+  const [refreshing, setRefreshing] = React.useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
+      fetchQuote();
+
       const backAction = () => {
-        Alert.alert('Exit App', 'Are you sure you wan111t to exit?', [
+        Alert.alert('Exit App', 'Are you sure you want to exit?', [
           { text: 'Cancel', onPress: () => null, style: 'cancel' },
           { text: 'Exit', onPress: () => BackHandler.exitApp() },
         ]);
@@ -18,8 +23,14 @@ const HomeScreen = () => {
 
       const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
       return () => backHandler.remove();
-    }, []) 
+    }, [fetchQuote])
   );
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    await fetchQuote();
+    setRefreshing(false);
+  }, [fetchQuote]);
 
   const goToMyPersonalSpace = () => {
     navigation.navigate('PersonalSpaceScreen');
@@ -32,13 +43,33 @@ const HomeScreen = () => {
   const goToMenteeScreen = () => {
     navigation.navigate('MenteesDashboardScreen');
   };
+
   const goToTopListScreen = () => {
     navigation.navigate('TopListScreen');
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <CustomAppBar title="Home Screen" showBackButton={false} />
+
+      <View style={styles.quoteContainer}>
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#6D9773" />
+        ) : error ? (
+          <Text style={styles.errorText}>{error}</Text>
+        ) : (
+          <>
+            <Text style={styles.quoteText}>"{quote.content}"</Text>
+            <Text style={styles.authorText}>- {quote.author}</Text>
+          </>
+        )}
+      </View>
+
       <View style={styles.listContainer}>
         <TouchableOpacity style={[styles.listItem, { backgroundColor: '#6D9773' }]} onPress={goToMyPersonalSpace}>
           <Text style={styles.listText}>My Personal Space</Text>
@@ -52,20 +83,42 @@ const HomeScreen = () => {
         <TouchableOpacity style={[styles.listItem, { backgroundColor: '#FFBA00' }]} onPress={goToTopListScreen}>
           <Text style={styles.listText}>Top List Screen</Text>
         </TouchableOpacity>
-
-        
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: '#0C3B2E',
+    paddingBottom: 20,
+  },
+  quoteContainer: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  quoteText: {
+    fontSize: 18,
+    fontStyle: 'italic',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  authorText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFBA00',
+    textAlign: 'center',
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#FF0000',
+    textAlign: 'center',
   },
   listContainer: {
-    marginTop: 20,
     paddingHorizontal: 20,
   },
   listItem: {
