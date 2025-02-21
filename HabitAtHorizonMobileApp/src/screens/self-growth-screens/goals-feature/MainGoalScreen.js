@@ -55,7 +55,7 @@ const MainGoalPage = ({ navigation }) => {
 
   const OngoingGoals = () => (
     <FlatList
-      data={goals.filter((goal) => goal.status === 'ongoing')}
+      data={goals.filter((goal) => goal.status === 'active')}
       renderItem={renderGoalItem}
       keyExtractor={(item) => item.id}
       ListEmptyComponent={<Text style={styles.emptyText}>No ongoing goals.</Text>}
