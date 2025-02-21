@@ -30,8 +30,11 @@ import MenteeProfileCreationStartScreen from '../screens/self-growth-screens/Men
 import CreateMenteeProfile from '../screens/self-growth-screens/CreateMenteeScreen'
 import MenteeListScreen from '../screens/self-growth-screens/MenteeListScreen'
 import MenteeProfileViewScreen from '../screens/self-growth-screens/MenteeProfileViewScreen'
-import ProgressScreen from '../screens/self-growth-screens/ProgressScreen'
 
+
+//generals
+import ProgressScreen from '../screens/self-growth-screens/ProgressScreen'
+import TopListScreen from '../screens/self-growth-screens/TopListScreen'
 
 // Tasks
 import PersonalSpaceScreen from '../screens/self-growth-screens/PersonalSpaceScreen';
@@ -297,6 +300,11 @@ const AppNavigator = () => {
               name="ProgressScreen"
               component={ProgressScreen}
               options={{ title: 'Progress Screen' }}
+            />
+                                    <Stack.Screen
+              name="TopListScreen"
+              component={TopListScreen}
+              options={{ title: 'Top List Screen' }}
             />
 
           </>
