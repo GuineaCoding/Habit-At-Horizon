@@ -14,13 +14,12 @@ const CreateMenteeProfile = ({ navigation }) => {
   const [profileImage, setProfileImage] = useState('');
   const [linkedIn, setLinkedIn] = useState('');
   const [twitter, setTwitter] = useState('');
-  const [menteeId, setMenteeId] = useState(null); 
   const [isLoading, setIsLoading] = useState(true);
 
   const userId = auth().currentUser?.uid;
 
   useEffect(() => {
-    const fetchUserAndMenteeProfile = async () => {
+    const fetchUserProfile = async () => {
       if (userId) {
         try {
           const userDoc = await firestore().collection('users').doc(userId).get();
@@ -28,34 +27,23 @@ const CreateMenteeProfile = ({ navigation }) => {
             const userData = userDoc.data();
             setName(userData.name || '');
             setUsername(userData.username || '');
-          }
-
-          const menteeSnapshot = await firestore()
-            .collection('mentees')
-            .where('userId', '==', userId)
-            .get();
-
-          if (!menteeSnapshot.empty) {
-            const menteeData = menteeSnapshot.docs[0].data();
-            const menteeDocId = menteeSnapshot.docs[0].id;
-            setBio(menteeData.bio || '');
-            setGoals(menteeData.goals?.join(', ') || '');
-            setSkills(menteeData.skills?.join(', ') || '');
-            setAvailability(menteeData.availability?.join(', ') || '');
-            setProfileImage(menteeData.profileImage || '');
-            setLinkedIn(menteeData.linkedIn || '');
-            setTwitter(menteeData.twitter || '');
-            setMenteeId(menteeDocId); 
+            setBio(userData.bio || '');
+            setGoals(userData.menteeData?.goals?.join(', ') || '');
+            setSkills(userData.menteeData?.skills?.join(', ') || '');
+            setAvailability(userData.menteeData?.availability?.join(', ') || '');
+            setProfileImage(userData.profileImage || '');
+            setLinkedIn(userData.menteeData?.linkedIn || '');
+            setTwitter(userData.menteeData?.twitter || '');
           }
         } catch (error) {
-          console.error('Error fetching data:', error);
+          console.error('Error fetching user profile:', error);
         } finally {
           setIsLoading(false);
         }
       }
     };
 
-    fetchUserAndMenteeProfile();
+    fetchUserProfile();
   }, [userId]);
 
   const handleSaveMentee = async () => {
@@ -71,25 +59,26 @@ const CreateMenteeProfile = ({ navigation }) => {
 
     try {
       const menteeData = {
-        name,
-        username,
-        bio,
         goals: goals.split(',').map(goal => goal.trim()), 
         skills: skills.split(',').map(skill => skill.trim()), 
         availability: availability.split(',').map(avail => avail.trim()), 
-        profileImage,
         linkedIn,
         twitter,
-        userId, 
       };
 
-      if (menteeId) {
-        await firestore().collection('mentees').doc(menteeId).update(menteeData);
-        Alert.alert('Success', 'Mentee profile updated successfully!');
-      } else {
-        await firestore().collection('mentees').add(menteeData);
-        Alert.alert('Success', 'Mentee profile created successfully!');
-      }
+      await firestore().collection('users').doc(userId).set(
+        {
+          name,
+          username,
+          bio,
+          profileImage,
+          roles: ['mentee'], 
+          menteeData, 
+        },
+        { merge: true } 
+      );
+
+      Alert.alert('Success', 'Mentee profile saved successfully!');
     } catch (error) {
       console.error('Error saving mentee profile:', error);
       Alert.alert('Error', 'Failed to save mentee profile.');
@@ -107,21 +96,24 @@ const CreateMenteeProfile = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <CustomAppBar
-        title={menteeId ? 'Edit Mentee Profile' : 'Create Mentee Profile'}
+        title="Create/Edit Mentee Profile"
         showBackButton={true}
       />
 
       <ScrollView contentContainerStyle={styles.content}>
+        {/* Name Field (Read-only) */}
         <View style={styles.readOnlyField}>
           <Text style={styles.readOnlyLabel}>Name</Text>
           <Text style={styles.readOnlyText}>{name}</Text>
         </View>
 
+        {/* Username Field (Read-only) */}
         <View style={styles.readOnlyField}>
           <Text style={styles.readOnlyLabel}>Username</Text>
           <Text style={styles.readOnlyText}>{username}</Text>
         </View>
 
+        {/* Editable Fields */}
         <TextInput
           placeholder="Bio *"
           value={bio}
@@ -177,9 +169,7 @@ const CreateMenteeProfile = ({ navigation }) => {
           style={[styles.button, { backgroundColor: '#6D9773' }]}
           onPress={handleSaveMentee}
         >
-          <Text style={styles.buttonText}>
-            {menteeId ? 'Update Profile' : 'Create Profile'}
-          </Text>
+          <Text style={styles.buttonText}>Save Profile</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -237,4 +227,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreateMenteeProfile; 
+export default CreateMenteeProfile;
