@@ -3,11 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity, BackHandler, Alert, ActivityI
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CustomAppBar from '../components/CustomAppBar';
 import { useQuote } from '../components/useQuote'; 
+import { useRefreshService } from '../components/pullRefreshScreenService'; 
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const { quote, isLoading, error, fetchQuote } = useQuote(); 
-  const [refreshing, setRefreshing] = React.useState(false);
+  const { quote, isLoading, error, fetchQuote } = useQuote();
+  const { refreshing, onRefresh } = useRefreshService(fetchQuote); 
 
   useFocusEffect(
     React.useCallback(() => {
@@ -25,12 +26,6 @@ const HomeScreen = () => {
       return () => backHandler.remove();
     }, [fetchQuote])
   );
-
-  const onRefresh = React.useCallback(async () => {
-    setRefreshing(true);
-    await fetchQuote();
-    setRefreshing(false);
-  }, [fetchQuote]);
 
   const goToMyPersonalSpace = () => {
     navigation.navigate('PersonalSpaceScreen');
@@ -117,6 +112,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FF0000',
     textAlign: 'center',
+  },
+  debugText: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    marginTop: 20,
+    backgroundColor: '#333',
+    padding: 10,
+    borderRadius: 5,
   },
   listContainer: {
     paddingHorizontal: 20,
