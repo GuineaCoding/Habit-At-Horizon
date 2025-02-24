@@ -1,94 +1,67 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, BackHandler, Alert, ActivityIndicator } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import firestore from '@react-native-firebase/firestore';
 import CustomAppBar from '../../components/CustomAppBar';
-import { fetchRandomQuote } from '../../components/quoteService'; 
 
-const HomeScreen = () => {
-  const navigation = useNavigation();
-  const [quote, setQuote] = useState({ content: '', author: '' });
+const TopListScreen = ({ navigation }) => {
+  const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      const loadQuote = async () => {
-        try {
-          setIsLoading(true);
-          setError(null);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const usersSnapshot = await firestore().collection('users').get();
 
-          const quoteData = await fetchRandomQuote(); 
-          setQuote(quoteData);
-        } catch (error) {
-          console.error('Error fetching quote:', error);
-          setError('Failed to load quote. Please try again.');
-        } finally {
-          setIsLoading(false);
-        }
-      };
+        const usersData = usersSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
-      loadQuote();
+        const sortedUsers = usersData.sort((a, b) => b.points - a.points);
 
-      const backAction = () => {
-        Alert.alert('Exit App', 'Are you sure you want to exit?', [
-          { text: 'Cancel', onPress: () => null, style: 'cancel' },
-          { text: 'Exit', onPress: () => BackHandler.exitApp() },
-        ]);
-        return true;
-      };
+        setUsers(sortedUsers);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-      const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-      return () => backHandler.remove();
-    }, [])
+    fetchUsers();
+  }, []);
+
+  const renderUserItem = ({ item, index }) => (
+    <TouchableOpacity
+      style={styles.userItem}
+      onPress={() => navigation.navigate('MenteeProfileViewScreen', { mentee: item })}
+    >
+      <Text style={styles.rank}>{index + 1}</Text>
+      <View style={styles.userInfo}>
+        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.username}>@{item.username}</Text>
+      </View>
+      <Text style={styles.points}>{item.points} points</Text>
+    </TouchableOpacity>
   );
 
-  const goToMyPersonalSpace = () => {
-    navigation.navigate('PersonalSpaceScreen');
-  };
-
-  const goToMentoring = () => {
-    navigation.navigate('MentorshipScreen');
-  };
-
-  const goToMenteeScreen = () => {
-    navigation.navigate('MenteesDashboardScreen');
-  };
-
-  const goToTopListScreen = () => {
-    navigation.navigate('TopListScreen');
-  };
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <CustomAppBar title="Home Screen" showBackButton={false} />
+      <CustomAppBar title="Top List" showBackButton={true} />
 
-      <View style={styles.quoteContainer}>
-        {isLoading ? (
-          <ActivityIndicator size="large" color="#6D9773" />
-        ) : error ? (
-          <Text style={styles.errorText}>{error}</Text>
-        ) : (
-          <>
-            <Text style={styles.quoteText}>"{quote.content}"</Text>
-            <Text style={styles.authorText}>- {quote.author}</Text>
-          </>
-        )}
-      </View>
-
-      <View style={styles.listContainer}>
-        <TouchableOpacity style={[styles.listItem, { backgroundColor: '#6D9773' }]} onPress={goToMyPersonalSpace}>
-          <Text style={styles.listText}>My Personal Space</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.listItem, { backgroundColor: '#B46617' }]} onPress={goToMentoring}>
-          <Text style={styles.listText}>Mentoring Space</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.listItem, { backgroundColor: '#FFBA00' }]} onPress={goToMenteeScreen}>
-          <Text style={styles.listText}>Mentee Space</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.listItem, { backgroundColor: '#FFBA00' }]} onPress={goToTopListScreen}>
-          <Text style={styles.listText}>Top List Screen</Text>
-        </TouchableOpacity>
-      </View>
+      <FlatList
+        data={users}
+        renderItem={renderUserItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContainer}
+      />
     </View>
   );
 };
@@ -98,45 +71,50 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0C3B2E',
   },
-  quoteContainer: {
-    padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  quoteText: {
-    fontSize: 18,
-    fontStyle: 'italic',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  authorText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFBA00',
-    textAlign: 'center',
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#FF0000',
-    textAlign: 'center',
-  },
   listContainer: {
-    paddingHorizontal: 20,
+    padding: 16,
   },
-  listItem: {
-    padding: 20,
-    borderRadius: 10,
-    marginBottom: 15,
-    elevation: 3,
+  userItem: {
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    marginBottom: 12,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  listText: {
+  rank: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#0C3B2E',
+    marginRight: 16,
+  },
+  userInfo: {
+    flex: 1,
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#0C3B2E',
+  },
+  username: {
+    fontSize: 14,
+    color: '#6D9773',
+  },
+  points: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#B46617',
+  },
+  loadingText: {
     fontSize: 18,
     color: '#FFFFFF',
-    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 
-export default HomeScreen;
+export default TopListScreen;
