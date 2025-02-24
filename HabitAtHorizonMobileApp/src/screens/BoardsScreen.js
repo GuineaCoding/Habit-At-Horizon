@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, TextInput, Alert, Button } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import CustomAppBar from '../components/CustomAppBar';
 
 const BoardsScreen = ({ navigation }) => {
     const [boards, setBoards] = useState([]);
@@ -14,34 +15,36 @@ const BoardsScreen = ({ navigation }) => {
     useEffect(() => {
         const fetchBoards = async () => {
             try {
-                const boardsSnapshot = await firestore().collection('boards')
-                    .where('creator', '==', user.uid) 
+                const boardsSnapshot = await firestore()
+                    .collection('boards')
+                    .where('creator', '==', user.uid)
                     .get();
-    
-                const userBoards = boardsSnapshot.docs.map(doc => ({
+
+                const userBoards = boardsSnapshot.docs.map((doc) => ({
                     id: doc.id,
-                    ...doc.data()
+                    ...doc.data(),
                 }));
-    
+
                 setBoards(userBoards);
             } catch (error) {
                 console.error('Error fetching boards:', error);
             }
         };
-    
+
         fetchBoards();
     }, [user]);
+
     const handleSaveBoard = async () => {
         if (!boardTitle.trim()) {
             Alert.alert('Validation Error', 'Board name cannot be empty');
             return;
         }
-    
+
         if (!user || !user.uid) {
             Alert.alert('User Error', 'User information is not available. Please log in again.');
             return;
         }
-    
+
         let username = '';
         try {
             const userDoc = await firestore().collection('users').doc(user.uid).get();
@@ -56,18 +59,18 @@ const BoardsScreen = ({ navigation }) => {
             Alert.alert('Error', 'Failed to fetch user profile. Please try again.');
             return;
         }
-    
+
         try {
             const existingBoards = await firestore()
                 .collection('boards')
                 .where('title', '==', boardTitle)
                 .get();
-    
+
             if (!existingBoards.empty && (!editBoardId || existingBoards.docs[0].id !== editBoardId)) {
                 Alert.alert('Validation Error', 'Board name must be unique');
                 return;
             }
-    
+
             if (editBoardId) {
                 await firestore()
                     .collection('boards')
@@ -79,17 +82,17 @@ const BoardsScreen = ({ navigation }) => {
                     title: boardTitle,
                     creator: user.uid,
                     creatorEmail: user.email,
-                    username: username, 
+                    username: username,
                     createdAt: new Date(),
                 });
                 await newBoardRef.collection('members').doc(user.uid).set({
                     role: 'Admin',
                     creatorEmail: user.email,
-                    username: username, 
+                    username: username,
                     joinedAt: new Date(),
                 });
             }
-    
+
             setModalVisible(false);
             setBoardTitle('');
             setEditBoardId(null);
@@ -99,8 +102,7 @@ const BoardsScreen = ({ navigation }) => {
         }
     };
 
-
-    const deleteBoard = async boardId => {
+    const deleteBoard = async (boardId) => {
         Alert.alert(
             'Delete Board',
             'Are you sure you want to delete this board?',
@@ -122,7 +124,7 @@ const BoardsScreen = ({ navigation }) => {
         );
     };
 
-    const openEditModal = board => {
+    const openEditModal = (board) => {
         setBoardTitle(board.title);
         setEditBoardId(board.id);
         setModalVisible(true);
@@ -139,10 +141,10 @@ const BoardsScreen = ({ navigation }) => {
             </TouchableOpacity>
             <View style={styles.boardActions}>
                 <TouchableOpacity onPress={() => openEditModal(item)}>
-                    <Icon name="edit" size={24} color="blue" />
+                    <Icon name="edit" size={24} color="#FFBA00" /> 
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => deleteBoard(item.id)}>
-                    <Icon name="delete" size={24} color="red" />
+                    <Icon name="delete" size={24} color="#B46617" /> 
                 </TouchableOpacity>
             </View>
         </View>
@@ -150,23 +152,21 @@ const BoardsScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.header}>Your Boards</Text>
+            <CustomAppBar title="Your Boards" showBackButton={false} />  
             {boards.length > 0 ? (
                 <FlatList
                     data={boards}
                     renderItem={renderBoard}
-                    keyExtractor={item => item.id}
+                    keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.list}
                 />
             ) : (
                 <Text style={styles.noBoardsText}>You have no boards yet.</Text>
             )}
 
-            <View style={styles.addButtonContainer}>
-                <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
-                    <Text style={styles.addButtonText}>Add a Board</Text>
-                </TouchableOpacity>
-            </View>
+            <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
+                <Text style={styles.addButtonText}>Add a Board</Text>
+            </TouchableOpacity>
 
             <Modal
                 animationType="slide"
@@ -185,11 +185,14 @@ const BoardsScreen = ({ navigation }) => {
                             value={boardTitle}
                             onChangeText={setBoardTitle}
                         />
-                        <Button
-                            title={editBoardId ? 'Save Changes' : 'Create Board'}
-                            onPress={handleSaveBoard}
-                        />
-                        <Button title="Cancel" onPress={() => setModalVisible(false)} />
+                        <TouchableOpacity onPress={handleSaveBoard} style={styles.modalButton}>
+                            <Text style={styles.modalButtonText}>
+                                {editBoardId ? 'Save Changes' : 'Create Board'}
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalButtonCancel}>
+                            <Text style={styles.modalButtonText}>Cancel</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </Modal>
@@ -201,13 +204,14 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#fff',
+        backgroundColor: '#0C3B2E', 
     },
     header: {
         fontSize: 24,
         fontWeight: 'bold',
-        marginBottom: 20,
+        color: '#FFBA00',
         textAlign: 'center',
+        marginBottom: 20,
     },
     list: {
         flexGrow: 1,
@@ -218,10 +222,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 15,
         borderWidth: 1,
-        borderColor: '#ddd',
+        borderColor: '#6D9773',
         borderRadius: 8,
         marginBottom: 10,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#6D9773', 
     },
     boardInfo: {
         flex: 1,
@@ -229,10 +233,11 @@ const styles = StyleSheet.create({
     boardTitle: {
         fontSize: 18,
         fontWeight: 'bold',
+        color: '#FFFFFF', 
     },
     boardCreator: {
         fontSize: 14,
-        color: '#555',
+        color: '#FFFFFF', 
     },
     boardActions: {
         flexDirection: 'row',
@@ -242,23 +247,17 @@ const styles = StyleSheet.create({
     noBoardsText: {
         textAlign: 'center',
         fontSize: 16,
-        color: '#777',
+        color: '#888',
         marginVertical: 20,
     },
-    addButtonContainer: {
-        position: 'absolute',
-        bottom: 20,
-        left: 20,
-        right: 20,
-    },
     addButton: {
-        backgroundColor: '#007bff',
+        backgroundColor: '#FFBA00', 
         padding: 15,
         borderRadius: 8,
         alignItems: 'center',
     },
     addButtonText: {
-        color: 'white',
+        color: '#0C3B2E', 
         fontSize: 16,
         fontWeight: 'bold',
     },
@@ -269,7 +268,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalContent: {
-        backgroundColor: 'white',
+        backgroundColor: '#0C3B2E', 
         padding: 20,
         borderRadius: 10,
         width: '90%',
@@ -277,14 +276,37 @@ const styles = StyleSheet.create({
     modalHeader: {
         fontSize: 18,
         marginBottom: 10,
+        color: '#FFBA00', 
+        textAlign: 'center',
     },
     input: {
         borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: '#6D9773', 
         padding: 10,
         marginVertical: 10,
         borderRadius: 5,
         width: '100%',
+        backgroundColor: '#FFFFFF', 
+        color: '#0C3B2E', 
+    },
+    modalButton: {
+        backgroundColor: '#FFBA00', 
+        padding: 10,
+        borderRadius: 5,
+        alignItems: 'center',
+        marginVertical: 5,
+    },
+    modalButtonCancel: {
+        backgroundColor: '#B46617', 
+        padding: 10,
+        borderRadius: 5,
+        alignItems: 'center',
+        marginVertical: 5,
+    },
+    modalButtonText: {
+        color: '#0C3B2E', 
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });
 

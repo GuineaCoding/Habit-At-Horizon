@@ -137,27 +137,27 @@ const AppNavigator = () => {
             <Stack.Screen
               name="BoardsScreen"
               component={BoardsScreen}
-              options={{ headerShown: true, title: 'Boards' }}
+              options={{ headerShown: false, title: 'Boards' }}
             />
             <Stack.Screen
               name="BoardDetailsScreen"
               component={BoardDetailsScreen}
-              options={{ headerShown: true, title: 'Board Details' }}
+              options={{ headerShown: false, title: 'Board Details' }}
             />
             <Stack.Screen
               name="LessonBuilderScreen"
               component={LessontBuilderScreen}
-              options={{ headerShown: true, title: 'Lesson Builder' }}
+              options={{ headerShown: false, title: 'Lesson Builder' }}
             />
             <Stack.Screen
               name="LessonScreen"
               component={LessonScreen}
-              options={{ headerShown: true, title: 'Lesson Screen' }}
+              options={{ headerShown: false, title: 'Lesson Screen' }}
             />
             <Stack.Screen
               name="TestCreateScreen"
               component={TestCreateScreen}
-              options={{ headerShown: true, title: 'Test Creation Screen' }}
+              options={{ headerShown: false, title: 'Test Creation Screen' }}
             />
             <Stack.Screen name="TestViewScreen" component={TestViewScreen} />
             <Stack.Screen
