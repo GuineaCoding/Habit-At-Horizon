@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Button, Dimensions, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Dimensions, Modal, TextInput } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import firestore from '@react-native-firebase/firestore';
 import { findUserByUsername } from '../services/UserService';
+import CustomAppBar from '../components/CustomAppBar';
 
 const BoardDetailsScreen = ({ route, navigation }) => {
     const [modalVisible, setModalVisible] = useState(false);
@@ -27,7 +28,7 @@ const BoardDetailsScreen = ({ route, navigation }) => {
             } else {
                 setBoardData(null);
             }
-        });     
+        });
 
         const unsubscribeMembers = firestore().collection('boards').doc(boardId).collection('members').onSnapshot(snapshot => {
             const fetchedMembers = snapshot.docs.map(doc => ({
@@ -95,7 +96,7 @@ const BoardDetailsScreen = ({ route, navigation }) => {
             await memberRef.set({
                 userId: userId,
                 email: user.email,
-                username :user.username,
+                username: user.username,
                 role: 'mentee',
                 joinedAt: firestore.FieldValue.serverTimestamp(),
             });
@@ -124,8 +125,12 @@ const BoardDetailsScreen = ({ route, navigation }) => {
                             <Text style={styles.lessonTitle}>{item.title}</Text>
                         </TouchableOpacity>
                         <View style={styles.buttonGroup}>
-                            <Button title="Edit" onPress={() => navigation.navigate('LessonBuilderScreen', { boardId, lessonId: item.id })} />
-                            <Button title="Delete" color="red" onPress={() => firestore().collection('boards').doc(boardId).collection('lessons').doc(item.id).delete()} />
+                            <TouchableOpacity onPress={() => navigation.navigate('LessonBuilderScreen', { boardId, lessonId: item.id })} style={styles.editButton}>
+                                <Text style={styles.buttonText}>Edit</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => firestore().collection('boards').doc(boardId).collection('lessons').doc(item.id).delete()} style={styles.deleteButton}>
+                                <Text style={styles.buttonText}>Delete</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 )}
@@ -153,21 +158,19 @@ const BoardDetailsScreen = ({ route, navigation }) => {
                         >
                             <Text style={styles.testTitle}>{item.testName}</Text>
                         </TouchableOpacity>
-                        <Button
-                            title="Delete"
-                            color="red"
-                            onPress={() => handleDeleteTest(item.id)}
-                        />
+                        <TouchableOpacity onPress={() => handleDeleteTest(item.id)} style={styles.deleteButton}>
+                            <Text style={styles.buttonText}>Delete</Text>
+                        </TouchableOpacity>
                     </View>
                 )}
-                ListFooterComponent={(
+                ListFooterComponent={
                     <TouchableOpacity
                         style={styles.addTestButton}
                         onPress={() => navigation.navigate('TestCreateScreen', { boardId })}
                     >
                         <Text style={styles.addTestButtonText}>Add Test</Text>
                     </TouchableOpacity>
-                )}
+                }
             />
         </View>
     );
@@ -179,26 +182,32 @@ const BoardDetailsScreen = ({ route, navigation }) => {
         ]);
     };
 
-const MembersRoute = () => (
-    <View style={styles.tabContainer}>
-        <FlatList
-            data={members}
-            keyExtractor={item => item.id}
-            renderItem={({ item }) => (
-                <TouchableOpacity
-                    onPress={() => navigation.navigate('MenteeLessonsActivityScreen', { boardId, userId: item.id })}
-                >
-                    <View style={styles.memberItem}>
-                        <Text>{item.email}</Text>
-                        <Text style={styles.memberRole}>Username: {item.username || 'Not defined'}</Text>
-                    </View>
-                </TouchableOpacity>
-            )}
-            ListFooterComponent={<Button title="Invite Member" onPress={() => setModalVisible(true)} />}
-        />
-    </View>
-);
-    
+    const MembersRoute = () => (
+        <View style={styles.tabContainer}>
+            <FlatList
+                data={members}
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => (
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('MenteeLessonsActivityScreen', { boardId, userId: item.id })}
+                    >
+                        <View style={styles.memberItem}>
+                            <Text style={styles.memberEmail}>{item.email}</Text>
+                            <Text style={styles.memberRole}>Username: {item.username || 'Not defined'}</Text>
+                        </View>
+                    </TouchableOpacity>
+                )}
+                ListFooterComponent={
+                    <TouchableOpacity
+                        style={styles.inviteButton}
+                        onPress={() => setModalVisible(true)}
+                    >
+                        <Text style={styles.inviteButtonText}>Invite Member</Text>
+                    </TouchableOpacity>
+                }
+            />
+        </View>
+    );
 
     const renderScene = SceneMap({
         lessons: LessonsRoute,
@@ -208,14 +217,10 @@ const MembersRoute = () => (
 
     return (
         <View style={styles.container}>
-            <Text style={styles.header}>{boardData ? boardData.title : 'Loading...'}</Text>
+            <CustomAppBar title={boardData.title} showBackButton={true} />
             <TabView
                 navigationState={{ index, routes }}
-                renderScene={SceneMap({
-                    lessons: LessonsRoute,
-                    tests: TestsRoute,
-                    members: MembersRoute,
-                })}
+                renderScene={renderScene}
                 onIndexChange={setIndex}
                 initialLayout={{ width: Dimensions.get('window').width }}
                 renderTabBar={props => (
@@ -243,8 +248,12 @@ const MembersRoute = () => (
                             onChangeText={setUsername}
                         />
                         {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
-                        <Button title="Invite" onPress={inviteUser} />
-                        <Button title="Cancel" onPress={() => setModalVisible(false)} color="red" />
+                        <TouchableOpacity onPress={inviteUser} style={styles.modalButton}>
+                            <Text style={styles.modalButtonText}>Invite</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalButtonCancel}>
+                            <Text style={styles.modalButtonText}>Cancel</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </Modal>
@@ -253,48 +262,22 @@ const MembersRoute = () => (
 };
 
 const styles = StyleSheet.create({
-    memberRole: {
-        fontSize: 14,
-        color: '#0044cc', // Dark blue color for the username text
-    },
-    testItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 15,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        marginBottom: 10,
-        backgroundColor: '#f9f9f9',
-    },
     container: {
         flex: 1,
-        padding: 20,
-        backgroundColor: '#fff',
-    },
-    header: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    subHeader: {
-        fontSize: 16,
-        color: '#555',
-        marginBottom: 20,
+        backgroundColor: '#0C3B2E',
     },
     tabContainer: {
         flex: 1,
-        paddingBottom: 20,
+        padding: 20,
     },
     tabBar: {
-        backgroundColor: '#007bff',
+        backgroundColor: '#6D9773',
     },
     tabIndicator: {
-        backgroundColor: '#fff',
+        backgroundColor: '#FFBA00',
     },
     tabLabel: {
-        color: '#fff',
+        color: '#FFFFFF',
         fontWeight: 'bold',
     },
     lessonItem: {
@@ -303,74 +286,160 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 15,
         borderWidth: 1,
-        borderColor: '#ddd',
+        borderColor: '#6D9773',
         borderRadius: 8,
         marginBottom: 10,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#6D9773',
     },
     lessonTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-    },
-    lessonDescription: {
-        fontSize: 14,
-        color: '#555',
+        color: '#FFFFFF',
     },
     buttonGroup: {
         flexDirection: 'row',
     },
+    editButton: {
+        backgroundColor: '#FFBA00',
+        padding: 10,
+        borderRadius: 5,
+        marginRight: 10,
+    },
+    deleteButton: {
+        backgroundColor: '#B46617',
+        padding: 10,
+        borderRadius: 5,
+    },
+    buttonText: {
+        color: '#0C3B2E',
+        fontWeight: 'bold',
+    },
     noLessons: {
         textAlign: 'center',
-        color: '#777',
+        color: '#888',
         fontSize: 16,
         marginVertical: 20,
     },
     addLessonButton: {
-        backgroundColor: '#007bff',
+        backgroundColor: '#FFBA00',
         padding: 15,
         borderRadius: 8,
         alignItems: 'center',
-        position: 'absolute',
-        bottom: 10,
-        left: 20,
-        right: 20,
+        marginTop: 10,
     },
     addLessonButtonText: {
-        color: '#fff',
+        color: '#0C3B2E',
         fontSize: 16,
         fontWeight: 'bold',
     },
     memberItem: {
-        padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
-    },
-    memberRole: {
-        color: '#555',
-    },
-    testItem: {
         padding: 15,
         borderWidth: 1,
-        borderColor: '#ddd',
+        borderColor: '#6D9773',
         borderRadius: 8,
         marginBottom: 10,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#6D9773',
+    },
+    memberEmail: {
+        fontSize: 16,
+        color: '#FFFFFF',
+    },
+    memberRole: {
+        fontSize: 14,
+        color: '#FFFFFF',
+    },
+    inviteButton: {
+        backgroundColor: '#FFBA00',
+        padding: 15,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    inviteButtonText: {
+        color: '#0C3B2E',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    testItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 15,
+        borderWidth: 1,
+        borderColor: '#6D9773',
+        borderRadius: 8,
+        marginBottom: 10,
+        backgroundColor: '#6D9773',
     },
     testTitle: {
         fontSize: 18,
         fontWeight: 'bold',
+        color: '#FFFFFF',
     },
     addTestButton: {
-        backgroundColor: '#007bff',
+        backgroundColor: '#FFBA00',
         padding: 15,
         borderRadius: 8,
         alignItems: 'center',
         marginTop: 10,
     },
     addTestButtonText: {
-        color: '#fff',
+        color: '#0C3B2E',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        backgroundColor: '#0C3B2E',
+        padding: 20,
+        borderRadius: 10,
+        width: '90%',
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#FFBA00',
+        textAlign: 'center',
+        marginBottom: 10,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#6D9773',
+        padding: 10,
+        marginVertical: 10,
+        borderRadius: 5,
+        width: '100%',
+        backgroundColor: '#FFFFFF',
+        color: '#0C3B2E',
+    },
+    modalButton: {
+        backgroundColor: '#FFBA00',
+        padding: 10,
+        borderRadius: 5,
+        alignItems: 'center',
+        marginVertical: 5,
+    },
+    modalButtonCancel: {
+        backgroundColor: '#B46617',
+        padding: 10,
+        borderRadius: 5,
+        alignItems: 'center',
+        marginVertical: 5,
+    },
+    modalButtonText: {
+        color: '#0C3B2E',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    errorText: {
+        color: '#FF3B30',
+        textAlign: 'center',
+        marginBottom: 10,
     },
 });
 
