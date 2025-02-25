@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, Button, Alert } from 'react-native';
-import firestore from '@react-native-firebase/firestore';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import firestore from '@react-native-firebase/firestore';
+import CustomAppBar from '../components/CustomAppBar'; 
 
 const DetailedSubmissionView = ({ route, navigation }) => {
     const { submissionId, userId, boardId } = route.params;
@@ -24,7 +25,7 @@ const DetailedSubmissionView = ({ route, navigation }) => {
                     .collection('submissions')
                     .doc(submissionId)
                     .get();
-    
+
                 if (doc.exists) {
                     console.log("Document data:", doc.data());
                     const data = { id: doc.id, ...doc.data() };
@@ -39,7 +40,7 @@ const DetailedSubmissionView = ({ route, navigation }) => {
             }
             setLoading(false);
         };
-    
+
         fetchSubmissionDetails();
     }, [submissionId, userId, boardId]);
 
@@ -68,10 +69,9 @@ const DetailedSubmissionView = ({ route, navigation }) => {
                     genericTestFeedback: genericTestFeedback,
                     passStatus: passStatus,
                     isTestCheckedByMentor: true
-                    
                 });
             Alert.alert("Feedback Submitted", "Your feedback has been successfully submitted.");
-            navigation.goBack();  
+            navigation.goBack();
         } catch (error) {
             console.error("Failed to submit feedback:", error);
             Alert.alert("Error", "Failed to submit feedback.");
@@ -82,94 +82,140 @@ const DetailedSubmissionView = ({ route, navigation }) => {
     if (loading) {
         return (
             <View style={styles.container}>
-                <Text>Loading...</Text>
+                <ActivityIndicator size="large" color="#FFBA00" />
+                <Text style={styles.loadingText}>Loading...</Text>
             </View>
         );
     }
-    
+
     if (!submissionDetails) {
         return (
             <View style={styles.container}>
-                <Text>No details available.</Text>
+                <Text style={styles.errorText}>No details available.</Text>
             </View>
         );
     }
 
     return (
-        <ScrollView style={styles.container}>
-            <Text style={styles.title}>Detailed Submission View</Text>
-            {submissionDetails.responses && submissionDetails.responses.map((response, index) => (
-                <View key={index} style={styles.responseContainer}>
-                    <Text style={styles.responseTitle}>{response.questionTitle}</Text>
-                    <Text style={styles.responseText}>
-                        Response: {Array.isArray(response.response) ? response.response.join(", ") : response.response}
-                    </Text>
-                    <TextInput
-                        style={styles.input}
-                        onChangeText={text => handleFeedbackChange(text, index)}
-                        value={feedback[index]}
-                        placeholder="Enter feedback here"
-                        multiline
-                    />
-                </View>
-            ))}
-            <TextInput
-                style={styles.input}
-                onChangeText={setGenericTestFeedback}
-                value={genericTestFeedback}
-                placeholder="Enter generic test feedback here"
-                multiline
+        <View style={styles.container}>
+            <CustomAppBar
+                title="Submission Details"
+                showBackButton={true}
+                onBackPress={() => navigation.goBack()}
             />
-            <Picker
-                selectedValue={passStatus}
-                onValueChange={itemValue => setPassStatus(itemValue)}
-                style={{ height: 50, width: 150 }}
-            >
-                <Picker.Item label="Pass" value="pass" />
-                <Picker.Item label="Fail" value="fail" />
-            </Picker>
-            <Button title="Submit Feedback" onPress={submitFeedback} color="#007bff" />
-        </ScrollView>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+                {submissionDetails.responses && submissionDetails.responses.map((response, index) => (
+                    <View key={index} style={styles.responseContainer}>
+                        <Text style={styles.responseTitle}>{response.questionTitle}</Text>
+                        <Text style={styles.responseText}>
+                            Response: {Array.isArray(response.response) ? response.response.join(", ") : response.response}
+                        </Text>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={text => handleFeedbackChange(text, index)}
+                            value={feedback[index]}
+                            placeholder="Enter feedback here"
+                            placeholderTextColor="#888"
+                            multiline
+                        />
+                    </View>
+                ))}
+                <TextInput
+                    style={styles.input}
+                    onChangeText={setGenericTestFeedback}
+                    value={genericTestFeedback}
+                    placeholder="Enter generic test feedback here"
+                    placeholderTextColor="#888"
+                    multiline
+                />
+                <View style={styles.pickerContainer}>
+                    <Picker
+                        selectedValue={passStatus}
+                        onValueChange={itemValue => setPassStatus(itemValue)}
+                        style={styles.picker}
+                    >
+                        <Picker.Item label="Pass" value="pass" />
+                        <Picker.Item label="Fail" value="fail" />
+                    </Picker>
+                </View>
+                <TouchableOpacity style={styles.submitButton} onPress={submitFeedback}>
+                    <Text style={styles.submitButtonText}>Submit Feedback</Text>
+                </TouchableOpacity>
+            </ScrollView>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#0C3B2E',
+    },
+    scrollContainer: {
         padding: 20,
-        backgroundColor: '#fff',
     },
-    title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    label: {
+    loadingText: {
+        color: '#FFBA00',
         fontSize: 16,
-        marginBottom: 5,
+        textAlign: 'center',
+        marginTop: 10,
+    },
+    errorText: {
+        color: '#FFBA00',
+        fontSize: 16,
+        textAlign: 'center',
     },
     responseContainer: {
         marginTop: 10,
-        padding: 10,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 5,
+        padding: 15,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
     },
     responseTitle: {
         fontSize: 16,
         fontWeight: 'bold',
+        color: '#0C3B2E',
     },
     responseText: {
-        fontSize: 15,
-        color: '#333',
+        fontSize: 14,
+        color: '#0C3B2E',
+        marginTop: 5,
     },
     input: {
-        minHeight: 60,
-        borderColor: 'gray',
+        minHeight: 80,
         borderWidth: 1,
-        marginTop: 5,
-        marginBottom: 10,
+        borderColor: '#6D9773',
         padding: 10,
-        backgroundColor: '#fff',
+        marginTop: 10,
+        marginBottom: 10,
+        borderRadius: 8,
+        backgroundColor: '#FFFFFF',
+        color: '#0C3B2E',
+        textAlignVertical: 'top',
+    },
+    pickerContainer: {
+        borderWidth: 1,
+        borderColor: '#6D9773',
+        borderRadius: 8,
+        marginTop: 10,
+        marginBottom: 20,
+        backgroundColor: '#FFFFFF',
+    },
+    picker: {
+        height: 50,
+        width: '100%',
+        color: '#0C3B2E',
+    },
+    submitButton: {
+        backgroundColor: '#FFBA00',
+        padding: 15,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    submitButtonText: {
+        color: '#0C3B2E',
+        fontSize: 18,
+        fontWeight: 'bold',
     },
 });
 
