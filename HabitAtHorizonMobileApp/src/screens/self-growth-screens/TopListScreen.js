@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
+import LinearGradient from 'react-native-linear-gradient';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomAppBar from '../../components/CustomAppBar';
 
 const TopListScreen = ({ navigation }) => {
@@ -15,6 +17,7 @@ const TopListScreen = ({ navigation }) => {
         const usersData = usersSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
+          points: doc.data().points || 0, // Set points to 0 if empty or undefined
         }));
 
         const sortedUsers = usersData.sort((a, b) => b.points - a.points);
@@ -35,41 +38,49 @@ const TopListScreen = ({ navigation }) => {
       style={styles.userItem}
       onPress={() => navigation.navigate('MenteeProfileViewScreen', { mentee: item })}
     >
-      <Text style={styles.rank}>{index + 1}</Text>
+      <View style={styles.rankContainer}>
+        <Icon
+          name={index === 0 ? 'trophy' : 'numeric'}
+          size={24}
+          color={index === 0 ? '#FFBA00' : '#0C3B2E'}
+        />
+        <Text style={styles.rank}>{index + 1}</Text>
+      </View>
       <View style={styles.userInfo}>
         <Text style={styles.name}>{item.name}</Text>
         <Text style={styles.username}>@{item.username}</Text>
       </View>
-      <Text style={styles.points}>{item.points} points</Text>
+      <View style={styles.pointsContainer}>
+        <Icon name="star" size={20} color="#B46617" />
+        <Text style={styles.points}>{item.points} points</Text>
+      </View>
     </TouchableOpacity>
   );
 
   if (isLoading) {
     return (
-      <View style={styles.container}>
+      <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
         <Text style={styles.loadingText}>Loading...</Text>
-      </View>
+      </LinearGradient>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
       <CustomAppBar title="Top List" showBackButton={true} />
-
       <FlatList
         data={users}
         renderItem={renderUserItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
       />
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0C3B2E',
   },
   listContainer: {
     padding: 16,
@@ -87,11 +98,16 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+  rankContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 16,
+  },
   rank: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#0C3B2E',
-    marginRight: 16,
+    marginLeft: 8,
   },
   userInfo: {
     flex: 1,
@@ -105,10 +121,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6D9773',
   },
+  pointsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   points: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#B46617',
+    marginLeft: 8,
   },
   loadingText: {
     fontSize: 18,
