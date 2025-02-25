@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platfor
 import { Button, TextInput } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
-import LinearGradient from 'react-native-linear-gradient'; // For gradient background
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // For icons
+import LinearGradient from 'react-native-linear-gradient'; 
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; 
 
 const LoginScreen = () => {
   const navigation = useNavigation();
