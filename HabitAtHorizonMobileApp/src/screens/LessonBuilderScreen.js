@@ -1,21 +1,103 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, StyleSheet, ScrollView, Alert, TouchableOpacity, Image } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
+import * as ImagePicker from 'react-native-image-picker';
+import CustomAppBar from '../components/CustomAppBar';
 
 const LessonBuilderScreen = ({ route, navigation }) => {
     const { boardId, lessonId } = route.params;
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [content, setContent] = useState([]);
+    const [imageUri, setImageUri] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        if (lessonId) {
+            const fetchLesson = async () => {
+                try {
+                    const lessonDoc = await firestore()
+                        .collection('boards')
+                        .doc(boardId)
+                        .collection('lessons')
+                        .doc(lessonId)
+                        .get();
+
+                    if (lessonDoc.exists) {
+                        const lessonData = lessonDoc.data();
+                        setTitle(lessonData.title);
+                        setDescription(lessonData.description);
+                        setContent(lessonData.content || []);
+                        setImageUri(lessonData.imageUrl || null);
+                    }
+                } catch (error) {
+                    console.error('Error fetching lesson:', error);
+                    Alert.alert('Error', 'Could not fetch lesson data.');
+                }
+            };
+
+            fetchLesson();
+        }
+    }, [boardId, lessonId]);
 
     const addElement = (type) => {
         const newElement = { id: Date.now(), type, value: '' };
         setContent([...content, newElement]);
     };
 
+    const handleImageUpload = async () => {
+        const options = {
+            mediaType: 'photo',
+            includeBase64: false,
+            maxHeight: 2000,
+            maxWidth: 2000,
+        };
+
+        ImagePicker.launchImageLibrary(options, async (response) => {
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.error) {
+                console.error('ImagePicker Error:', response.error);
+                Alert.alert('Error', 'Failed to pick image.');
+            } else if (response.assets && response.assets.length > 0) {
+                const uri = response.assets[0].uri;
+                setImageUri(uri);
+            }
+        });
+    };
+
+    const deleteImage = () => {
+        setImageUri(null);
+    };
+
     const saveLesson = async () => {
+        if (!title || !description) {
+            Alert.alert('Error', 'Please fill in all required fields.');
+            return;
+        }
+
+        setIsLoading(true);
+
         try {
-            const lessonData = { title, description, content, createdAt: new Date() };
+            let imageUrl = imageUri;
+
+            if (imageUri && !imageUri.startsWith('http')) {
+                const uploadUri = imageUri;
+                const filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+                const reference = storage().ref(`lesson-images/${filename}`);
+
+                await reference.putFile(uploadUri);
+                imageUrl = await reference.getDownloadURL();
+            }
+
+            const lessonData = {
+                title,
+                description,
+                content,
+                imageUrl,
+                createdAt: new Date(),
+            };
 
             if (lessonId) {
                 await firestore()
@@ -37,76 +119,186 @@ const LessonBuilderScreen = ({ route, navigation }) => {
         } catch (error) {
             console.error('Error saving lesson:', error);
             Alert.alert('Error', 'Could not save the lesson.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <ScrollView style={styles.container}>
-            <Text style={styles.header}>{lessonId ? 'Edit Lesson' : 'Create Lesson'}</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Lesson Title"
-                value={title}
-                onChangeText={setTitle}
+        <View style={styles.container}>
+            <CustomAppBar
+                title={lessonId ? 'Edit Lesson' : 'Create Lesson'}
+                showBackButton={true}
             />
-            <TextInput
-                style={styles.input}
-                placeholder="Description"
-                value={description}
-                onChangeText={setDescription}
-            />
-            <View style={styles.contentActions}>
-                <Button title="Add Heading" onPress={() => addElement('heading')} />
-                <Button title="Add Paragraph" onPress={() => addElement('paragraph')} />
-                <Button title="Add List" onPress={() => addElement('list')} />
-                <Button title="Add iFrame" onPress={() => addElement('iframe')} />
-            </View>
-            {content.map((item) => (
-                <View key={item.id} style={styles.contentItem}>
-                    <Text>{item.type}</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder={`Enter ${item.type}`}
-                        value={item.value}
-                        onChangeText={(text) => {
-                            setContent(
-                                content.map((c) =>
-                                    c.id === item.id ? { ...c, value: text } : c
-                                )
-                            );
-                        }}
-                    />
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Lesson Title"
+                    placeholderTextColor="#888"
+                    value={title}
+                    onChangeText={setTitle}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Description"
+                    placeholderTextColor="#888"
+                    value={description}
+                    onChangeText={setDescription}
+                    multiline
+                />
+                <View style={styles.contentActions}>
+                    <TouchableOpacity
+                        style={styles.addButton}
+                        onPress={() => addElement('heading')}
+                    >
+                        <Text style={styles.addButtonText}>Add Heading</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.addButton}
+                        onPress={() => addElement('paragraph')}
+                    >
+                        <Text style={styles.addButtonText}>Add Paragraph</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.addButton}
+                        onPress={() => addElement('list')}
+                    >
+                        <Text style={styles.addButtonText}>Add List</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.addButton}
+                        onPress={() => addElement('iframe')}
+                    >
+                        <Text style={styles.addButtonText}>Add iFrame</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.addButton}
+                        onPress={handleImageUpload}
+                    >
+                        <Text style={styles.addButtonText}>Add Image</Text>
+                    </TouchableOpacity>
                 </View>
-            ))}
-            <Button title="Save Lesson" onPress={saveLesson} />
-        </ScrollView>
+                {imageUri && (
+                    <View style={styles.imageContainer}>
+                        <Image source={{ uri: imageUri }} style={styles.image} />
+                        <TouchableOpacity
+                            style={styles.deleteImageButton}
+                            onPress={deleteImage}
+                        >
+                            <Text style={styles.deleteImageButtonText}>Delete Image</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+                {content.map((item) => (
+                    <View key={item.id} style={styles.contentItem}>
+                        <Text style={styles.contentType}>{item.type}</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder={`Enter ${item.type}`}
+                            placeholderTextColor="#888"
+                            value={item.value}
+                            onChangeText={(text) => {
+                                setContent(
+                                    content.map((c) =>
+                                        c.id === item.id ? { ...c, value: text } : c
+                                    )
+                                );
+                            }}
+                            multiline
+                        />
+                    </View>
+                ))}
+                <TouchableOpacity
+                    style={styles.saveButton}
+                    onPress={saveLesson}
+                    disabled={isLoading}
+                >
+                    <Text style={styles.saveButtonText}>
+                        {isLoading ? 'Saving...' : 'Save Lesson'}
+                    </Text>
+                </TouchableOpacity>
+            </ScrollView>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
+        backgroundColor: '#0C3B2E',
     },
-    header: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
+    scrollContainer: {
+        padding: 20,
     },
     input: {
         borderWidth: 1,
-        borderColor: '#ccc',
-        padding: 10,
+        borderColor: '#6D9773',
+        padding: 15,
         marginVertical: 10,
-        borderRadius: 5,
+        borderRadius: 8,
+        backgroundColor: '#FFFFFF',
+        color: '#0C3B2E',
+        fontSize: 16,
     },
     contentActions: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
         justifyContent: 'space-between',
         marginBottom: 20,
     },
+    addButton: {
+        backgroundColor: '#FFBA00',
+        padding: 10,
+        borderRadius: 8,
+        width: '48%',
+        alignItems: 'center',
+        marginVertical: 5,
+    },
+    addButtonText: {
+        color: '#0C3B2E',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
     contentItem: {
         marginBottom: 15,
+    },
+    contentType: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#FFBA00',
+        marginBottom: 5,
+    },
+    imageContainer: {
+        alignItems: 'center',
+        marginVertical: 10,
+    },
+    image: {
+        width: '100%',
+        height: 200,
+        borderRadius: 8,
+    },
+    deleteImageButton: {
+        backgroundColor: '#FF0000',
+        padding: 10,
+        borderRadius: 8,
+        marginTop: 10,
+    },
+    deleteImageButtonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    saveButton: {
+        backgroundColor: '#6D9773',
+        padding: 15,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 20,
+    },
+    saveButtonText: {
+        color: '#FFFFFF',
+        fontSize: 18,
+        fontWeight: 'bold',
     },
 });
 
