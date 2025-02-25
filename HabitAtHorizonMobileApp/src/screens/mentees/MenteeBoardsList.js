@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import CustomAppBar from '../../components/CustomAppBar';
 
 const MenteeBoardsList = ({ navigation }) => {
     const [boards, setBoards] = useState([]);
@@ -53,20 +54,45 @@ const MenteeBoardsList = ({ navigation }) => {
 
     if (loading) {
         console.log("Loading boards...");
-        return <View style={styles.container}><Text>Loading boards...</Text></View>;
+        return (
+            <View style={styles.container}>
+                            <CustomAppBar
+                title="Learning Boards"
+                showBackButton={true}
+                onBackPress={() => navigation.goBack()}
+            />
+                <ActivityIndicator size="large" color="#FFBA00" />
+                <Text style={styles.loadingText}>Loading boards...</Text>
+            </View>
+        );
     }
 
     if (!boards.length) {
         console.log("No boards to display after fetch.");
-        return <View style={styles.container}><Text>No boards found.</Text></View>;
+        return (
+            <View style={styles.container}>
+                            <CustomAppBar
+                title="Learning Boards"
+                showBackButton={true}
+                onBackPress={() => navigation.goBack()}
+            />
+                <Text style={styles.emptyText}>No boards found.</Text>
+            </View>
+        );
     }
 
     console.log("Rendering boards list.");
     return (
         <View style={styles.container}>
+            <CustomAppBar
+                title="Learning Boards"
+                showBackButton={true}
+                onBackPress={() => navigation.goBack()}
+            />
             <FlatList
                 data={boards}
                 keyExtractor={item => item.id}
+                contentContainerStyle={styles.listContainer}
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         style={styles.boardItem}
@@ -79,7 +105,7 @@ const MenteeBoardsList = ({ navigation }) => {
                         <Text style={styles.boardCreator}>Created by: {item.creatorEmail}</Text>
                     </TouchableOpacity>
                 )}
-                ListEmptyComponent={<Text>No boards found.</Text>}
+                ListEmptyComponent={<Text style={styles.emptyText}>No boards found.</Text>}
             />
         </View>
     );
@@ -88,23 +114,37 @@ const MenteeBoardsList = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#0C3B2E',
+    },
+    listContainer: {
         padding: 20,
-        backgroundColor: '#fff',
     },
     boardItem: {
         padding: 15,
         marginVertical: 8,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 5
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
     },
     boardTitle: {
         fontSize: 16,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        color: '#0C3B2E',
     },
     boardCreator: {
         fontSize: 14,
-        color: '#666',
-    }
+        color: '#6D9773',
+    },
+    loadingText: {
+        color: '#FFBA00',
+        fontSize: 16,
+        textAlign: 'center',
+        marginTop: 10,
+    },
+    emptyText: {
+        color: '#FFBA00',
+        fontSize: 16,
+        textAlign: 'center',
+    },
 });
 
 export default MenteeBoardsList;

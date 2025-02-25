@@ -1,31 +1,25 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import CustomAppBar from '../../components/CustomAppBar'; 
 
 const MenteesDashboardScreen = () => {
     const navigation = useNavigation();
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Text style={styles.backButton}>Back</Text>
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Mentee's Dashboard</Text>
-            </View>
+            <CustomAppBar
+                title="Mentee's Dashboard"
+                showBackButton={true}
+                onBackPress={() => navigation.goBack()}
+            />
             <View style={styles.content}>
                 <TouchableOpacity
                     style={styles.button}
                     onPress={() => navigation.navigate('MenteeBoardsList')}
                 >
                     <Text style={styles.buttonText}>Learning Boards</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => navigation.navigate('AnotherBoardScreen')}
-                >
-                    <Text style={styles.buttonText}>Another Board</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> 
             </View>
         </View>
     );
@@ -34,42 +28,27 @@ const MenteesDashboardScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 20,
-        backgroundColor: '#fff'
-    },
-    header: {
-        width: '100%',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 20
-    },
-    backButton: {
-        fontSize: 18,
-        color: '#007bff'
-    },
-    headerTitle: {
-        fontSize: 22,
-        fontWeight: 'bold'
+        backgroundColor: '#0C3B2E',
     },
     content: {
-        width: '100%',
-        alignItems: 'center'
+        flex: 1,
+        padding: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     button: {
         width: '100%',
         padding: 15,
         marginVertical: 10,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 5,
-        alignItems: 'center'
+        backgroundColor: '#FFBA00',
+        borderRadius: 8,
+        alignItems: 'center',
     },
     buttonText: {
         fontSize: 18,
-        fontWeight: 'bold'
-    }
+        fontWeight: 'bold',
+        color: '#0C3B2E',
+    },
 });
 
 export default MenteesDashboardScreen;
