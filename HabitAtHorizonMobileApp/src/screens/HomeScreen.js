@@ -4,6 +4,8 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CustomAppBar from '../components/CustomAppBar';
 import { useQuote } from '../components/useQuote';
 import { useRefreshService } from '../components/pullRefreshScreenService';
+import LinearGradient from 'react-native-linear-gradient';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -44,50 +46,57 @@ const HomeScreen = () => {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-    >
-      <CustomAppBar title="Home Screen" showBackButton={false} />
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <CustomAppBar title="Home Screen" showBackButton={false} />
 
-      <View style={styles.quoteContainer}>
-        {isLoading ? (
-          <ActivityIndicator size="large" color="#6D9773" />
-        ) : error ? (
-          <Text style={styles.errorText}>{error}</Text>
-        ) : (
-          <>
-            <Text style={styles.quoteText}>"{quote.content}"</Text>
-            <Text style={styles.authorText}>- {quote.author}</Text>
-          </>
-        )}
-      </View>
+        <View style={styles.quoteContainer}>
+          {isLoading ? (
+            <ActivityIndicator size="large" color="#FFBA00" />
+          ) : error ? (
+            <Text style={styles.errorText}>{error}</Text>
+          ) : (
+            <>
+              <Text style={styles.quoteText}>"{quote.content}"</Text>
+              <Text style={styles.authorText}>- {quote.author}</Text>
+            </>
+          )}
+        </View>
 
-      <View style={styles.listContainer}>
-        <TouchableOpacity style={styles.button} onPress={goToMyPersonalSpace}>
-          <Text style={styles.buttonText}>My Personal Space</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={goToMentoring}>
-          <Text style={styles.buttonText}>Mentoring Space</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={goToMenteeScreen}>
-          <Text style={styles.buttonText}>Mentee Space</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={goToTopListScreen}>
-          <Text style={styles.buttonText}>Top List Screen</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+        <View style={styles.listContainer}>
+          <TouchableOpacity style={styles.button} onPress={goToMyPersonalSpace}>
+            <Icon name="account" size={24} color="#0C3B2E" style={styles.buttonIcon} />
+            <Text style={styles.buttonText}>My Personal Space</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={goToMentoring}>
+            <Icon name="school" size={24} color="#0C3B2E" style={styles.buttonIcon} />
+            <Text style={styles.buttonText}>Mentoring Space</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={goToMenteeScreen}>
+            <Icon name="account-group" size={24} color="#0C3B2E" style={styles.buttonIcon} />
+            <Text style={styles.buttonText}>Mentee Space</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={goToTopListScreen}>
+            <Icon name="format-list-numbered" size={24} color="#0C3B2E" style={styles.buttonIcon} />
+            <Text style={styles.buttonText}>Top List Screen</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  scrollContainer: {
     flexGrow: 1,
-    backgroundColor: '#0C3B2E',
-    paddingBottom: 20,
   },
   quoteContainer: {
     padding: 20,
@@ -121,8 +130,9 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     marginBottom: 15,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -133,6 +143,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#0C3B2E',
     fontWeight: 'bold',
+    marginLeft: 10,
+  },
+  buttonIcon: {
+    marginRight: 10,
   },
 });
 
