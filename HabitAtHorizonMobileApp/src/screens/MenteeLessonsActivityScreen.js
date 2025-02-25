@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, Dimensions, ActivityIndicator, TextInput, Button } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, SafeAreaView, Dimensions, ActivityIndicator, TextInput } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import firestore from '@react-native-firebase/firestore';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
+import CustomAppBar from '../components/CustomAppBar'; 
 
 const MenteeLessonsActivityScreen = () => {
     const { userId, boardId } = useRoute().params;
@@ -11,7 +12,7 @@ const MenteeLessonsActivityScreen = () => {
     const [routes] = useState([
         { key: 'checked', title: 'Checked' },
         { key: 'unchecked', title: 'Unchecked' },
-        { key: 'chat', title: 'Chat' } 
+        { key: 'chat', title: 'Chat' }
     ]);
     const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -71,23 +72,34 @@ const MenteeLessonsActivityScreen = () => {
     if (loading) {
         return (
             <View style={styles.container}>
-                <ActivityIndicator size="large" color="#0000ff" />
-                <Text>Loading submissions...</Text>
+                <ActivityIndicator size="large" color="#FFBA00" />
+                <Text style={styles.loadingText}>Loading submissions...</Text>
             </View>
         );
     }
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Submissions</Text>
-            </View>
+        <SafeAreaView style={styles.container}>
+            <CustomAppBar
+                title="Submissions"
+                showBackButton={true}
+                onBackPress={() => navigation.goBack()}
+            />
             <TabView
                 navigationState={{ index, routes }}
                 renderScene={renderScene}
                 onIndexChange={setIndex}
                 initialLayout={{ width: Dimensions.get('window').width }}
-                renderTabBar={props => <TabBar {...props} style={styles.tabBar} />}
+                renderTabBar={props => (
+                    <TabBar
+                        {...props}
+                        style={styles.tabBar}
+                        indicatorStyle={styles.tabIndicator}
+                        labelStyle={styles.tabLabel}
+                        activeColor="#FFBA00"
+                        inactiveColor="#FFFFFF"
+                    />
+                )}
             />
         </SafeAreaView>
     );
@@ -108,6 +120,7 @@ const SubmissionList = ({ submissions, navigation, userId, boardId }) => {
         <FlatList
             data={submissions}
             keyExtractor={item => item.id}
+            contentContainerStyle={styles.listContainer}
             renderItem={({ item }) => (
                 <TouchableOpacity
                     style={[styles.submissionItem, item.isTestCheckedByMentor ? styles.checked : styles.unchecked]}
@@ -118,7 +131,9 @@ const SubmissionList = ({ submissions, navigation, userId, boardId }) => {
                     })}
                 >
                     <Text style={styles.submissionTitle}>Test Name: {item.testName}</Text>
-                    <Text>Submitted on: {item.submittedAt ? new Date(item.submittedAt.toDate()).toLocaleDateString() : 'N/A'}</Text>
+                    <Text style={styles.submissionDate}>
+                        Submitted on: {item.submittedAt ? new Date(item.submittedAt.toDate()).toLocaleDateString() : 'N/A'}
+                    </Text>
                 </TouchableOpacity>
             )}
         />
@@ -173,7 +188,7 @@ const ChatTab = ({ userId, boardId }) => {
             return;
         }
 
-        const currentUser = auth().currentUser; 
+        const currentUser = auth().currentUser;
         if (!currentUser) {
             console.error("No authenticated user found.");
             return;
@@ -182,7 +197,7 @@ const ChatTab = ({ userId, boardId }) => {
         const messageData = {
             text: newMessage,
             timestamp: firestore.FieldValue.serverTimestamp(),
-            senderId: currentUser.uid, 
+            senderId: currentUser.uid,
         };
 
         console.log("Sending message:", messageData);
@@ -196,7 +211,7 @@ const ChatTab = ({ userId, boardId }) => {
                 .collection('messages')
                 .add(messageData);
             console.log("Message sent successfully.");
-            setNewMessage(''); 
+            setNewMessage('');
         } catch (error) {
             console.error("Failed to send message:", error);
         }
@@ -207,23 +222,26 @@ const ChatTab = ({ userId, boardId }) => {
             <FlatList
                 data={messages}
                 keyExtractor={item => item.id}
+                contentContainerStyle={styles.chatList}
                 renderItem={({ item }) => (
                     <View style={styles.messageItem}>
-                        <Text style={styles.messageText}>
-                            {item.username}: {item.text}
-                        </Text>
+                        <Text style={styles.messageUsername}>{item.username}</Text>
+                        <Text style={styles.messageText}>{item.text}</Text>
                     </View>
                 )}
             />
-            <View style={styles.inputContainer}>
+            <View style={styles.chatInputContainer}>
                 <TextInput
-                    style={styles.input}
+                    style={styles.chatInput}
                     value={newMessage}
                     onChangeText={setNewMessage}
                     placeholder="Type a message..."
+                    placeholderTextColor="#888"
                     onSubmitEditing={sendMessage}
                 />
-                <Button title="Send" onPress={sendMessage} />
+                <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+                    <Text style={styles.sendButtonText}>Send</Text>
+                </TouchableOpacity>
             </View>
         </View>
     );
@@ -232,62 +250,45 @@ const ChatTab = ({ userId, boardId }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
-        backgroundColor: '#fff'
+        backgroundColor: '#0C3B2E',
     },
-    header: {
-        height: 50,
-        backgroundColor: '#007bff',
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    headerTitle: {
-        fontSize: 20,
-        color: '#ffffff',
-        fontWeight: 'bold'
+    loadingText: {
+        color: '#FFBA00',
+        fontSize: 16,
+        textAlign: 'center',
+        marginTop: 10,
     },
     tabBar: {
-        backgroundColor: '#007bff'
+        backgroundColor: '#0C3B2E',
+    },
+    tabIndicator: {
+        backgroundColor: '#FFBA00',
+    },
+    tabLabel: {
+        fontWeight: 'bold',
+    },
+    listContainer: {
+        padding: 20,
     },
     submissionItem: {
         padding: 15,
         marginVertical: 8,
-        borderRadius: 5
+        borderRadius: 8,
     },
     checked: {
-        backgroundColor: '#e0ffe0'
+        backgroundColor: '#6D9773',
     },
     unchecked: {
-        backgroundColor: '#ffe0e0'
+        backgroundColor: '#FFBA00',
     },
     submissionTitle: {
         fontSize: 16,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        color: '#0C3B2E',
     },
-    chatContainer: {
-        flex: 1,
-        padding: 10,
-    },
-    messageItem: {
-        padding: 10,
-        marginVertical: 4,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 5,
-    },
-    messageText: {
+    submissionDate: {
         fontSize: 14,
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 10,
-    },
-    input: {
-        flex: 1,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        padding: 10,
-        marginRight: 10,
+        color: '#0C3B2E',
     },
     emptyContainer: {
         flex: 1,
@@ -296,7 +297,54 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         fontSize: 16,
-        color: '#777',
+        color: '#FFBA00',
+    },
+    chatContainer: {
+        flex: 1,
+        backgroundColor: '#0C3B2E',
+    },
+    chatList: {
+        padding: 20,
+    },
+    messageItem: {
+        padding: 10,
+        marginVertical: 4,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
+    },
+    messageUsername: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#0C3B2E',
+    },
+    messageText: {
+        fontSize: 14,
+        color: '#0C3B2E',
+    },
+    chatInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 10,
+        backgroundColor: '#FFFFFF',
+    },
+    chatInput: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: '#6D9773',
+        padding: 10,
+        borderRadius: 8,
+        marginRight: 10,
+        color: '#0C3B2E',
+    },
+    sendButton: {
+        backgroundColor: '#FFBA00',
+        padding: 10,
+        borderRadius: 8,
+    },
+    sendButtonText: {
+        color: '#0C3B2E',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });
 
