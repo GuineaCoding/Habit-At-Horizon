@@ -1,201 +1,231 @@
-    import React, { useEffect, useState } from 'react';
-    import { View, Text, FlatList, StyleSheet, TouchableOpacity, Dimensions, TextInput, Button, ActivityIndicator } from 'react-native';
-    import firestore from '@react-native-firebase/firestore';
-    import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-    import auth from '@react-native-firebase/auth';
-    const initialLayout = { width: Dimensions.get('window').width };
-    import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Dimensions, TextInput, ActivityIndicator } from 'react-native';
+import firestore from '@react-native-firebase/firestore';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import auth from '@react-native-firebase/auth';
+import LinearGradient from 'react-native-linear-gradient';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useNavigation } from '@react-navigation/native';
+import CustomAppBar from '../../components/CustomAppBar';
 
-    const LessonsRoute = ({ boardId, navigation }) => {
-        const [lessons, setLessons] = useState([]);
+const initialLayout = { width: Dimensions.get('window').width };
 
-        useEffect(() => {
-            const unsubscribe = firestore()
-                .collection('boards')
-                .doc(boardId)
-                .collection('lessons')
-                .onSnapshot(snapshot => {
-                    const fetchedLessons = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-                    setLessons(fetchedLessons);
-                });
+const LessonsRoute = ({ boardId, navigation }) => {
+    const [lessons, setLessons] = useState([]);
 
-            return () => unsubscribe();
-        }, [boardId]);
+    useEffect(() => {
+        const unsubscribe = firestore()
+            .collection('boards')
+            .doc(boardId)
+            .collection('lessons')
+            .onSnapshot(snapshot => {
+                const fetchedLessons = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setLessons(fetchedLessons);
+            });
 
-        return (
+        return () => unsubscribe();
+    }, [boardId]);
+
+    return (
+        <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.gradientContainer}>
             <FlatList
                 data={lessons}
+                contentContainerStyle={styles.listContainer}
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         style={styles.lessonItem}
                         onPress={() => navigation.navigate('LessonScreen', { boardId, lessonId: item.id })}
                     >
-                        <Text style={styles.lessonTitle}>{item.title}</Text>
-                        <Text style={styles.lessonContent}>{item.description}</Text>
+                        <Icon name="book-open" size={24} color="#0C3B2E" style={styles.icon} />
+                        <View style={styles.textContainer}>
+                            <Text style={styles.lessonTitle}>{item.title}</Text>
+                            <Text style={styles.lessonContent}>{item.description}</Text>
+                        </View>
                     </TouchableOpacity>
                 )}
                 keyExtractor={item => item.id}
             />
-        );
-    };
+        </LinearGradient>
+    );
+};
 
-    const TestsRoute = ({ boardId, navigation }) => {
-        const [tests, setTests] = useState([]);
+const TestsRoute = ({ boardId, navigation }) => {
+    const [tests, setTests] = useState([]);
 
-        useEffect(() => {
-            const unsubscribe = firestore()
-                .collection('boards')
-                .doc(boardId)
-                .collection('tests')
-                .onSnapshot(snapshot => {
-                    const fetchedTests = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-                    setTests(fetchedTests);
-                });
+    useEffect(() => {
+        const unsubscribe = firestore()
+            .collection('boards')
+            .doc(boardId)
+            .collection('tests')
+            .onSnapshot(snapshot => {
+                const fetchedTests = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setTests(fetchedTests);
+            });
 
-            return () => unsubscribe();
-        }, [boardId]);
+        return () => unsubscribe();
+    }, [boardId]);
 
-        return (
+    return (
+        <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.gradientContainer}>
             <FlatList
                 data={tests}
+                contentContainerStyle={styles.listContainer}
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         style={styles.testItem}
                         onPress={() => navigation.navigate('TestViewScreen', { boardId, testId: item.id })}
                     >
-                        <Text style={styles.testTitle}>{item.testName}</Text>
-                        <Text style={styles.testContent}>{item.description}</Text>
+                        <Icon name="clipboard-text" size={24} color="#0C3B2E" style={styles.icon} />
+                        <View style={styles.textContainer}>
+                            <Text style={styles.testTitle}>{item.testName}</Text>
+                            <Text style={styles.testContent}>{item.description}</Text>
+                        </View>
                     </TouchableOpacity>
                 )}
                 keyExtractor={item => item.id}
             />
-        );
-    };
+        </LinearGradient>
+    );
+};
 
-    const ResultsRoute = ({ boardId, userId }) => {
-        const [loading, setLoading] = useState(true);
-        const [submissions, setSubmissions] = useState([]);
-        const navigation = useNavigation();
-    
-        useEffect(() => {
-            const fetchSubmissions = async () => {
-                const memberRef = firestore()
-                    .collection('boards')
-                    .doc(boardId)
-                    .collection('members')
-                    .doc(userId)
-                    .collection('submissions');
-    
-                const snapshot = await memberRef.where('isTestCheckedByMentor', '==', true).get();
-                const submissionsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                setSubmissions(submissionsData);
-                setLoading(false);
-            };
-    
-            fetchSubmissions();
-        }, [boardId, userId]);
-    
-        if (loading) {
-            return <View style={styles.loader}><ActivityIndicator size="large" /></View>;
-        }
-    
-        return (
-            <View style={styles.scene}>
-                {submissions.map((submission) => (
-                    <TouchableOpacity key={submission.id} style={styles.testItem} onPress={() => navigation.navigate('MenteeTestResultScreen', { submission })}>
-                        <Text style={styles.testName}>{submission.testName}</Text>
-                    </TouchableOpacity>
-                ))}
-            </View>
-        );
-    };
-    
-    
+const ResultsRoute = ({ boardId, userId }) => {
+    const [loading, setLoading] = useState(true);
+    const [submissions, setSubmissions] = useState([]);
+    const navigation = useNavigation();
 
-
-    const CommunicationRoute = ({ boardId }) => {
-        const [messages, setMessages] = useState([]);
-        const [newMessage, setNewMessage] = useState('');
-        const currentUser = auth().currentUser;
-    
-        useEffect(() => {
-            if (!currentUser) return;
-    
-            const unsubscribe = firestore()
+    useEffect(() => {
+        const fetchSubmissions = async () => {
+            const memberRef = firestore()
                 .collection('boards')
                 .doc(boardId)
-                .collection('chat')
-                .doc(currentUser.uid) 
-                .collection('messages')
-                .orderBy('timestamp', 'asc')
-                .onSnapshot(async (snapshot) => {
-                    const fetchedMessages = await Promise.all(
-                        snapshot.docs.map(async (doc) => {
-                            const messageData = doc.data();
-                     
-                            const userDoc = await firestore()
-                                .collection('users')
-                                .doc(messageData.senderId)
-                                .get();
-                            const username = userDoc.data()?.username || 'Unknown User';
-                            return {
-                                id: doc.id,
-                                ...messageData,
-                                username, 
-                            };
-                        })
-                    );
-                    setMessages(fetchedMessages);
-                });
-    
-            return () => unsubscribe();
-        }, [boardId, currentUser]);
-    
-        const sendMessage = async () => {
-            if (!currentUser || newMessage.trim() === '') return;
-    
+                .collection('members')
+                .doc(userId)
+                .collection('submissions');
 
-            const userDoc = await firestore()
-                .collection('users')
-                .doc(currentUser.uid)
-                .get();
-            const username = userDoc.data()?.username || 'Unknown User';
-    
-            const messageData = {
-                text: newMessage,
-                timestamp: firestore.FieldValue.serverTimestamp(),
-                senderId: currentUser.uid,
-                username, 
-                participants: [currentUser.uid, 'recipientUserId'], 
-            };
-    
-            await firestore()
-                .collection('boards')
-                .doc(boardId)
-                .collection('chat')
-                .doc(currentUser.uid)
-                .collection('messages')
-                .add(messageData);
-    
-            setNewMessage('');
+            const snapshot = await memberRef.where('isTestCheckedByMentor', '==', true).get();
+            const submissionsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setSubmissions(submissionsData);
+            setLoading(false);
         };
-    
+
+        fetchSubmissions();
+    }, [boardId, userId]);
+
+    if (loading) {
         return (
+            <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.gradientContainer}>
+                <View style={styles.loader}>
+                    <ActivityIndicator size="large" color="#FFBA00" />
+                </View>
+            </LinearGradient>
+        );
+    }
+
+    return (
+        <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.gradientContainer}>
+            <FlatList
+                data={submissions}
+                contentContainerStyle={styles.listContainer}
+                renderItem={({ item }) => (
+                    <TouchableOpacity
+                        key={item.id}
+                        style={styles.resultItem}
+                        onPress={() => navigation.navigate('MenteeTestResultScreen', { submission: item })}
+                    >
+                        <Icon name="chart-bar" size={24} color="#0C3B2E" style={styles.icon} />
+                        <View style={styles.textContainer}>
+                            <Text style={styles.testName}>{item.testName}</Text>
+                            <Text style={styles.testStatus}>Status: {item.passStatus}</Text>
+                        </View>
+                    </TouchableOpacity>
+                )}
+                keyExtractor={item => item.id}
+            />
+        </LinearGradient>
+    );
+};
+
+const CommunicationRoute = ({ boardId }) => {
+    const [messages, setMessages] = useState([]);
+    const [newMessage, setNewMessage] = useState('');
+    const currentUser = auth().currentUser;
+
+    useEffect(() => {
+        if (!currentUser) return;
+
+        const unsubscribe = firestore()
+            .collection('boards')
+            .doc(boardId)
+            .collection('chat')
+            .doc(currentUser.uid)
+            .collection('messages')
+            .orderBy('timestamp', 'asc')
+            .onSnapshot(async (snapshot) => {
+                const fetchedMessages = await Promise.all(
+                    snapshot.docs.map(async (doc) => {
+                        const messageData = doc.data();
+                        const userDoc = await firestore()
+                            .collection('users')
+                            .doc(messageData.senderId)
+                            .get();
+                        const username = userDoc.data()?.username || 'Unknown User';
+                        return {
+                            id: doc.id,
+                            ...messageData,
+                            username,
+                        };
+                    })
+                );
+                setMessages(fetchedMessages);
+            });
+
+        return () => unsubscribe();
+    }, [boardId, currentUser]);
+
+    const sendMessage = async () => {
+        if (!currentUser || newMessage.trim() === '') return;
+
+        const userDoc = await firestore()
+            .collection('users')
+            .doc(currentUser.uid)
+            .get();
+        const username = userDoc.data()?.username || 'Unknown User';
+
+        const messageData = {
+            text: newMessage,
+            timestamp: firestore.FieldValue.serverTimestamp(),
+            senderId: currentUser.uid,
+            username,
+        };
+
+        await firestore()
+            .collection('boards')
+            .doc(boardId)
+            .collection('chat')
+            .doc(currentUser.uid)
+            .collection('messages')
+            .add(messageData);
+
+        setNewMessage('');
+    };
+
+    return (
+        <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.gradientContainer}>
             <View style={styles.scene}>
                 <FlatList
                     data={messages}
+                    contentContainerStyle={styles.listContainer}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
                         <View style={styles.messageItem}>
-                            <Text style={styles.messageText}>
-                                {item.username}: {item.text}
-                            </Text>
+                            <Text style={styles.messageUsername}>{item.username}</Text>
+                            <Text style={styles.messageText}>{item.text}</Text>
                         </View>
                     )}
                 />
@@ -205,39 +235,47 @@
                         value={newMessage}
                         onChangeText={setNewMessage}
                         placeholder="Type a message..."
+                        placeholderTextColor="#888"
                         onSubmitEditing={sendMessage}
                     />
-                    <Button title="Send" onPress={sendMessage} />
+                    <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+                        <Icon name="send" size={24} color="#0C3B2E" />
+                    </TouchableOpacity>
                 </View>
             </View>
-        );
-    };    
-    
+        </LinearGradient>
+    );
+};
 
-    const MenteeLessonBoardsScreen = ({ route, navigation }) => {
-        const { boardId } = route.params;
-        const currentUser = auth().currentUser;
-        const userId = currentUser ? currentUser.uid : null;
-    
-        console.log("Current User ID:", userId); 
-    
-        const [index, setIndex] = useState(0);
-        const [routes] = useState([
-            { key: 'lessons', title: 'Lessons' },
-            { key: 'tests', title: 'Tests' },
-            { key: 'results', title: 'Results' },
-            { key: 'communication', title: 'Communication' },
-        ]);
-    
-      
-        const renderScene = SceneMap({
-            lessons: () => <LessonsRoute boardId={boardId} navigation={navigation} />,
-            tests: () => <TestsRoute boardId={boardId} navigation={navigation} />,
-            results: () => <ResultsRoute boardId={boardId} userId={userId} />,
-            communication: () => <CommunicationRoute boardId={boardId} />,
-        });
-    
-        return (
+const MenteeLessonBoardsScreen = ({ route, navigation }) => {
+    const { boardId } = route.params;
+    const currentUser = auth().currentUser;
+    const userId = currentUser ? currentUser.uid : null;
+
+    const [index, setIndex] = useState(0);
+    const [routes] = useState([
+        { key: 'lessons', title: 'Lessons' },
+        { key: 'tests', title: 'Tests' },
+        { key: 'results', title: 'Results' },
+        { key: 'communication', title: 'Communication' },
+    ]);
+
+    const renderScene = SceneMap({
+        lessons: () => <LessonsRoute boardId={boardId} navigation={navigation} />,
+        tests: () => <TestsRoute boardId={boardId} navigation={navigation} />,
+        results: () => <ResultsRoute boardId={boardId} userId={userId} />,
+        communication: () => <CommunicationRoute boardId={boardId} />,
+    });
+
+    return (
+        <View style={styles.container}>
+            {/* CustomAppBar at the top */}
+            <CustomAppBar
+                title="Mentee's Dashboard"
+                showBackButton={true}
+                onBackPress={() => navigation.goBack()}
+            />
+            {/* TabView below the CustomAppBar */}
             <TabView
                 navigationState={{ index, routes }}
                 renderScene={renderScene}
@@ -246,72 +284,138 @@
                 renderTabBar={props => (
                     <TabBar
                         {...props}
-                        indicatorStyle={{ backgroundColor: 'white' }}
+                        indicatorStyle={{ backgroundColor: '#FFBA00' }}
                         style={styles.tabBar}
                         labelStyle={styles.tabLabel}
                     />
                 )}
+                style={styles.tabView}
             />
-        );
-    };
+        </View>
+    );
+};
 
-    const styles = StyleSheet.create({
-        scene: {
-            flex: 1,
-            padding: 20,
-        },
-        tabBar: {
-            backgroundColor: '#007bff',
-        },
-        tabLabel: {
-            color: '#fff',
-            fontWeight: 'bold',
-        },
-        contentText: {
-            fontSize: 16,
-            textAlign: 'center',
-        },
-        lessonItem: {
-            padding: 15,
-            marginVertical: 8,
-            backgroundColor: '#f0f0f0',
-            borderRadius: 5,
-        },
-        testItem: {
-            padding: 15,
-            marginVertical: 8,
-            backgroundColor: '#f0f0f0',
-            borderRadius: 5,
-        },
-        testTitle: {
-            fontSize: 16,
-            fontWeight: 'bold',
-        },
-        testContent: {
-            fontSize: 14,
-            color: '#666',
-        },
-        messageItem: {
-            padding: 10,
-            marginVertical: 4,
-            backgroundColor: '#f0f0f0',
-            borderRadius: 5,
-        },
-        messageText: {
-            fontSize: 14,
-        },
-        inputContainer: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginTop: 10,
-        },
-        input: {
-            flex: 1,
-            borderWidth: 1,
-            borderColor: '#ccc',
-            padding: 10,
-            marginRight: 10,
-        },
-    });
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    tabView: {
+        flex: 1,
+    },
+    gradientContainer: {
+        flex: 1,
+    },
+    scene: {
+        flex: 1,
+        padding: 20,
+    },
+    tabBar: {
+        backgroundColor: '#0C3B2E',
+    },
+    tabLabel: {
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+    },
+    listContainer: {
+        padding: 20,
+    },
+    lessonItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 15,
+        marginVertical: 8,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
+    },
+    testItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 15,
+        marginVertical: 8,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
+    },
+    resultItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 15,
+        marginVertical: 8,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
+    },
+    icon: {
+        marginRight: 10,
+    },
+    textContainer: {
+        flex: 1,
+    },
+    lessonTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#0C3B2E',
+    },
+    lessonContent: {
+        fontSize: 14,
+        color: '#666',
+    },
+    testTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#0C3B2E',
+    },
+    testContent: {
+        fontSize: 14,
+        color: '#666',
+    },
+    testName: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#0C3B2E',
+    },
+    testStatus: {
+        fontSize: 14,
+        color: '#666',
+    },
+    messageItem: {
+        padding: 10,
+        marginVertical: 4,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
+    },
+    messageUsername: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#0C3B2E',
+    },
+    messageText: {
+        fontSize: 14,
+        color: '#0C3B2E',
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    input: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: '#6D9773',
+        padding: 10,
+        borderRadius: 8,
+        backgroundColor: '#FFFFFF',
+        color: '#0C3B2E',
+    },
+    sendButton: {
+        marginLeft: 10,
+        padding: 10,
+        backgroundColor: '#FFBA00',
+        borderRadius: 8,
+    },
+    loader: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+});
 
-    export default MenteeLessonBoardsScreen;
+export default MenteeLessonBoardsScreen;
