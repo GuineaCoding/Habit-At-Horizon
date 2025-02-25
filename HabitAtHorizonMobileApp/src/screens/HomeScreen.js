@@ -2,13 +2,13 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, BackHandler, Alert, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CustomAppBar from '../components/CustomAppBar';
-import { useQuote } from '../components/useQuote'; 
-import { useRefreshService } from '../components/pullRefreshScreenService'; 
+import { useQuote } from '../components/useQuote';
+import { useRefreshService } from '../components/pullRefreshScreenService';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const { quote, isLoading, error, fetchQuote } = useQuote();
-  const { refreshing, onRefresh } = useRefreshService(fetchQuote); 
+  const { refreshing, onRefresh } = useRefreshService(fetchQuote);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -66,17 +66,17 @@ const HomeScreen = () => {
       </View>
 
       <View style={styles.listContainer}>
-        <TouchableOpacity style={[styles.listItem, { backgroundColor: '#6D9773' }]} onPress={goToMyPersonalSpace}>
-          <Text style={styles.listText}>My Personal Space</Text>
+        <TouchableOpacity style={styles.button} onPress={goToMyPersonalSpace}>
+          <Text style={styles.buttonText}>My Personal Space</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.listItem, { backgroundColor: '#B46617' }]} onPress={goToMentoring}>
-          <Text style={styles.listText}>Mentoring Space</Text>
+        <TouchableOpacity style={styles.button} onPress={goToMentoring}>
+          <Text style={styles.buttonText}>Mentoring Space</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.listItem, { backgroundColor: '#FFBA00' }]} onPress={goToMenteeScreen}>
-          <Text style={styles.listText}>Mentee Space</Text>
+        <TouchableOpacity style={styles.button} onPress={goToMenteeScreen}>
+          <Text style={styles.buttonText}>Mentee Space</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.listItem, { backgroundColor: '#FFBA00' }]} onPress={goToTopListScreen}>
-          <Text style={styles.listText}>Top List Screen</Text>
+        <TouchableOpacity style={styles.button} onPress={goToTopListScreen}>
+          <Text style={styles.buttonText}>Top List Screen</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -113,27 +113,25 @@ const styles = StyleSheet.create({
     color: '#FF0000',
     textAlign: 'center',
   },
-  debugText: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    marginTop: 20,
-    backgroundColor: '#333',
-    padding: 10,
-    borderRadius: 5,
-  },
   listContainer: {
     paddingHorizontal: 20,
   },
-  listItem: {
-    padding: 20,
-    borderRadius: 10,
+  button: {
+    backgroundColor: '#FFBA00',
+    padding: 15,
+    borderRadius: 8,
     marginBottom: 15,
-    elevation: 3,
     alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
   },
-  listText: {
+  buttonText: {
     fontSize: 18,
-    color: '#FFFFFF',
+    color: '#0C3B2E',
     fontWeight: 'bold',
   },
 });
