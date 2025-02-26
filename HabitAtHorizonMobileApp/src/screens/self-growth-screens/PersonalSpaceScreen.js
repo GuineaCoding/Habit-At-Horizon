@@ -4,7 +4,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import CustomAppBar from '../../components/CustomAppBar';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; 
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const PersonalSpaceScreen = () => {
   const navigation = useNavigation();
