@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, FlatList } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import LinearGradient from 'react-native-linear-gradient';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import CustomAppBar from '../../../components/CustomAppBar';
 
 const TaskList = ({ navigation }) => {
   const [tasks, setTasks] = useState([]);
@@ -63,7 +65,8 @@ const TaskList = ({ navigation }) => {
   );
 
   return (
-    <View style={styles.container}>
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+      <CustomAppBar title="Task List" showBackButton={true} />
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}
@@ -76,7 +79,7 @@ const TaskList = ({ navigation }) => {
         onPress={() => navigation.navigate('CreateTaskScreen', { userId })}>
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -107,6 +110,19 @@ const TaskTab = ({ tasks, navigation, userId }) => {
     navigation.navigate('EditTaskScreen', { task, userId });
   };
 
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'High':
+        return '#FF6B6B'; 
+      case 'Medium':
+        return '#FFD166'; 
+      case 'Low':
+        return '#6D9773';
+      default:
+        return '#666'; 
+    }
+  };
+
   const renderTaskItem = ({ item }) => (
     <TouchableOpacity
       style={[styles.taskItem, item.dueDate.toDate() < new Date() && styles.overdueTask]}
@@ -114,7 +130,9 @@ const TaskTab = ({ tasks, navigation, userId }) => {
       <View style={styles.taskDetails}>
         <Text style={styles.taskTitle}>{item.title}</Text>
         <Text style={styles.taskDueDate}>Due: {item.dueDate.toDate().toLocaleDateString()}</Text>
-        <Text style={styles.taskPriority}>Priority: {item.priority}</Text>
+        <Text style={[styles.taskPriority, { color: getPriorityColor(item.priority) }]}>
+          Priority: {item.priority}
+        </Text>
         <Text style={styles.taskCategory}>Category: {item.category}</Text>
       </View>
       <View style={styles.buttonsContainer}>
@@ -151,6 +169,7 @@ const TaskTab = ({ tasks, navigation, userId }) => {
       data={tasks}
       renderItem={renderTaskItem}
       keyExtractor={(item) => item.id}
+      contentContainerStyle={styles.flatListContent}
     />
   );
 };
@@ -158,8 +177,9 @@ const TaskTab = ({ tasks, navigation, userId }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0C3B2E',
-    paddingTop: 20,
+  },
+  flatListContent: {
+    padding: 10,
   },
   taskItem: {
     flexDirection: 'row',
@@ -168,13 +188,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#6D9773',
     backgroundColor: '#FFFFFF',
-    marginHorizontal: 10,
     marginVertical: 5,
     borderRadius: 10,
     elevation: 3,
   },
   overdueTask: {
-    backgroundColor: '#ffcccc',
+    backgroundColor: '#FFE5E5', 
+    borderLeftWidth: 5,
+    borderLeftColor: '#FF6B6B', 
   },
   taskDetails: {
     flex: 1,
@@ -190,7 +211,7 @@ const styles = StyleSheet.create({
   },
   taskPriority: {
     fontSize: 14,
-    color: '#666',
+    fontWeight: '600',
   },
   taskCategory: {
     fontSize: 14,
