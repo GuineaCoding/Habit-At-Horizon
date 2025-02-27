@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import firestore from '@react-native-firebase/firestore';
+import CustomAppBar from '../../../components/CustomAppBar'; 
 
 const NoteViewScreen = ({ route, navigation }) => {
   const { noteId, userId } = route.params;
@@ -13,18 +15,21 @@ const NoteViewScreen = ({ route, navigation }) => {
       .collection('notes')
       .doc(noteId);
 
-    const unsubscribe = noteRef.onSnapshot(doc => {
-      if (doc.exists) {
-        setNote({
-          id: doc.id,
-          ...doc.data(),
-        });
-      } else {
-        console.log('No such document!');
+    const unsubscribe = noteRef.onSnapshot(
+      (doc) => {
+        if (doc.exists) {
+          setNote({
+            id: doc.id,
+            ...doc.data(),
+          });
+        } else {
+          console.log('No such document!');
+        }
+      },
+      (err) => {
+        console.error('Error fetching note:', err);
       }
-    }, err => {
-      console.error('Error fetching note:', err);
-    });
+    );
 
     return () => unsubscribe();
   }, [noteId, userId]);
@@ -35,120 +40,159 @@ const NoteViewScreen = ({ route, navigation }) => {
 
   const handleDeleteNote = () => {
     Alert.alert(
-      "Delete Note",
-      "Are you sure you want to delete this note?",
+      'Delete Note',
+      'Are you sure you want to delete this note?',
       [
         {
-          text: "Cancel",
-          style: "cancel"
+          text: 'Cancel',
+          style: 'cancel',
         },
-        { text: "Delete", onPress: () => {
+        {
+          text: 'Delete',
+          onPress: () => {
             firestore()
-            .collection('users')
-            .doc(userId)
-            .collection('notes')
-            .doc(noteId)
-            .delete()
-            .then(() => {
-              Alert.alert('Note deleted successfully');
-              navigation.goBack(); 
-            })
-            .catch(error => {
-              Alert.alert('Error deleting note', error.message);
-            });
-          }
-        }
+              .collection('users')
+              .doc(userId)
+              .collection('notes')
+              .doc(noteId)
+              .delete()
+              .then(() => {
+                Alert.alert('Note deleted successfully');
+                navigation.goBack();
+              })
+              .catch((error) => {
+                Alert.alert('Error deleting note', error.message);
+              });
+          },
+        },
       ]
     );
   };
 
   if (!note) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.loadingText}>Loading note...</Text>
-      </View>
+      <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+        <CustomAppBar title="View Note" showBackButton={true} />
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading note...</Text>
+        </View>
+      </LinearGradient>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>{note.title}</Text>
-      <Text style={styles.content}>{note.content}</Text>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Folder</Text>
-        <Text style={styles.sectionContent}>{note.folder}</Text>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Tags</Text>
-        <Text style={styles.sectionContent}>{note.tags ? note.tags.join(', ') : 'No tags'}</Text>
-      </View>
-
-      {note.attachments && note.attachments.length > 0 && (
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+      <CustomAppBar title="View Note" showBackButton={true} />
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        {/* Title Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Attachments</Text>
-          {note.attachments.map((attachment, index) => (
-            <Text key={index} style={styles.sectionContent}>
-              {attachment}
-            </Text>
-          ))}
+          <Text style={styles.sectionTitle}>Title</Text>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>{note.title}</Text>
+          </View>
         </View>
-      )}
 
-      <TouchableOpacity style={[styles.button, { backgroundColor: '#6D9773' }]} onPress={handleEditNote}>
-        <Text style={styles.buttonText}>Edit Note</Text>
-      </TouchableOpacity>
+        {/* Content Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Content</Text>
+          <View style={styles.contentContainer}>
+            <Text style={styles.content}>{note.content}</Text>
+          </View>
+        </View>
 
-      <TouchableOpacity style={[styles.button, { backgroundColor: '#B46617' }]} onPress={handleDeleteNote}>
-        <Text style={styles.buttonText}>Delete Note</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        {/* Category Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Category</Text>
+          <Text style={styles.sectionContent}>{note.category}</Text>
+        </View>
+
+        {/* Tags Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Tags</Text>
+          <Text style={styles.sectionContent}>
+            {note.tags ? note.tags.join(', ') : 'No tags'}
+          </Text>
+        </View>
+
+        {/* Attachments Section */}
+        {note.attachments && note.attachments.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Attachments</Text>
+            {note.attachments.map((attachment, index) => (
+              <Text key={index} style={styles.sectionContent}>
+                {attachment}
+              </Text>
+            ))}
+          </View>
+        )}
+
+        {/* Buttons */}
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: '#6D9773' }]}
+          onPress={handleEditNote}
+        >
+          <Text style={styles.buttonText}>Edit Note</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: '#B46617' }]}
+          onPress={handleDeleteNote}
+        >
+          <Text style={styles.buttonText}>Delete Note</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#0C3B2E',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   loadingText: {
     fontSize: 18,
     color: '#FFFFFF',
-    textAlign: 'center',
-    marginTop: 20,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#FFFFFF',
-    textAlign: 'center',
-  },
-  content: {
-    fontSize: 16,
-    marginBottom: 20,
-    color: '#FFFFFF',
-    lineHeight: 24,
+  contentContainer: {
+    padding: 20,
   },
   section: {
     marginBottom: 20,
-    padding: 15,
-    backgroundColor: '#1A4A3C',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#6D9773',
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10,
     color: '#FFBA00',
+    marginBottom: 10,
+  },
+  titleContainer: {
+    borderRadius: 10,
+    padding: 15
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  contentContainer: {
+    padding: 15,
+    borderColor: '#6D9773',
+  },
+  content: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    lineHeight: 24,
   },
   sectionContent: {
     fontSize: 16,
     color: '#FFFFFF',
+    padding: 10,
+    
   },
   button: {
     padding: 15,

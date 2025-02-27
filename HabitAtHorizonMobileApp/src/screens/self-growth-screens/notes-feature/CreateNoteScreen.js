@@ -9,7 +9,7 @@ const CreateNoteScreen = ({ navigation, route }) => {
   const { userId } = route.params;
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [folder, setFolder] = useState('Work');
+  const [category, setCategory] = useState('Work');
   const [tags, setTags] = useState('');
   const [attachments, setAttachments] = useState([]);
 
@@ -22,7 +22,7 @@ const CreateNoteScreen = ({ navigation, route }) => {
         .add({
           title,
           content,
-          folder,
+          category,
           tags: tags.split(',').map((tag) => tag.trim()),
           attachments,
           isPinned: false,
@@ -68,13 +68,13 @@ const CreateNoteScreen = ({ navigation, route }) => {
           />
         </View>
 
-        {/* Folder Picker */}
+        {/* Category Picker */}
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Folder</Text>
+          <Text style={styles.label}>Category</Text>
           <View style={styles.pickerContainer}>
             <Picker
-              selectedValue={folder}
-              onValueChange={(itemValue) => setFolder(itemValue)}
+              selectedValue={category}
+              onValueChange={(itemValue) => setCategory(itemValue)}
               style={styles.picker}
             >
               <Picker.Item label="Work" value="Work" />

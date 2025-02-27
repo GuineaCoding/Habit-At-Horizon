@@ -1,39 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import CustomAppBar from '../../../components/CustomAppBar'; // Ensure this component exists
 
 const NoteListScreen = ({ navigation }) => {
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: 'current', title: 'Current' },
     { key: 'archived', title: 'Archived' },
-    { key: 'tags', title: 'Tags' }, 
+    { key: 'tags', title: 'Tags' },
   ]);
-  const [notes, setNotes] = useState([]); 
-  const [archivedNotes, setArchivedNotes] = useState([]);  
-  const [tags, setTags] = useState([]); 
-  const [filteredNotes, setFilteredNotes] = useState([]);  
-  const [selectedTag, setSelectedTag] = useState(null);  
+  const [notes, setNotes] = useState([]);
+  const [archivedNotes, setArchivedNotes] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [filteredNotes, setFilteredNotes] = useState([]);
+  const [selectedTag, setSelectedTag] = useState(null);
   const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged((user) => {
       if (user) {
         setUserId(user.uid);
-        fetchNotes(user.uid, false);  
-        fetchNotes(user.uid, true) 
+        fetchNotes(user.uid, false);
+        fetchNotes(user.uid, true);
       } else {
         Alert.alert('Error', 'User not logged in.');
         navigation.goBack();
       }
     });
-    return subscriber;  
+    return subscriber;
   }, []);
 
   const fetchNotes = (userId, isArchived) => {
-    console.log(`Fetching notes for user ${userId} with isArchived status ${isArchived}`);
     firestore()
       .collection('users')
       .doc(userId)
@@ -43,19 +44,16 @@ const NoteListScreen = ({ navigation }) => {
       .onSnapshot(
         (snapshot) => {
           if (snapshot.empty) {
-            console.log('No notes found');
             isArchived ? setArchivedNotes([]) : setNotes([]);
           } else {
             const fetchedNotes = snapshot.docs.map((doc) => ({
               id: doc.id,
               ...doc.data(),
             }));
-            console.log(`Fetched ${fetchedNotes.length} notes`);
             isArchived ? setArchivedNotes(fetchedNotes) : setNotes(fetchedNotes);
 
-           
             const allTags = fetchedNotes.flatMap((note) => note.tags || []);
-            const uniqueTags = [...new Set(allTags)]; 
+            const uniqueTags = [...new Set(allTags)];
             setTags(uniqueTags);
           }
         },
@@ -67,23 +65,23 @@ const NoteListScreen = ({ navigation }) => {
   };
 
   const handleTagPress = (tag) => {
-    setSelectedTag(tag);  
+    setSelectedTag(tag);
     const filtered = notes.filter((note) => note.tags && note.tags.includes(tag));
-    setFilteredNotes(filtered);  
+    setFilteredNotes(filtered);
   };
 
   const renderNoteItem = ({ item, isArchived }) => {
-    const noteColor = item.priority === 'high' ? 'red' : item.priority === 'medium' ? 'yellow' : 'green';
+    const noteColor = item.priority === 'high' ? '#FF3B30' : item.priority === 'medium' ? '#FFCC00' : '#34C759';
     return (
       <View style={[styles.noteItem, { borderLeftColor: noteColor, borderLeftWidth: 5 }]}>
         <TouchableOpacity onPress={() => navigation.navigate('NoteViewScreen', { noteId: item.id, userId })}>
           <Text style={styles.noteTitle}>{item.title}</Text>
-          <Text style={styles.noteFolder}>Folder: {item.folder}</Text>
+          <Text style={styles.noteCategoryr}>Category: {item.category}</Text>
           <Text style={styles.noteTags}>Tags: {item.tags?.join(', ') || 'No tags'}</Text>
         </TouchableOpacity>
         <View style={styles.buttonsContainer}>
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.button, { backgroundColor: '#6D9773' }]}
             onPress={() => handleArchiveNote(item.id, !isArchived)}
           >
             <Text style={styles.buttonText}>{isArchived ? 'Unarchive' : 'Archive'}</Text>
@@ -104,6 +102,7 @@ const NoteListScreen = ({ navigation }) => {
       data={filteredNotes.length > 0 ? filteredNotes : notes}
       renderItem={(item) => renderNoteItem({ ...item, isArchived: false })}
       keyExtractor={(item) => item.id}
+      contentContainerStyle={styles.listContent}
     />
   );
 
@@ -112,6 +111,7 @@ const NoteListScreen = ({ navigation }) => {
       data={archivedNotes}
       renderItem={(item) => renderNoteItem({ ...item, isArchived: true })}
       keyExtractor={(item) => item.id}
+      contentContainerStyle={styles.listContent}
     />
   );
 
@@ -124,7 +124,7 @@ const NoteListScreen = ({ navigation }) => {
               key={tag}
               style={[
                 styles.tagItem,
-                selectedTag === tag && styles.selectedTagItem, 
+                selectedTag === tag && styles.selectedTagItem,
               ]}
               onPress={() => handleTagPress(tag)}
             >
@@ -141,6 +141,7 @@ const NoteListScreen = ({ navigation }) => {
           <Text style={styles.emptyText}>Select a tag to view related notes.</Text>
         </View>
       }
+      contentContainerStyle={styles.listContent}
     />
   );
 
@@ -153,8 +154,8 @@ const NoteListScreen = ({ navigation }) => {
       .update({ isArchived })
       .then(() => {
         Alert.alert('Success', `Note has been ${isArchived ? 'archived' : 'unarchived'}.`);
-        fetchNotes(userId, false); 
-        fetchNotes(userId, true); 
+        fetchNotes(userId, false);
+        fetchNotes(userId, true);
       })
       .catch((error) => Alert.alert('Error', error.message));
   };
@@ -168,28 +169,29 @@ const NoteListScreen = ({ navigation }) => {
       .delete()
       .then(() => {
         Alert.alert('Success', 'Note deleted successfully');
-        fetchNotes(userId, false); 
-        fetchNotes(userId, true); 
+        fetchNotes(userId, false);
+        fetchNotes(userId, true);
       })
       .catch((error) => Alert.alert('Error', error.message));
   };
 
   return (
-    <View style={styles.container}>
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+      <CustomAppBar title="Notes" showBackButton={true} />
       <TabView
         navigationState={{ index, routes }}
         renderScene={SceneMap({
           current: CurrentNotes,
           archived: ArchivedNotes,
-          tags: TagsTab, 
+          tags: TagsTab,
         })}
         onIndexChange={setIndex}
         initialLayout={{ width: '100%' }}
         renderTabBar={(props) => (
           <TabBar
             {...props}
-            indicatorStyle={{ backgroundColor: 'white' }}
-            style={{ backgroundColor: '#6200EE' }}
+            indicatorStyle={{ backgroundColor: '#FFBA00' }}
+            style={{ backgroundColor: '#0C3B2E' }}
             labelStyle={{ color: 'white' }}
           />
         )}
@@ -200,7 +202,7 @@ const NoteListScreen = ({ navigation }) => {
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -208,19 +210,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  listContent: {
+    padding: 10,
+  },
   noteItem: {
     padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    flexDirection: 'column',
-    backgroundColor: 'white',
+    borderRadius: 10,
+    marginBottom: 10,
+    backgroundColor: '#FFFFFF',
+    elevation: 3,
   },
   noteTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'black',
+    color: '#0C3B2E',
   },
-  noteFolder: {
+  noteCategory: {
     fontSize: 14,
     color: '#666',
   },
@@ -234,7 +239,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   button: {
-    backgroundColor: '#6200EE',
     padding: 10,
     borderRadius: 5,
     flex: 1,
@@ -252,16 +256,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     right: 20,
-    backgroundColor: '#6200EE',
+    backgroundColor: '#FFBA00',
     width: 60,
     height: 60,
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 5,
   },
   addButtonText: {
     fontSize: 30,
-    color: 'white',
+    color: '#0C3B2E',
+    fontWeight: 'bold',
   },
   tagsContainer: {
     flexDirection: 'row',
@@ -275,7 +281,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e0e0e0',
   },
   selectedTagItem: {
-    backgroundColor: '#6200EE',
+    backgroundColor: '#FFBA00',
   },
   tagText: {
     fontSize: 16,

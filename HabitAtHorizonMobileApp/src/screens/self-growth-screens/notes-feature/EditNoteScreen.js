@@ -7,7 +7,7 @@ const EditNoteScreen = ({ route, navigation }) => {
   const [note, setNote] = useState({
     title: '',
     content: '',
-    folder: '',
+    category: '',
     tags: [],
     attachments: [],
   });
@@ -25,7 +25,7 @@ const EditNoteScreen = ({ route, navigation }) => {
           id: doc.id,
           title: doc.data().title,
           content: doc.data().content,
-          folder: doc.data().folder,
+          category: doc.data().category,
           tags: doc.data().tags,
           attachments: doc.data().attachments || [],
         });
@@ -47,7 +47,7 @@ const EditNoteScreen = ({ route, navigation }) => {
     noteRef.update({
       title: note.title,
       content: note.content,
-      folder: note.folder,
+      category: note.category,
       tags: note.tags,
       attachments: note.attachments,
     })
@@ -84,11 +84,11 @@ const EditNoteScreen = ({ route, navigation }) => {
         multiline
       />
 
-      <Text style={styles.label}>Folder:</Text>
+      <Text style={styles.label}>Category:</Text>
       <TextInput
         style={styles.input}
-        value={note.folder}
-        onChangeText={(text) => handleChange(text, 'folder')}
+        value={note.category}
+        onChangeText={(text) => handleChange(text, 'category')}
       />
 
       <Text style={styles.label}>Tags (comma-separated):</Text>
