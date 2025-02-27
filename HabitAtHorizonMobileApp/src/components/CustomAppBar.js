@@ -7,8 +7,8 @@ import { StyleSheet } from 'react-native';
 const CustomAppBar = ({ title, showBackButton = false }) => {
   const navigation = useNavigation();
   const [menuVisible, setMenuVisible] = useState(false);
-  const [unseenChatCount, setUnseenChatCount] = useState(3); // Example: 3 unseen messages
-  const [unseenNotificationsCount, setUnseenNotificationsCount] = useState(1); // Example: 1 unseen notification
+  const [unseenChatCount, setUnseenChatCount] = useState(3); 
+  const [unseenNotificationsCount, setUnseenNotificationsCount] = useState(1);
 
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
@@ -90,7 +90,7 @@ const CustomAppBar = ({ title, showBackButton = false }) => {
 const styles = StyleSheet.create({
   appbar: {
     backgroundColor: '#0C3B2E',
-    elevation: 4, // Add shadow for a modern look
+    elevation: 4, 
   },
   appbarTitle: {
     color: '#FFFFFF',
@@ -98,20 +98,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   icon: {
-    marginHorizontal: 8, // Add spacing between icons
+    marginHorizontal: 8,
   },
   badge: {
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: '#FF3B30', // Red badge for visibility
+    backgroundColor: '#FF3B30', 
     color: '#FFFFFF',
   },
   menuContent: {
-    backgroundColor: '#1A4A3C', // Match app theme
+    backgroundColor: '#1A4A3C', 
   },
   menuItemTitle: {
-    color: '#FFFFFF', // White text for menu items
+    color: '#FFFFFF',
   },
 });
 

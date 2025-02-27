@@ -56,6 +56,9 @@ import MentorListPage from '../screens/mentorsLayout/MentorListPage'
 import AddMentorScreen from '../screens/mentorsLayout/CreateMentorProfileScreen'
 import MentorProfileCreationStartScreen from '../screens/mentorsLayout/MentorProfileCreationStartScreen'
 import MentorProfileViewScreen from '../screens/mentorsLayout/MentorProfileViewScreen'
+//chat
+import ChatScreen from '../screens/chatScreen/ChatScreen'
+import UserListScreen from '../screens/chatScreen/UserListScreen'
 
 
 const Stack = createNativeStackNavigator();
@@ -291,22 +294,31 @@ const AppNavigator = () => {
               component={MenteeListScreen}
               options={{ title: 'Mentee List' }}
             />
-                        <Stack.Screen
+            <Stack.Screen
               name="MenteeProfileViewScreen"
               component={MenteeProfileViewScreen}
               options={{ title: 'Mentee Profile' }}
             />
-                        <Stack.Screen
+            <Stack.Screen
               name="ProgressScreen"
               component={ProgressScreen}
               options={{ title: 'Progress Screen' }}
             />
-                                    <Stack.Screen
+            <Stack.Screen
               name="TopListScreen"
               component={TopListScreen}
               options={{ title: 'Top List Screen' }}
             />
-
+            <Stack.Screen
+              name="ChatScreen"
+              component={ChatScreen}
+              options={{ title: 'Chat Screen' }}
+            />
+            <Stack.Screen
+              name="UserListScreen"
+              component={UserListScreen}
+              options={{ title: 'User List Screen' }}
+            />
           </>
         ) : (
 
