@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import firestore from '@react-native-firebase/firestore';
+import CustomAppBar from '../../../components/CustomAppBar';
 
 const EditNoteScreen = ({ route, navigation }) => {
   const { noteId, userId } = route.params;
@@ -19,7 +21,7 @@ const EditNoteScreen = ({ route, navigation }) => {
       .collection('notes')
       .doc(noteId);
 
-    const unsubscribe = noteRef.onSnapshot(doc => {
+    const unsubscribe = noteRef.onSnapshot((doc) => {
       if (doc.exists) {
         setNote({
           id: doc.id,
@@ -44,94 +46,132 @@ const EditNoteScreen = ({ route, navigation }) => {
       .collection('notes')
       .doc(noteId);
 
-    noteRef.update({
-      title: note.title,
-      content: note.content,
-      category: note.category,
-      tags: note.tags,
-      attachments: note.attachments,
-    })
-    .then(() => {
-      Alert.alert('Success', 'Note updated successfully');
-      navigation.goBack();
-    })
-    .catch(error => {
-      Alert.alert('Error', 'Note update failed: ' + error.message);
-    });
+    noteRef
+      .update({
+        title: note.title,
+        content: note.content,
+        category: note.category,
+        tags: note.tags,
+        attachments: note.attachments,
+      })
+      .then(() => {
+        Alert.alert('Success', 'Note updated successfully');
+        navigation.goBack();
+      })
+      .catch((error) => {
+        Alert.alert('Error', 'Note update failed: ' + error.message);
+      });
   };
 
   const handleChange = (value, field) => {
-    setNote(prevState => ({
+    setNote((prevState) => ({
       ...prevState,
-      [field]: value
+      [field]: value,
     }));
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.label}>Title:</Text>
-      <TextInput
-        style={styles.input}
-        value={note.title}
-        onChangeText={(text) => handleChange(text, 'title')}
-      />
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+      <CustomAppBar title="Edit Note" showBackButton={true} />
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        {/* Title Field */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Title:</Text>
+          <TextInput
+            style={styles.input}
+            value={note.title}
+            onChangeText={(text) => handleChange(text, 'title')}
+            placeholder="Enter note title"
+            placeholderTextColor="#999"
+          />
+        </View>
 
-      <Text style={styles.label}>Content:</Text>
-      <TextInput
-        style={styles.input}
-        value={note.content}
-        onChangeText={(text) => handleChange(text, 'content')}
-        multiline
-      />
+        {/* Content Field */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Content:</Text>
+          <TextInput
+            style={[styles.input, styles.contentInput]}
+            value={note.content}
+            onChangeText={(text) => handleChange(text, 'content')}
+            placeholder="Enter note content"
+            placeholderTextColor="#999"
+            multiline
+          />
+        </View>
 
-      <Text style={styles.label}>Category:</Text>
-      <TextInput
-        style={styles.input}
-        value={note.category}
-        onChangeText={(text) => handleChange(text, 'category')}
-      />
+        {/* Category Field */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Category:</Text>
+          <TextInput
+            style={styles.input}
+            value={note.category}
+            onChangeText={(text) => handleChange(text, 'category')}
+            placeholder="Enter note category"
+            placeholderTextColor="#999"
+          />
+        </View>
 
-      <Text style={styles.label}>Tags (comma-separated):</Text>
-      <TextInput
-        style={styles.input}
-        value={note.tags.join(', ')}
-        onChangeText={(text) => handleChange(text.split(',').map(tag => tag.trim()), 'tags')}
-      />
+        {/* Tags Field */}
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Tags (comma-separated):</Text>
+          <TextInput
+            style={styles.input}
+            value={note.tags.join(', ')}
+            onChangeText={(text) => handleChange(text.split(',').map((tag) => tag.trim()), 'tags')}
+            placeholder="e.g., #Study, #Ideas"
+            placeholderTextColor="#999"
+          />
+        </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleSave}>
-        <Text style={styles.buttonText}>Save Changes</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        {/* Save Button */}
+        <TouchableOpacity style={styles.button} onPress={handleSave}>
+          <Text style={styles.buttonText}>Save Changes</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  contentContainer: {
     padding: 20,
+  },
+  inputContainer: {
+    marginBottom: 20,
   },
   label: {
     fontSize: 16,
-    marginBottom: 5,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#FFBA00',
+    marginBottom: 10,
   },
   input: {
     fontSize: 14,
-    padding: 10,
+    padding: 15,
     borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 15,
+    borderColor: '#6D9773',
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    color: '#000000',
+  },
+  contentInput: {
+    height: 150,
+    textAlignVertical: 'top',
   },
   button: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#FFBA00',
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 10,
     alignItems: 'center',
+    elevation: 3,
   },
   buttonText: {
-    color: 'white',
+    color: '#0C3B2E',
     fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 
