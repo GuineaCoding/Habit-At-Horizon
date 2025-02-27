@@ -85,6 +85,10 @@ const HomeScreen = () => {
             <Icon name="format-list-numbered" size={24} color="#0C3B2E" style={styles.buttonIcon} />
             <Text style={styles.buttonText}>Top List Screen</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={goToTopListScreen}>
+            <Icon name="format-list-numbered" size={24} color="#0C3B2E" style={styles.buttonIcon} />
+            <Text style={styles.buttonText}>Timeline</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </LinearGradient>
