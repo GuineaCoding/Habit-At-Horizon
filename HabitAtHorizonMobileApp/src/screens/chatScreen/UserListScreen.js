@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import CustomAppBar from '../../components/CustomAppBar'; // Ensure this component exists
 
 const UserListScreen = ({ navigation }) => {
   const [users, setUsers] = useState([]);
   const userId = auth().currentUser.uid;
 
+  // Fetch users with visibleToOthers: true
   const fetchUsers = async () => {
-    const usersRef = firestore().collection('users');
+    const usersRef = firestore()
+      .collection('users')
+      .where('visibleToOthers', '==', true); // Only fetch visible users
+
     const snapshot = await usersRef.get();
     const users = [];
     snapshot.forEach((doc) => {
-      if (doc.id !== userId) {
+      if (doc.id !== userId) { 
         users.push({ id: doc.id, ...doc.data() });
       }
     });
@@ -36,6 +42,7 @@ const UserListScreen = ({ navigation }) => {
       });
       navigation.navigate('ChatScreen', { chatId: newChatRef.id });
     } else {
+        
       navigation.navigate('ChatScreen', { chatId: snapshot.docs[0].id });
     }
   };
@@ -45,7 +52,8 @@ const UserListScreen = ({ navigation }) => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+      <CustomAppBar title="User List" showBackButton={true} />
       <FlatList
         data={users}
         keyExtractor={(item) => item.id}
@@ -55,27 +63,40 @@ const UserListScreen = ({ navigation }) => {
             onPress={() => startChat(item.id)}
           >
             <Text style={styles.userName}>{item.name}</Text>
+            <Text style={styles.userRole}>
+              {item.roles?.includes('mentee') ? 'Mentee' : 'Mentor'}
+            </Text>
           </TouchableOpacity>
         )}
+        contentContainerStyle={styles.listContent}
       />
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  listContent: {
     padding: 10,
-    backgroundColor: '#FFFFFF',
   },
   userItem: {
     padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    marginBottom: 10,
+    backgroundColor: '#1A4A3C',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#6D9773',
   },
   userName: {
     fontSize: 16,
-    color: '#000',
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  userRole: {
+    fontSize: 14,
+    color: '#FFBA00',
   },
 });
 

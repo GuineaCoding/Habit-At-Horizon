@@ -68,19 +68,19 @@ const CreateMenteeProfile = ({ navigation }) => {
       Alert.alert('Error', 'You must be logged in to create or update a mentee profile.');
       return;
     }
-
+  
     if (!name || !username || !bio) {
       Alert.alert('Error', 'Please fill out all required fields.');
       return;
     }
-
+  
     try {
       const availabilityArray = [];
       if (availability.weekdays) availabilityArray.push('Weekdays');
       if (availability.weekends) availabilityArray.push('Weekends');
       if (availability.mornings) availabilityArray.push('Mornings');
       if (availability.evenings) availabilityArray.push('Evenings');
-
+  
       const menteeData = {
         goals: goals.split(',').map(goal => goal.trim()),
         skills: skills.split(',').map(skill => skill.trim()),
@@ -88,7 +88,7 @@ const CreateMenteeProfile = ({ navigation }) => {
         linkedIn,
         twitter,
       };
-
+  
       await firestore().collection('users').doc(userId).set(
         {
           name,
@@ -97,10 +97,11 @@ const CreateMenteeProfile = ({ navigation }) => {
           profileImage,
           roles: ['mentee'],
           menteeData,
+          visibleToOthers: true,
         },
         { merge: true }
       );
-
+  
       Alert.alert('Success', 'Mentee profile saved successfully!');
     } catch (error) {
       console.error('Error saving mentee profile:', error);
