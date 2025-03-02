@@ -3,7 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput, Button, 
 import LinearGradient from 'react-native-linear-gradient';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import CustomAppBar from '../../components/CustomAppBar';
+import CustomAppBar from '../../components/CustomAppBar'; 
 
 const UserListScreen = ({ navigation }) => {
   const [users, setUsers] = useState([]); 
@@ -11,11 +11,10 @@ const UserListScreen = ({ navigation }) => {
   const [searchResults, setSearchResults] = useState([]); 
   const userId = auth().currentUser.uid;
 
-
   const fetchUsers = async () => {
     const usersRef = firestore()
       .collection('users')
-      .where('visibleToOthers', '==', true); 
+      .where('visibleToOthers', '==', true);
 
     const snapshot = await usersRef.get();
     const users = [];
@@ -87,7 +86,7 @@ const UserListScreen = ({ navigation }) => {
   return (
     <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
       <CustomAppBar title="User List" showBackButton={true} />
-
+      {/* Search Bar */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -98,7 +97,7 @@ const UserListScreen = ({ navigation }) => {
         />
         <Button title="Search" onPress={handleSearch} color="#FFBA00" />
       </View>
-
+      {/* Display Search Results */}
       {searchResults.length > 0 && (
         <View style={styles.searchResultsContainer}>
           <Text style={styles.searchResultsTitle}>Search Results:</Text>
@@ -122,7 +121,7 @@ const UserListScreen = ({ navigation }) => {
           />
         </View>
       )}
-
+      {/* Display All Users */}
       <FlatList
         data={users}
         keyExtractor={(item) => item.id}
