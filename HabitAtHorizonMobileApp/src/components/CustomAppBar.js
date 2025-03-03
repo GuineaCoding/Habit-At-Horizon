@@ -41,9 +41,10 @@ const CustomAppBar = ({ title, showBackButton = false }) => {
       .collection('chats')
       .where('participantIds', 'array-contains', userId);
 
-    const unsubscribeChats = chatsRef.onSnapshot((snapshot) => {
+    const unsubscribeChats = chatsRef.onSnapshot(async (snapshot) => {
       let totalUnseen = 0;
-      snapshot.forEach((doc) => {
+
+      for (const doc of snapshot.docs) {
         const chatId = doc.id;
         const messagesRef = firestore()
           .collection('chats')
@@ -52,11 +53,11 @@ const CustomAppBar = ({ title, showBackButton = false }) => {
           .where('seen', '==', false)
           .where('senderId', '!=', userId);
 
-        messagesRef.get().then((messagesSnapshot) => {
-          totalUnseen += messagesSnapshot.size;
-          setUnseenChatCount(totalUnseen);
-        });
-      });
+        const messagesSnapshot = await messagesRef.get();
+        totalUnseen += messagesSnapshot.size;
+      }
+
+      setUnseenChatCount(totalUnseen);
     });
 
     return () => unsubscribeChats();
@@ -132,7 +133,7 @@ const CustomAppBar = ({ title, showBackButton = false }) => {
 const styles = StyleSheet.create({
   appbar: {
     backgroundColor: '#0C3B2E',
-    elevation: 4, 
+    elevation: 4,
   },
   appbarTitle: {
     color: '#FFFFFF',
@@ -140,20 +141,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   icon: {
-    marginHorizontal: 8, 
+    marginHorizontal: 8,
   },
   badge: {
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: '#FF3B30', 
+    backgroundColor: '#FF3B30',
     color: '#FFFFFF',
   },
   menuContent: {
-    backgroundColor: '#1A4A3C', 
+    backgroundColor: '#1A4A3C',
   },
   menuItemTitle: {
-    color: '#FFFFFF', 
+    color: '#FFFFFF',
   },
 });
 
