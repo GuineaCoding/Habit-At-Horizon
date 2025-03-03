@@ -3,27 +3,38 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput, Button, 
 import LinearGradient from 'react-native-linear-gradient';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import CustomAppBar from '../../components/CustomAppBar'; 
+import CustomAppBar from '../../components/CustomAppBar';
 
 const UserListScreen = ({ navigation }) => {
-  const [users, setUsers] = useState([]); 
-  const [searchQuery, setSearchQuery] = useState(''); 
-  const [searchResults, setSearchResults] = useState([]); 
+  const [users, setUsers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
   const userId = auth().currentUser.uid;
 
   const fetchUsers = async () => {
-    const usersRef = firestore()
-      .collection('users')
-      .where('visibleToOthers', '==', true);
+    try {
+      const usersRef = firestore()
+        .collection('users')
+        .where('visibleToOthers', '==', true);
 
-    const snapshot = await usersRef.get();
-    const users = [];
-    snapshot.forEach((doc) => {
-      if (doc.id !== userId) {
-        users.push({ id: doc.id, ...doc.data() });
-      }
-    });
-    setUsers(users);
+      const snapshot = await usersRef.get();
+      const visibleUsers = [];
+      snapshot.forEach((doc) => {
+        if (doc.id !== userId) {
+          visibleUsers.push({ id: doc.id, ...doc.data() });
+        }
+      });
+
+      const currentUserRef = firestore().collection('users').doc(userId);
+      const currentUserDoc = await currentUserRef.get();
+      const addedUsers = currentUserDoc.data()?.addedUsers || [];
+
+      const allUsers = [...visibleUsers, ...addedUsers];
+      setUsers(allUsers);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      Alert.alert('Error', 'Unable to fetch users. Please try again.');
+    }
   };
 
   const handleSearch = async () => {
@@ -44,38 +55,56 @@ const UserListScreen = ({ navigation }) => {
     } else {
       const results = [];
       querySnapshot.forEach((doc) => {
-        if (doc.id !== userId) {
+        if (doc.id !== userId && !users.some((u) => u.id === doc.id)) {
           results.push({ id: doc.id, ...doc.data() });
         }
       });
-      setSearchResults(results); 
+      setSearchResults(results);
     }
   };
 
-  const addUserToList = (user) => {
-    if (!users.some((u) => u.id === user.id)) {
-      setUsers((prevUsers) => [...prevUsers, user]); 
+  const addUserToList = async (user) => {
+    try {
+      if (users.some((u) => u.id === user.id)) {
+        return;
+      }
+
+      setUsers((prevUsers) => [...prevUsers, user]);
+
+      const currentUserRef = firestore().collection('users').doc(userId);
+      await currentUserRef.update({
+        addedUsers: firestore.FieldValue.arrayUnion(user),
+      });
+    } catch (error) {
+      console.error('Error adding user to list:', error);
+      Alert.alert('Error', 'Unable to add user. Please try again.');
     }
   };
 
   const startChat = async (otherUserId) => {
-    const chatsRef = firestore().collection('chats');
-    const query = chatsRef
-      .where('participantIds', 'array-contains', userId)
-      .where('participantIds', 'array-contains', otherUserId);
+    console.log('Starting chat with user:', otherUserId);
 
-    const snapshot = await query.get();
+    try {
+      const chatId = [userId, otherUserId].sort().join('_');
 
-    if (snapshot.empty) {
-      const newChatRef = await chatsRef.add({
-        participantIds: [userId, otherUserId],
-        lastMessage: '',
-        lastMessageTimestamp: firestore.Timestamp.now(),
-        lastMessageSenderId: '',
-      });
-      navigation.navigate('ChatScreen', { chatId: newChatRef.id });
-    } else {
-      navigation.navigate('ChatScreen', { chatId: snapshot.docs[0].id });
+      const chatRef = firestore().collection('chats').doc(chatId);
+
+      const chatDoc = await chatRef.get();
+
+      if (!chatDoc.exists) {
+        console.log('Creating new chat...');
+        await chatRef.set({
+          participantIds: [userId, otherUserId],
+          lastMessage: '',
+          lastMessageTimestamp: firestore.Timestamp.now(),
+          lastMessageSenderId: '',
+        });
+      }
+
+      navigation.navigate('ChatScreen', { chatId });
+    } catch (error) {
+      console.error('Error starting chat:', error);
+      Alert.alert('Error', 'Unable to start chat. Please try again.');
     }
   };
 
@@ -86,7 +115,7 @@ const UserListScreen = ({ navigation }) => {
   return (
     <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
       <CustomAppBar title="User List" showBackButton={true} />
-      {/* Search Bar */}
+
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -97,7 +126,7 @@ const UserListScreen = ({ navigation }) => {
         />
         <Button title="Search" onPress={handleSearch} color="#FFBA00" />
       </View>
-      {/* Display Search Results */}
+      
       {searchResults.length > 0 && (
         <View style={styles.searchResultsContainer}>
           <Text style={styles.searchResultsTitle}>Search Results:</Text>
@@ -108,8 +137,8 @@ const UserListScreen = ({ navigation }) => {
               <TouchableOpacity
                 style={styles.userItem}
                 onPress={() => {
-                  addUserToList(item); 
-                  setSearchResults([]); 
+                  addUserToList(item);
+                  setSearchResults([]);
                 }}
               >
                 <Text style={styles.userName}>{item.name}</Text>
@@ -121,7 +150,6 @@ const UserListScreen = ({ navigation }) => {
           />
         </View>
       )}
-      {/* Display All Users */}
       <FlatList
         data={users}
         keyExtractor={(item) => item.id}
