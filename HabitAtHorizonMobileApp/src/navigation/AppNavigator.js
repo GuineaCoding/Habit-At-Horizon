@@ -59,6 +59,8 @@ import MentorProfileViewScreen from '../screens/mentorsLayout/MentorProfileViewS
 //chat
 import ChatScreen from '../screens/chatScreen/ChatScreen'
 import UserListScreen from '../screens/chatScreen/UserListScreen'
+import NotificationsScreen from '../screens/chatScreen/NotificationsScreen'
+
 
 
 const Stack = createNativeStackNavigator();
@@ -319,6 +321,14 @@ const AppNavigator = () => {
               component={UserListScreen}
               options={{ title: 'User List Screen' }}
             />
+
+            <Stack.Screen
+              name="NotificationsScreen"
+              component={NotificationsScreen}
+              options={{ title: 'Notification Screen' }}
+            />
+
+
           </>
         ) : (
 
