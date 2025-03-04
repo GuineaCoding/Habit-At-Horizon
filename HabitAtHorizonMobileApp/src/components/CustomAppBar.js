@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Appbar, Menu, Badge } from 'react-native-paper';
+import { Appbar, Menu } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { StyleSheet, View } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import { StyleSheet } from 'react-native';
+import NotificationBadge from './NotificationBadge';
 
 const CustomAppBar = ({ title, showBackButton = false }) => {
   const navigation = useNavigation();
   const [menuVisible, setMenuVisible] = useState(false);
-  const [unseenChatCount, setUnseenChatCount] = useState(0);
-  const [unseenNotificationsCount, setUnseenNotificationsCount] = useState(0);
   const userId = auth().currentUser?.uid;
 
   const openMenu = () => setMenuVisible(true);
@@ -27,56 +26,38 @@ const CustomAppBar = ({ title, showBackButton = false }) => {
     }
   };
 
+  const handleBellPress = () => {
+    markNotificationsAsSeen(userId);
+    navigation.navigate('NotificationsScreen');
+  };
+
+  const markNotificationsAsSeen = async (userId) => {
+    try {
+      const notificationsRef = firestore()
+        .collection('notifications')
+        .where('userId', '==', userId)
+        .where('seen', '==', false);
+
+      const snapshot = await notificationsRef.get();
+      const batch = firestore().batch();
+
+      snapshot.forEach((doc) => {
+        batch.update(doc.ref, { seen: true });
+      });
+
+      await batch.commit();
+      console.log('All notifications marked as seen.');
+    } catch (error) {
+      console.error('Error marking notifications as seen:', error);
+    }
+  };
+
   const menuItems = [
     { title: 'My Personal Space', icon: 'account', onPress: () => navigation.navigate('PersonalSpaceScreen') },
     { title: 'Mentoring Space', icon: 'school', onPress: () => navigation.navigate('MentorshipScreen') },
     { title: 'Mentee Space', icon: 'account-group', onPress: () => navigation.navigate('MenteesDashboardScreen') },
     { title: 'Logout', icon: 'logout', onPress: handleLogout },
   ];
-
-  useEffect(() => {
-    if (!userId) return;
-
-    const chatsRef = firestore()
-      .collection('chats')
-      .where('participantIds', 'array-contains', userId);
-
-    const unsubscribeChats = chatsRef.onSnapshot(async (snapshot) => {
-      let totalUnseen = 0;
-
-      for (const doc of snapshot.docs) {
-        const chatId = doc.id;
-        const messagesRef = firestore()
-          .collection('chats')
-          .doc(chatId)
-          .collection('messages')
-          .where('seen', '==', false)
-          .where('senderId', '!=', userId);
-
-        const messagesSnapshot = await messagesRef.get();
-        totalUnseen += messagesSnapshot.size;
-      }
-
-      setUnseenChatCount(totalUnseen);
-    });
-
-    return () => unsubscribeChats();
-  }, [userId]);
-
-  useEffect(() => {
-    if (!userId) return;
-
-    const notificationsRef = firestore()
-      .collection('notifications')
-      .where('userId', '==', userId)
-      .where('seen', '==', false);
-
-    const unsubscribeNotifications = notificationsRef.onSnapshot((snapshot) => {
-      setUnseenNotificationsCount(snapshot.size);
-    });
-
-    return () => unsubscribeNotifications();
-  }, [userId]);
 
   return (
     <Appbar.Header style={styles.appbar}>
@@ -85,25 +66,30 @@ const CustomAppBar = ({ title, showBackButton = false }) => {
       )}
       <Appbar.Content title={title} titleStyle={styles.appbarTitle} />
 
-      <Appbar.Action
-        icon="message"
-        color="#FFFFFF"
-        onPress={() => navigation.navigate('UserListScreen')}
-        style={styles.icon}
-      />
-      {unseenChatCount > 0 && (
-        <Badge style={styles.badge}>{unseenChatCount}</Badge>
-      )}
+      <View style={styles.iconContainer}>
+        <Appbar.Action
+          icon="message"
+          color="#FFFFFF"
+          onPress={() => navigation.navigate('UserListScreen')}
+          style={styles.icon}
+        />
+      </View>
 
-      <Appbar.Action
-        icon="bell"
-        color="#FFFFFF"
-        onPress={() => navigation.navigate('NotificationsScreen')}
-        style={styles.icon}
-      />
-      {unseenNotificationsCount > 0 && (
-        <Badge style={styles.badge}>{unseenNotificationsCount}</Badge>
-      )}
+      <View style={styles.iconContainer}>
+        <Appbar.Action
+          icon="bell"
+          color="#FFFFFF"
+          onPress={handleBellPress}
+          style={styles.icon}
+        />
+        <NotificationBadge
+          collectionName="notifications"
+          conditionField="userId"
+          conditionValue={userId}
+          countField="seen"
+          countCondition={false} 
+        />
+      </View>
 
       <Menu
         visible={menuVisible}
@@ -140,15 +126,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
-  icon: {
+  iconContainer: {
+    position: 'relative',
     marginHorizontal: 8,
   },
-  badge: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: '#FF3B30',
-    color: '#FFFFFF',
+  icon: {
+    margin: 0,
   },
   menuContent: {
     backgroundColor: '#1A4A3C',

@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'r
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import LinearGradient from 'react-native-linear-gradient';
-import CustomAppBar from '../../components/CustomAppBar'; 
+import CustomAppBar from '../../components/CustomAppBar';
 
 const ChatScreen = ({ route, navigation }) => {
   const { chatId } = route.params || { chatId: '' };
@@ -36,13 +36,17 @@ const ChatScreen = ({ route, navigation }) => {
       .where('senderId', '!=', userId);
 
     const snapshot = await messagesRef.get();
+    const batch = firestore().batch();
+
     snapshot.forEach((doc) => {
-      doc.ref.update({ seen: true });
+      batch.update(doc.ref, { seen: true });
     });
+
+    await batch.commit();
   };
 
   useEffect(() => {
-    console.log('Route Params:', route.params); 
+    console.log('Route Params:', route.params);
     if (chatId) {
       const unsubscribe = fetchMessages(chatId, setMessages);
       markMessagesAsSeen(chatId, userId);
@@ -52,27 +56,50 @@ const ChatScreen = ({ route, navigation }) => {
 
   const handleSendMessage = async () => {
     if (newMessage.trim()) {
-      await sendMessage(chatId, userId, newMessage);
-      setNewMessage('');
+      try {
+        await sendMessage(chatId, userId, newMessage);
+        setNewMessage(''); 
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
     }
   };
 
   const sendMessage = async (chatId, senderId, text) => {
     const chatRef = firestore().collection('chats').doc(chatId);
     const messagesRef = chatRef.collection('messages');
-
+  
+    // Add the message to the chat
     await messagesRef.add({
       senderId,
       text,
       timestamp: firestore.Timestamp.now(),
       seen: false,
     });
-
+  
+    // Update the chat document
     await chatRef.update({
       lastMessage: text,
       lastMessageTimestamp: firestore.Timestamp.now(),
       lastMessageSenderId: senderId,
     });
+  
+    const chatDoc = await chatRef.get();
+    const participantIds = chatDoc.data()?.participantIds || [];
+    const recipientId = participantIds.find((id) => id !== senderId);
+  
+    if (recipientId) {
+      const senderDoc = await firestore().collection('users').doc(senderId).get();
+      const senderUsername = senderDoc.data()?.username || 'Unknown User';
+  
+      await firestore().collection('notifications').add({
+        userId: recipientId,
+        type: 'message',
+        message: `You received a new message from ${senderUsername}`,
+        timestamp: firestore.Timestamp.now(),
+        seen: false,
+      });
+    }
   };
 
   return (
