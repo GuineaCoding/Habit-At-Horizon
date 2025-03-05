@@ -61,7 +61,8 @@ import ChatScreen from '../screens/chatScreen/ChatScreen'
 import UserListScreen from '../screens/chatScreen/UserListScreen'
 import NotificationsScreen from '../screens/chatScreen/NotificationsScreen'
 
-
+//timeline
+import CreatePostScreen from '../screens/timeLineScreen/createPostScreen'
 
 const Stack = createNativeStackNavigator();
 
@@ -328,7 +329,12 @@ const AppNavigator = () => {
               options={{ title: 'Notification Screen' }}
             />
 
-
+            
+<Stack.Screen
+              name="CreatePostScreen"
+              component={CreatePostScreen}
+              options={{ title: 'Create Post Screen' }}
+            />
           </>
         ) : (
 
