@@ -2,37 +2,53 @@ import React, { useState, useEffect } from 'react';
 import { Badge } from 'react-native-paper';
 import firestore from '@react-native-firebase/firestore';
 
-const NotificationBadge = ({ collectionName, conditionField, conditionValue, countField, countCondition }) => {
+const NotificationBadge = ({ userId }) => {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (!conditionValue) {
-      console.log('Condition value is missing. Cannot query Firestore.');
+    if (!userId) {
+      console.log('[NotificationBadge] User ID is missing. Cannot query Firestore.');
       return;
     }
 
-    console.log(`Querying ${collectionName} where ${conditionField} == ${conditionValue}`);
+    console.log(`[NotificationBadge] Logged-in user ID: ${userId}`);
 
     const query = firestore()
-      .collection(collectionName)
-      .where(conditionField, '==', conditionValue)
-      .where(countField, '==', countCondition);
+      .collection('notifications')
+      .where('userId', '==', userId)
+      .where('seen', '==', false);
 
     const unsubscribe = query.onSnapshot(
       (snapshot) => {
+        console.log('[NotificationBadge] Snapshot received:', snapshot);
+
+        if (snapshot.empty) {
+          console.log('[NotificationBadge] No unseen notifications found.');
+          setCount(0);
+          return;
+        }
+
         const totalCount = snapshot.size;
-        console.log(`Total unseen notifications: ${totalCount}`);
+        console.log(`[NotificationBadge] Total unseen notifications: ${totalCount}`);
         setCount(totalCount);
+
+        console.log('[NotificationBadge] All notifications for the user:');
+        snapshot.forEach((doc) => {
+          console.log(`[NotificationBadge] Notification document:`, doc.id, doc.data());
+        });
       },
       (error) => {
-        console.error('Error fetching snapshot:', error);
+        console.error('[NotificationBadge] Error fetching snapshot:', error);
       }
     );
 
-    return () => unsubscribe();
-  }, [collectionName, conditionField, conditionValue, countField, countCondition]);
+    return () => {
+      console.log('[NotificationBadge] Unsubscribing from Firestore listener.');
+      unsubscribe();
+    };
+  }, [userId]);
 
-  console.log(`Rendering badge with count: ${count}`);
+  console.log(`[NotificationBadge] Rendering badge with count: ${count}`);
 
   return count > 0 ? <Badge style={styles.badge}>{count}</Badge> : null;
 };

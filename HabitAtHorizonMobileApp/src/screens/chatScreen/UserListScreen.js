@@ -141,7 +141,7 @@ const UserListScreen = ({ navigation }) => {
                   setSearchResults([]);
                 }}
               >
-                <Text style={styles.userName}>{item.name}</Text>
+                <Text style={styles.userName}>{item.username}</Text>
                 <Text style={styles.userRole}>
                   {item.roles?.includes('mentee') ? 'Mentee' : 'Mentor'}
                 </Text>
@@ -158,7 +158,7 @@ const UserListScreen = ({ navigation }) => {
             style={styles.userItem}
             onPress={() => startChat(item.id)}
           >
-            <Text style={styles.userName}>{item.name}</Text>
+            <Text style={styles.userName}>{item.username}</Text>
             <Text style={styles.userRole}>
               {item.roles?.includes('mentee') ? 'Mentee' : 'Mentor'}
             </Text>

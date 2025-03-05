@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Appbar, Menu } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { StyleSheet, View } from 'react-native';
@@ -10,6 +10,8 @@ const CustomAppBar = ({ title, showBackButton = false }) => {
   const navigation = useNavigation();
   const [menuVisible, setMenuVisible] = useState(false);
   const userId = auth().currentUser?.uid;
+
+  console.log('[CustomAppBar] Current user ID:', userId);
 
   const openMenu = () => setMenuVisible(true);
   const closeMenu = () => setMenuVisible(false);
@@ -82,13 +84,7 @@ const CustomAppBar = ({ title, showBackButton = false }) => {
           onPress={handleBellPress}
           style={styles.icon}
         />
-        <NotificationBadge
-          collectionName="notifications"
-          conditionField="userId"
-          conditionValue={userId}
-          countField="seen"
-          countCondition={false} 
-        />
+        <NotificationBadge userId={userId} />
       </View>
 
       <Menu
