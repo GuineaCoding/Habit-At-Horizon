@@ -32,6 +32,39 @@ const TimelineScreen = ({ navigation }) => {
     return () => unsubscribe(); 
   }, []);
 
+  const handleLike = async (postId) => {
+    try {
+      const postRef = firestore().collection('posts').doc(postId);
+      await postRef.update({
+        likesCount: firestore.FieldValue.increment(1),
+      });
+    } catch (error) {
+      console.error('Error liking post:', error);
+    }
+  };
+
+  const handleCongratulate = async (postId) => {
+    try {
+      const postRef = firestore().collection('posts').doc(postId);
+      await postRef.update({
+        congratsCount: firestore.FieldValue.increment(1),
+      });
+    } catch (error) {
+      console.error('Error congratulating post:', error);
+    }
+  };
+
+  const handleEncourage = async (postId) => {
+    try {
+      const postRef = firestore().collection('posts').doc(postId);
+      await postRef.update({
+        encourageCount: firestore.FieldValue.increment(1),
+      });
+    } catch (error) {
+      console.error('Error encouraging post:', error);
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -42,7 +75,7 @@ const TimelineScreen = ({ navigation }) => {
 
   return (
     <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
-  
+   
       <CustomAppBar
         title="Timeline"
         showBackButton={false}
@@ -53,7 +86,7 @@ const TimelineScreen = ({ navigation }) => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.postContainer}>
-     
+   
             <Text style={styles.postTitle}>{item.title}</Text>
 
             {item.description && (
@@ -75,6 +108,32 @@ const TimelineScreen = ({ navigation }) => {
             <Text style={styles.postMetadata}>
               Posted by {item.username} • {item.createdAt?.toDate().toLocaleString()}
             </Text>
+
+            <View style={styles.interactionContainer}>
+              <TouchableOpacity
+                style={styles.interactionButton}
+                onPress={() => handleLike(item.id)}
+              >
+                <Icon name="thumb-up" size={20} color="#FFBA00" />
+                <Text style={styles.interactionText}>{item.likesCount || 0}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.interactionButton}
+                onPress={() => handleCongratulate(item.id)}
+              >
+                <Icon name="party-popper" size={20} color="#FFBA00" />
+                <Text style={styles.interactionText}>{item.congratsCount || 0}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.interactionButton}
+                onPress={() => handleEncourage(item.id)}
+              >
+                <Icon name="hand-heart" size={20} color="#FFBA00" />
+                <Text style={styles.interactionText}>{item.encourageCount || 0}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
         ListEmptyComponent={
@@ -139,6 +198,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#FFBA00',
   },
+  interactionContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 12,
+  },
+  interactionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  interactionText: {
+    fontSize: 14,
+    color: '#FFBA00',
+    marginLeft: 4,
+  },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -158,8 +231,8 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5, 
-    shadowColor: '#000', 
+    elevation: 5,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
