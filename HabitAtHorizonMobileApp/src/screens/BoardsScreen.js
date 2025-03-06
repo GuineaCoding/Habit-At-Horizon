@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, TextInput, A
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import LinearGradient from 'react-native-linear-gradient';
 import CustomAppBar from '../components/CustomAppBar';
 
 const BoardsScreen = ({ navigation }) => {
@@ -141,18 +142,18 @@ const BoardsScreen = ({ navigation }) => {
             </TouchableOpacity>
             <View style={styles.boardActions}>
                 <TouchableOpacity onPress={() => openEditModal(item)}>
-                    <Icon name="edit" size={24} color="#FFBA00" /> 
+                    <Icon name="edit" size={24} color="#FFBA00" />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => deleteBoard(item.id)}>
-                    <Icon name="delete" size={24} color="#B46617" /> 
+                    <Icon name="delete" size={24} color="#B46617" />
                 </TouchableOpacity>
             </View>
         </View>
     );
 
     return (
-        <View style={styles.container}>
-            <CustomAppBar title="Your Boards" showBackButton={false} />  
+        <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+            <CustomAppBar title="Your Boards" showBackButton={false} />
             {boards.length > 0 ? (
                 <FlatList
                     data={boards}
@@ -182,6 +183,7 @@ const BoardsScreen = ({ navigation }) => {
                         <TextInput
                             style={styles.input}
                             placeholder="Enter board title"
+                            placeholderTextColor="#888"
                             value={boardTitle}
                             onChangeText={setBoardTitle}
                         />
@@ -196,22 +198,13 @@ const BoardsScreen = ({ navigation }) => {
                     </View>
                 </View>
             </Modal>
-        </View>
+        </LinearGradient>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
-        backgroundColor: '#0C3B2E', 
-    },
-    header: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#FFBA00',
-        textAlign: 'center',
-        marginBottom: 20,
     },
     list: {
         flexGrow: 1,
@@ -225,7 +218,7 @@ const styles = StyleSheet.create({
         borderColor: '#6D9773',
         borderRadius: 8,
         marginBottom: 10,
-        backgroundColor: '#6D9773', 
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
     },
     boardInfo: {
         flex: 1,
@@ -233,11 +226,11 @@ const styles = StyleSheet.create({
     boardTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#FFFFFF', 
+        color: '#FFBA00',
     },
     boardCreator: {
         fontSize: 14,
-        color: '#FFFFFF', 
+        color: '#FFFFFF',
     },
     boardActions: {
         flexDirection: 'row',
@@ -247,17 +240,18 @@ const styles = StyleSheet.create({
     noBoardsText: {
         textAlign: 'center',
         fontSize: 16,
-        color: '#888',
+        color: '#FFFFFF',
         marginVertical: 20,
     },
     addButton: {
-        backgroundColor: '#FFBA00', 
+        backgroundColor: '#FFBA00',
         padding: 15,
         borderRadius: 8,
         alignItems: 'center',
+        margin: 20, 
     },
     addButtonText: {
-        color: '#0C3B2E', 
+        color: '#0C3B2E',
         fontSize: 16,
         fontWeight: 'bold',
     },
@@ -268,7 +262,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalContent: {
-        backgroundColor: '#0C3B2E', 
+        backgroundColor: '#0C3B2E',
         padding: 20,
         borderRadius: 10,
         width: '90%',
@@ -276,35 +270,35 @@ const styles = StyleSheet.create({
     modalHeader: {
         fontSize: 18,
         marginBottom: 10,
-        color: '#FFBA00', 
+        color: '#FFBA00',
         textAlign: 'center',
     },
     input: {
         borderWidth: 1,
-        borderColor: '#6D9773', 
+        borderColor: '#6D9773',
         padding: 10,
         marginVertical: 10,
         borderRadius: 5,
         width: '100%',
-        backgroundColor: '#FFFFFF', 
-        color: '#0C3B2E', 
+        backgroundColor: '#FFFFFF',
+        color: '#0C3B2E',
     },
     modalButton: {
-        backgroundColor: '#FFBA00', 
+        backgroundColor: '#FFBA00',
         padding: 10,
         borderRadius: 5,
         alignItems: 'center',
         marginVertical: 5,
     },
     modalButtonCancel: {
-        backgroundColor: '#B46617', 
+        backgroundColor: '#B46617',
         padding: 10,
         borderRadius: 5,
         alignItems: 'center',
         marginVertical: 5,
     },
     modalButtonText: {
-        color: '#0C3B2E', 
+        color: '#0C3B2E',
         fontSize: 16,
         fontWeight: 'bold',
     },

@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFBA00',
     padding: 15,
     borderRadius: 10,
-    width: '80%',
+    width: '90%',
     marginBottom: 15,
     elevation: 3,
     shadowColor: '#000',
