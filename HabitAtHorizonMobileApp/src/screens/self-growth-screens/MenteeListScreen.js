@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import firestore from '@react-native-firebase/firestore';
 import CustomAppBar from '../../components/CustomAppBar';
@@ -28,12 +28,27 @@ const MenteeListScreen = ({ navigation }) => {
     fetchMentees();
   }, []);
 
+  const renderProfileImage = (profileImage, username) => {
+    if (profileImage) {
+      return (
+        <Image source={{ uri: profileImage }} style={styles.profileImage} />
+      );
+    } else {
+      const firstLetter = username ? username.charAt(0).toUpperCase() : 'U';
+      return (
+        <View style={styles.profilePlaceholder}>
+          <Text style={styles.profilePlaceholderText}>{firstLetter}</Text>
+        </View>
+      );
+    }
+  };
+
   const renderMenteeItem = ({ item }) => (
     <TouchableOpacity
       style={styles.menteeItem}
       onPress={() => navigation.navigate('MenteeProfileViewScreen', { mentee: item })}
     >
-      <Image source={{ uri: item.profileImage }} style={styles.profileImage} />
+      {renderProfileImage(item.profileImage, item.username)}
       <View style={styles.menteeInfo}>
         <Text style={styles.name}>{item.name}</Text>
         <Text style={styles.username}>@{item.username}</Text>
@@ -76,11 +91,11 @@ const styles = StyleSheet.create({
   },
   menteeItem: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     padding: 16,
     marginBottom: 12,
     borderRadius: 10,
-    shadowColor: '#000',
+    shadowColor: '#264d00',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -92,6 +107,20 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     marginRight: 16,
   },
+  profilePlaceholder: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#6D9773',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  profilePlaceholderText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
   menteeInfo: {
     flex: 1,
   },
@@ -99,7 +128,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 4,
-    color: '#0C3B2E',
+    color: '#FFBA00',
   },
   username: {
     fontSize: 14,
@@ -108,7 +137,7 @@ const styles = StyleSheet.create({
   },
   bio: {
     fontSize: 14,
-    color: '#333',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   tagsContainer: {
@@ -117,7 +146,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#0C3B2E',
+    color: '#FFBA00',
     marginBottom: 4,
   },
   tagsRow: {
