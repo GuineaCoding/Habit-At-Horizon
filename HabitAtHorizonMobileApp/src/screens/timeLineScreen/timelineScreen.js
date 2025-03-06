@@ -5,10 +5,12 @@ import LinearGradient from 'react-native-linear-gradient';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomAppBar from '../../components/CustomAppBar';
+import auth from '@react-native-firebase/auth';
 
 const TimelineScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const currentUserId = auth().currentUser?.uid;
 
   useEffect(() => {
     const unsubscribe = firestore()
@@ -29,39 +31,110 @@ const TimelineScreen = ({ navigation }) => {
         }
       );
 
-    return () => unsubscribe(); 
+    return () => unsubscribe();
   }, []);
 
-  const handleLike = async (postId) => {
+  const sendNotification = async (postCreatorId, type, message) => {
+    if (!currentUserId || !postCreatorId || currentUserId === postCreatorId) {
+      return;
+    }
+
     try {
-      const postRef = firestore().collection('posts').doc(postId);
-      await postRef.update({
-        likesCount: firestore.FieldValue.increment(1),
+      await firestore().collection('notifications').add({
+        userId: postCreatorId,
+        type,
+        message,
+        timestamp: firestore.FieldValue.serverTimestamp(),
+        seen: false,
       });
+      console.log('Notification sent successfully:', message);
     } catch (error) {
-      console.error('Error liking post:', error);
+      console.error('Error sending notification:', error);
     }
   };
 
-  const handleCongratulate = async (postId) => {
+  const handleLike = async (postId, postCreatorId) => {
     try {
       const postRef = firestore().collection('posts').doc(postId);
-      await postRef.update({
-        congratsCount: firestore.FieldValue.increment(1),
-      });
+      const postDoc = await postRef.get();
+      const likedBy = postDoc.data()?.likedBy || [];
+
+      if (likedBy.includes(currentUserId)) {
+ 
+        await postRef.update({
+          likesCount: firestore.FieldValue.increment(-1),
+          likedBy: firestore.FieldValue.arrayRemove(currentUserId),
+        });
+      } else {
+        await postRef.update({
+          likesCount: firestore.FieldValue.increment(1),
+          likedBy: firestore.FieldValue.arrayUnion(currentUserId),
+        });
+
+        const currentUser = auth().currentUser;
+        const username = currentUser?.displayName || 'a user';
+        const message = `Your post was liked by ${username}`;
+        await sendNotification(postCreatorId, 'like', message);
+      }
     } catch (error) {
-      console.error('Error congratulating post:', error);
+      console.error('Error liking/unliking post:', error);
     }
   };
 
-  const handleEncourage = async (postId) => {
+  const handleCongratulate = async (postId, postCreatorId) => {
     try {
       const postRef = firestore().collection('posts').doc(postId);
-      await postRef.update({
-        encourageCount: firestore.FieldValue.increment(1),
-      });
+      const postDoc = await postRef.get();
+      const congratulatedBy = postDoc.data()?.congratulatedBy || [];
+
+      if (congratulatedBy.includes(currentUserId)) {
+      
+        await postRef.update({
+          congratsCount: firestore.FieldValue.increment(-1),
+          congratulatedBy: firestore.FieldValue.arrayRemove(currentUserId),
+        });
+      } else {
+        await postRef.update({
+          congratsCount: firestore.FieldValue.increment(1),
+          congratulatedBy: firestore.FieldValue.arrayUnion(currentUserId),
+        });
+
+        const currentUser = auth().currentUser;
+        const username = currentUser?.displayName || 'a user';
+        const message = `Your post was congratulated by ${username}`;
+        await sendNotification(postCreatorId, 'congratulate', message);
+      }
     } catch (error) {
-      console.error('Error encouraging post:', error);
+      console.error('Error congratulating/undoing congratulate:', error);
+    }
+  };
+
+  const handleEncourage = async (postId, postCreatorId) => {
+    try {
+      const postRef = firestore().collection('posts').doc(postId);
+      const postDoc = await postRef.get();
+      const encouragedBy = postDoc.data()?.encouragedBy || [];
+
+      if (encouragedBy.includes(currentUserId)) {
+
+        await postRef.update({
+          encourageCount: firestore.FieldValue.increment(-1),
+          encouragedBy: firestore.FieldValue.arrayRemove(currentUserId),
+        });
+      } else {
+  
+        await postRef.update({
+          encourageCount: firestore.FieldValue.increment(1),
+          encouragedBy: firestore.FieldValue.arrayUnion(currentUserId),
+        });
+
+        const currentUser = auth().currentUser;
+        const username = currentUser?.displayName || 'a user';
+        const message = `Your post was encouraged by ${username}`;
+        await sendNotification(postCreatorId, 'encourage', message);
+      }
+    } catch (error) {
+      console.error('Error encouraging/undoing encourage:', error);
     }
   };
 
@@ -75,18 +148,13 @@ const TimelineScreen = ({ navigation }) => {
 
   return (
     <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
-   
-      <CustomAppBar
-        title="Timeline"
-        showBackButton={false}
-      />
+      <CustomAppBar title="Timeline" showBackButton={false} />
 
       <FlatList
         data={posts}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.postContainer}>
-   
             <Text style={styles.postTitle}>{item.title}</Text>
 
             {item.description && (
@@ -112,25 +180,37 @@ const TimelineScreen = ({ navigation }) => {
             <View style={styles.interactionContainer}>
               <TouchableOpacity
                 style={styles.interactionButton}
-                onPress={() => handleLike(item.id)}
+                onPress={() => handleLike(item.id, item.userId)}
               >
-                <Icon name="thumb-up" size={20} color="#FFBA00" />
+                <Icon
+                  name="thumb-up"
+                  size={20}
+                  color={item.likedBy?.includes(currentUserId) ? '#CCCCCC' : '#FFBA00'}
+                />
                 <Text style={styles.interactionText}>{item.likesCount || 0}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.interactionButton}
-                onPress={() => handleCongratulate(item.id)}
+                onPress={() => handleCongratulate(item.id, item.userId)}
               >
-                <Icon name="party-popper" size={20} color="#FFBA00" />
+                <Icon
+                  name="party-popper"
+                  size={20}
+                  color={item.congratulatedBy?.includes(currentUserId) ? '#CCCCCC' : '#FFBA00'}
+                />
                 <Text style={styles.interactionText}>{item.congratsCount || 0}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.interactionButton}
-                onPress={() => handleEncourage(item.id)}
+                onPress={() => handleEncourage(item.id, item.userId)}
               >
-                <Icon name="hand-heart" size={20} color="#FFBA00" />
+                <Icon
+                  name="hand-heart"
+                  size={20}
+                  color={item.encouragedBy?.includes(currentUserId) ? '#CCCCCC' : '#FFBA00'}
+                />
                 <Text style={styles.interactionText}>{item.encourageCount || 0}</Text>
               </TouchableOpacity>
             </View>
