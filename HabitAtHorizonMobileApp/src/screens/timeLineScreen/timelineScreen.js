@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, Image } from 'react-native';
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import LinearGradient from 'react-native-linear-gradient';
-import YoutubePlayer from 'react-native-youtube-iframe'; // Use react-native-youtube-iframe
+import YoutubePlayer from 'react-native-youtube-iframe';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import CustomAppBar from '../../components/CustomAppBar';
 
 const TimelineScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
@@ -40,11 +42,18 @@ const TimelineScreen = ({ navigation }) => {
 
   return (
     <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+  
+      <CustomAppBar
+        title="Timeline"
+        showBackButton={false}
+      />
+
       <FlatList
         data={posts}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.postContainer}>
+     
             <Text style={styles.postTitle}>{item.title}</Text>
 
             {item.description && (
@@ -58,8 +67,8 @@ const TimelineScreen = ({ navigation }) => {
             {item.youtubeUrl && (
               <YoutubePlayer
                 height={200}
-                videoId={extractYoutubeVideoId(item.youtubeUrl)} 
-                play={false} 
+                videoId={extractYoutubeVideoId(item.youtubeUrl)}
+                play={false}
               />
             )}
 
@@ -74,6 +83,13 @@ const TimelineScreen = ({ navigation }) => {
           </View>
         }
       />
+
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => navigation.navigate('CreatePostScreen')}
+      >
+        <Icon name="plus" size={24} color="#0C3B2E" />
+      </TouchableOpacity>
     </LinearGradient>
   );
 };
@@ -87,7 +103,7 @@ const extractYoutubeVideoId = (url) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingTop: 0,
   },
   loadingContainer: {
     flex: 1,
@@ -131,6 +147,22 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     color: '#FFFFFF',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#FFBA00',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5, 
+    shadowColor: '#000', 
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
 });
 
