@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
+import LinearGradient from 'react-native-linear-gradient';
+import CustomAppBar from '../../../components/CustomAppBar'; 
 
 const ViewTaskScreen = ({ navigation, route }) => {
   const { task, userId } = route.params;
@@ -74,49 +76,59 @@ const ViewTaskScreen = ({ navigation, route }) => {
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{task.title}</Text>
-      <Text style={styles.description}>{task.description}</Text>
-
-      <Text style={styles.sectionTitle}>Due Date</Text>
-      <Text style={styles.sectionValue}>{task.dueDate.toDate().toLocaleDateString()}</Text>
-
-      <Text style={styles.sectionTitle}>Priority</Text>
-      <Text style={styles.sectionValue}>{task.priority}</Text>
-
-      <Text style={styles.sectionTitle}>Category</Text>
-      <Text style={styles.sectionValue}>{task.category}</Text>
-
-      <Text style={styles.sectionTitle}>Recurrence</Text>
-      <Text style={styles.sectionValue}>{task.recurrence}</Text>
-
-      <Text style={styles.sectionTitle}>Status</Text>
-      <Text style={styles.sectionValue}>{task.status}</Text>
-
-      <Text style={styles.sectionTitle}>Subtasks</Text>
-      <FlatList
-        data={subtasks}
-        renderItem={renderSubtaskItem}
-        keyExtractor={(item) => item.id}
-        ListEmptyComponent={<Text style={styles.emptyText}>No subtasks added.</Text>}
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+      <CustomAppBar
+        title="Task Details"
+        showBackButton={true}
+        onBackPress={() => navigation.goBack()}
       />
 
-      <TouchableOpacity style={styles.completeButton} onPress={handleMarkComplete}>
-        <Text style={styles.completeButtonText}>Mark as Completed</Text>
-      </TouchableOpacity>
+      <View style={styles.content}>
+        <Text style={styles.title}>{task.title}</Text>
+        <Text style={styles.description}>{task.description}</Text>
 
-      <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteTask}>
-        <Text style={styles.deleteButtonText}>Delete Task</Text>
-      </TouchableOpacity>
-    </View>
+        <Text style={styles.sectionTitle}>Due Date</Text>
+        <Text style={styles.sectionValue}>{task.dueDate.toDate().toLocaleDateString()}</Text>
+
+        <Text style={styles.sectionTitle}>Priority</Text>
+        <Text style={styles.sectionValue}>{task.priority}</Text>
+
+        <Text style={styles.sectionTitle}>Category</Text>
+        <Text style={styles.sectionValue}>{task.category}</Text>
+
+        <Text style={styles.sectionTitle}>Recurrence</Text>
+        <Text style={styles.sectionValue}>{task.recurrence}</Text>
+
+        <Text style={styles.sectionTitle}>Status</Text>
+        <Text style={styles.sectionValue}>{task.status}</Text>
+
+        <Text style={styles.sectionTitle}>Subtasks</Text>
+        <FlatList
+          data={subtasks}
+          renderItem={renderSubtaskItem}
+          keyExtractor={(item) => item.id}
+          ListEmptyComponent={<Text style={styles.emptyText}>No subtasks added.</Text>}
+        />
+
+        <TouchableOpacity style={styles.completeButton} onPress={handleMarkComplete}>
+          <Text style={styles.completeButtonText}>Mark as Completed</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteTask}>
+          <Text style={styles.deleteButtonText}>Delete Task</Text>
+        </TouchableOpacity>
+      </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  content: {
+    flex: 1,
     padding: 20,
-    backgroundColor: '#0C3B2E',
   },
   title: {
     fontSize: 24,
@@ -126,14 +138,14 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 16,
-    color: '#FFFFFF',
+    color: '#FFFFFF', 
     marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginTop: 10,
-    color: '#FFBA00',
+    color: '#FFBA00', 
   },
   sectionValue: {
     fontSize: 16,
@@ -143,7 +155,7 @@ const styles = StyleSheet.create({
   subtaskItem: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#6D9773',
+    borderBottomColor: '#6D9773', 
   },
   subtaskText: {
     fontSize: 16,
@@ -155,14 +167,14 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#888', 
+    color: 'white', 
     textAlign: 'center',
     marginTop: 10,
   },
   completeButton: {
-    backgroundColor: '#6D9773', 
+    backgroundColor: '#6D9773',
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 8, 
     alignItems: 'center',
     marginTop: 20,
   },
@@ -172,14 +184,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   deleteButton: {
-    backgroundColor: '#B46617', 
+    backgroundColor: '#B46617',
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 8,
     alignItems: 'center',
     marginTop: 10,
   },
   deleteButtonText: {
-    color: '#FFFFFF', 
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
   },
