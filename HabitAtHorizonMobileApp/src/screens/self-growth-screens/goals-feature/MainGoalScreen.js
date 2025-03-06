@@ -3,7 +3,8 @@ import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import CustomAppBar from '../../../components/CustomAppBar'; 
+import CustomAppBar from '../../../components/CustomAppBar';
+import LinearGradient from 'react-native-linear-gradient';
 
 const MainGoalPage = ({ navigation }) => {
   const [goals, setGoals] = useState([]);
@@ -70,9 +71,11 @@ const MainGoalPage = ({ navigation }) => {
       ListEmptyComponent={<Text style={styles.emptyText}>No achieved goals.</Text>}
     />
   );
+
   const goToProgressScreen = () => {
-    navigation.navigate('ProgressScreen');
+    navigation.navigate('ProgressScreen', { userId });
   };
+
   const AbandonedGoals = () => (
     <FlatList
       data={goals.filter((goal) => goal.status === 'abandoned')}
@@ -89,11 +92,9 @@ const MainGoalPage = ({ navigation }) => {
   });
 
   return (
-    <View style={styles.container}>
-      {/* CustomAppBar */}
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
       <CustomAppBar title="My Goals" showBackButton={true} />
 
-      {/* TabView for Goals */}
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}
@@ -108,27 +109,26 @@ const MainGoalPage = ({ navigation }) => {
         )}
       />
 
-      {/* Add Goal Button */}
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => navigation.navigate('CreateGoalScreen', { userId })}
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
-              <TouchableOpacity style={[styles.button, { backgroundColor: '#6D9773' }]} onPress={goToProgressScreen}>
-                <Text style={styles.buttonText}>Motivation & Rewards</Text>
-              </TouchableOpacity>
-    </View>
+
+      <TouchableOpacity style={styles.progressButton} onPress={goToProgressScreen}>
+        <Text style={styles.progressButtonText}>Motivation & Rewards</Text>
+      </TouchableOpacity>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0C3B2E',
   },
   goalItem: {
-    backgroundColor: '#FFFFFF', 
+    backgroundColor: '#FFFFFF',
     padding: 15,
     marginHorizontal: 20,
     marginBottom: 10,
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   },
   addButton: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 90,
     right: 20,
     backgroundColor: '#6D9773',
     width: 60,
@@ -170,17 +170,32 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 3, 
+    elevation: 3,
   },
   addButtonText: {
     fontSize: 30,
     color: '#FFFFFF',
   },
+  progressButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#B46617',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    elevation: 3,
+  },
+  progressButtonText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
   tabBar: {
-    backgroundColor: '#6D9773', 
+    backgroundColor: '#6D9773',
   },
   indicator: {
-    backgroundColor: '#FFBA00', 
+    backgroundColor: '#FFBA00',
   },
   tabLabel: {
     color: '#FFFFFF',

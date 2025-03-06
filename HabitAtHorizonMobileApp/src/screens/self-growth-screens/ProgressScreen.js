@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import CustomAppBar from '../../components/CustomAppBar';
+import LinearGradient from 'react-native-linear-gradient';
 
 const ProgressScreen = ({ navigation, route }) => {
   const { userId } = route.params;
@@ -27,14 +28,14 @@ const ProgressScreen = ({ navigation, route }) => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#FFBA00" />
-      </View>
+      </LinearGradient>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
       <CustomAppBar
         title="Progress"
         showBackButton={true}
@@ -45,44 +46,43 @@ const ProgressScreen = ({ navigation, route }) => {
 
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Points:</Text>
-          <Text style={styles.value}>{userData.points || 0}</Text>
+          <Text style={styles.value}>{userData?.points || 0}</Text>
         </View>
 
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Current Streak:</Text>
-          <Text style={styles.value}>{userData.streak || 0} days</Text>
+          <Text style={styles.value}>{userData?.streak || 0} days</Text>
         </View>
 
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Longest Streak:</Text>
-          <Text style={styles.value}>{userData.longestStreak || 0} days</Text>
+          <Text style={styles.value}>{userData?.longestStreak || 0} days</Text>
         </View>
 
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Continuous Streak:</Text>
           <Text style={styles.value}>
-            {userData.isContinuousStreak ? 'Yes' : 'No'}
+            {userData?.isContinuousStreak ? 'Yes' : 'No'}
           </Text>
         </View>
 
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Level:</Text>
-          <Text style={styles.value}>{userData.level || 1}</Text>
+          <Text style={styles.value}>{userData?.level || 1}</Text>
         </View>
 
         <View style={styles.infoContainer}>
           <Text style={styles.label}>XP:</Text>
-          <Text style={styles.value}>{userData.xp || 0}</Text>
+          <Text style={styles.value}>{userData?.xp || 0}</Text>
         </View>
       </View>
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0C3B2E',
   },
   content: {
     padding: 20,
@@ -90,18 +90,22 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#FFBA00',
     marginBottom: 20,
+    textAlign: 'center',
   },
   infoContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 15,
   },
   label: {
     fontSize: 18,
-    color: '#6D9773',
+    color: 'white',
   },
   value: {
     fontSize: 18,
@@ -112,7 +116,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#0C3B2E',
   },
 });
 

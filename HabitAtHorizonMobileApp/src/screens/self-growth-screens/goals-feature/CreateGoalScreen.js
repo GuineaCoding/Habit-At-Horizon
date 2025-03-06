@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import firestore from '@react-native-firebase/firestore';
 import DateTimePicker from '@react-native-community/datetimepicker';
-
+import LinearGradient from 'react-native-linear-gradient';
 import CustomAppBar from '../../../components/CustomAppBar';
+
 const CreateGoalScreen = ({ navigation, route }) => {
   const { userId } = route.params || {};
   const [title, setTitle] = useState('');
   const [type, setType] = useState('short-term');
   const [category, setCategory] = useState('Health');
   const [description, setDescription] = useState('');
-  const [milestones, setMilestones] = useState([]); 
-  const [milestoneTitle, setMilestoneTitle] = useState('');  
-  const [milestoneDeadline, setMilestoneDeadline] = useState(new Date()); 
-  const [showDatePicker, setShowDatePicker] = useState(false); 
+  const [milestones, setMilestones] = useState([]);
+  const [milestoneTitle, setMilestoneTitle] = useState('');
+  const [milestoneDeadline, setMilestoneDeadline] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useEffect(() => {
     if (!route.params) {
@@ -26,9 +27,9 @@ const CreateGoalScreen = ({ navigation, route }) => {
 
   if (!userId) {
     return (
-      <View style={styles.container}>
+      <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
         <Text style={styles.errorText}>User ID is missing. Please log in again.</Text>
-      </View>
+      </LinearGradient>
     );
   }
 
@@ -39,15 +40,15 @@ const CreateGoalScreen = ({ navigation, route }) => {
     }
 
     const newMilestone = {
-      id: Date.now().toString(), 
+      id: Date.now().toString(),
       title: milestoneTitle,
       deadline: milestoneDeadline,
       status: 'not started',
     };
 
-    setMilestones([...milestones, newMilestone]); 
-    setMilestoneTitle(''); 
-    setMilestoneDeadline(new Date()); 
+    setMilestones([...milestones, newMilestone]);
+    setMilestoneTitle('');
+    setMilestoneDeadline(new Date());
   };
 
   const handleCreateGoal = async () => {
@@ -66,7 +67,7 @@ const CreateGoalScreen = ({ navigation, route }) => {
           type,
           category,
           description,
-          milestones, 
+          milestones,
           status: 'active',
           createdAt: firestore.Timestamp.fromDate(new Date()),
           updatedAt: firestore.Timestamp.fromDate(new Date()),
@@ -103,104 +104,114 @@ const CreateGoalScreen = ({ navigation, route }) => {
   );
 
   return (
-    <View style={styles.container}>
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
       <CustomAppBar title="Create Goal" showBackButton={true} />
-      <Text style={styles.header}>Create a New Goal</Text>
+      <ScrollView contentContainerStyle={styles.content}>
+        <Text style={styles.header}>Create a New Goal</Text>
 
-      <Text style={styles.label}>Goal Title</Text>
-      <TextInput
-        style={styles.input}
-        value={title}
-        onChangeText={setTitle}
-        placeholder="Enter goal title"
-      />
-
-      <Text style={styles.label}>Goal Type</Text>
-      <Picker
-        selectedValue={type}
-        onValueChange={(itemValue) => setType(itemValue)}
-        style={styles.picker}
-      >
-        <Picker.Item label="Short-term" value="short-term" />
-        <Picker.Item label="Long-term" value="long-term" />
-      </Picker>
-
-      <Text style={styles.label}>Category</Text>
-      <Picker
-        selectedValue={category}
-        onValueChange={(itemValue) => setCategory(itemValue)}
-        style={styles.picker}
-      >
-        <Picker.Item label="Health" value="Health" />
-        <Picker.Item label="Career" value="Career" />
-        <Picker.Item label="Personal Growth" value="Personal Growth" />
-        <Picker.Item label="Finance" value="Finance" />
-        <Picker.Item label="Other" value="Other" />
-      </Picker>
-
-      <Text style={styles.label}>Description (Optional)</Text>
-      <TextInput
-        style={[styles.input, { height: 120 }]}
-        value={description}
-        onChangeText={setDescription}
-        placeholder="Enter goal description"
-        multiline={true}
-        numberOfLines={4}
-      />
-
-      <Text style={styles.label}>Add Milestones</Text>
-      <TextInput
-        style={styles.input}
-        value={milestoneTitle}
-        onChangeText={setMilestoneTitle}
-        placeholder="Enter milestone title"
-      />
-      <TouchableOpacity
-        style={styles.dateButton}
-        onPress={() => setShowDatePicker(true)}
-      >
-        <Text style={styles.dateButtonText}>
-          Select Deadline: {formatDate(milestoneDeadline)}
-        </Text>
-      </TouchableOpacity>
-      {showDatePicker && (
-        <DateTimePicker
-          value={milestoneDeadline}
-          mode="date"
-          display="default"
-          onChange={handleDateChange}
-          minimumDate={new Date()}
+        <Text style={styles.label}>Goal Title</Text>
+        <TextInput
+          style={styles.input}
+          value={title}
+          onChangeText={setTitle}
+          placeholder="Enter goal title"
+          placeholderTextColor="#ffffff"
         />
-      )}
-      <TouchableOpacity style={styles.addMilestoneButton} onPress={handleAddMilestone}>
-        <Text style={styles.addMilestoneButtonText}>Add Milestone</Text>
-      </TouchableOpacity>
 
-      <FlatList
-        data={milestones}
-        renderItem={renderMilestoneItem}
-        keyExtractor={(item) => item.id}
-        style={styles.milestoneList}
-      />
+        <Text style={styles.label}>Goal Type</Text>
+        <Picker
+          selectedValue={type}
+          onValueChange={(itemValue) => setType(itemValue)}
+          style={styles.picker}
+          dropdownIconColor="#FFBA00"
+        >
+          <Picker.Item label="Short-term" value="short-term" color="#FFBA00" />
+          <Picker.Item label="Long-term" value="long-term" color="#FFBA00" />
+        </Picker>
 
-      <TouchableOpacity style={styles.createButton} onPress={handleCreateGoal}>
-        <Text style={styles.createButtonText}>Create Goal</Text>
-      </TouchableOpacity>
-    </View>
+        <Text style={styles.label}>Category</Text>
+        <Picker
+          selectedValue={category}
+          onValueChange={(itemValue) => setCategory(itemValue)}
+          style={styles.picker}
+          dropdownIconColor="#FFBA00"
+        >
+          <Picker.Item label="Health" value="Health" color="#FFBA00" />
+          <Picker.Item label="Career" value="Career" color="#FFBA00" />
+          <Picker.Item label="Personal Growth" value="Personal Growth" color="#FFBA00" />
+          <Picker.Item label="Finance" value="Finance" color="#FFBA00" />
+          <Picker.Item label="Other" value="Other" color="#FFBA00" />
+        </Picker>
+
+        <Text style={styles.label}>Description (Optional)</Text>
+        <TextInput
+          style={[styles.input, styles.multilineInput]}
+          value={description}
+          onChangeText={setDescription}
+          placeholder="Enter goal description"
+          placeholderTextColor="#ffffff"
+          multiline={true}
+          textAlignVertical="top"
+        />
+
+        <Text style={styles.label}>Add Milestones</Text>
+        <TextInput
+          style={styles.input}
+          value={milestoneTitle}
+          onChangeText={setMilestoneTitle}
+          placeholder="Enter milestone title"
+          placeholderTextColor="#ffffff"
+        />
+        <TouchableOpacity
+          style={styles.dateButton}
+          onPress={() => setShowDatePicker(true)}
+        >
+          <Text style={styles.dateButtonText}>
+            Select Deadline: {formatDate(milestoneDeadline)}
+          </Text>
+        </TouchableOpacity>
+        {showDatePicker && (
+          <DateTimePicker
+            value={milestoneDeadline}
+            mode="date"
+            display="default"
+            onChange={handleDateChange}
+            minimumDate={new Date()}
+          />
+        )}
+        <TouchableOpacity style={styles.addMilestoneButton} onPress={handleAddMilestone}>
+          <Text style={styles.addMilestoneButtonText}>Add Milestone</Text>
+        </TouchableOpacity>
+
+        <FlatList
+          data={milestones}
+          renderItem={renderMilestoneItem}
+          keyExtractor={(item) => item.id}
+          style={styles.milestoneList}
+          scrollEnabled={false} // Disable scrolling in FlatList since ScrollView handles it
+        />
+
+        <TouchableOpacity style={styles.createButton} onPress={handleCreateGoal}>
+          <Text style={styles.createButtonText}>Create Goal</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0C3B2E',
+  },
+  content: {
     padding: 20,
   },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: '#FFFFFF',
+    color: '#FFBA00',
+    textAlign: 'center',
   },
   label: {
     fontSize: 16,
@@ -209,20 +220,23 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#6D9773',
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
-    backgroundColor: '#fff',
-     textAlignVertical: 'top'
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    color: '#FFFFFF',
+  },
+  multilineInput: {
+    height: 120,
+    textAlignVertical: 'top',
   },
   picker: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#6D9773',
     borderRadius: 5,
     marginBottom: 10,
-    backgroundColor: '#fff',
-   
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   createButton: {
     backgroundColor: '#B46617',
@@ -232,13 +246,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   createButtonText: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
   },
   errorText: {
     fontSize: 16,
-    color: 'red',
+    color: '#FF0000',
     textAlign: 'center',
     marginTop: 20,
   },
@@ -250,8 +264,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   dateButtonText: {
-    color: '#fff',
+    color: '#0C3B2E',
     fontSize: 14,
+    fontWeight: 'bold',
   },
   addMilestoneButton: {
     backgroundColor: '#6D9773',
@@ -261,26 +276,27 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   addMilestoneButtonText: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontSize: 14,
+    fontWeight: 'bold',
   },
   milestoneList: {
     marginTop: 10,
   },
   milestoneItem: {
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    padding: 15,
+    borderRadius: 10,
     marginBottom: 10,
   },
   milestoneTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#FFFFFF',
   },
   milestoneDeadline: {
     fontSize: 14,
-    color: '#666',
+    color: '#6D9773',
   },
 });
 

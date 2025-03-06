@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, FlatList, Alert } from 'react
 import firestore from '@react-native-firebase/firestore';
 import { ProgressBar } from 'react-native-paper';
 import CustomAppBar from '../../../components/CustomAppBar';
+import LinearGradient from 'react-native-linear-gradient';
 
 const GoalDetailsScreen = ({ navigation, route }) => {
   const { goal: initialGoal, userId } = route.params;
@@ -199,52 +200,55 @@ const GoalDetailsScreen = ({ navigation, route }) => {
   );
 
   return (
-    <View style={styles.container}>
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
       <CustomAppBar
         title="Goal Details"
         showBackButton={true}
         onBackPress={() => navigation.goBack()}
       />
-      <Text style={styles.header}>{goal.title}</Text>
-      <Text style={styles.category}>Category: {goal.category}</Text>
-      <Text style={styles.description}>{goal.description}</Text>
+      <View style={styles.content}>
+        <Text style={styles.header}>{goal.title}</Text>
+        <Text style={styles.category}>Category: {goal.category}</Text>
+        <Text style={styles.description}>{goal.description}</Text>
 
-      <Text style={styles.progressLabel}>Progress</Text>
-      <ProgressBar
-        progress={progress}
-        color="#FFBA00"
-        style={styles.progressBar}
-      />
-      <Text style={styles.progressText}>{Math.round(progress * 100)}% completed</Text>
+        <Text style={styles.progressLabel}>Progress</Text>
+        <ProgressBar
+          progress={progress}
+          color="#FFBA00"
+          style={styles.progressBar}
+        />
+        <Text style={styles.progressText}>{Math.round(progress * 100)}% completed</Text>
 
-      <Text style={styles.milestonesHeader}>Milestones</Text>
-      <FlatList
-        data={milestones}
-        renderItem={renderMilestoneItem}
-        keyExtractor={(item) => item.id}
-        ListEmptyComponent={<Text style={styles.emptyText}>No milestones added.</Text>}
-      />
+        <Text style={styles.milestonesHeader}>Milestones</Text>
+        <FlatList
+          data={milestones}
+          renderItem={renderMilestoneItem}
+          keyExtractor={(item) => item.id}
+          ListEmptyComponent={<Text style={styles.emptyText}>No milestones added.</Text>}
+        />
 
-      {goal.status !== 'completed' && (
-        <TouchableOpacity style={styles.completeGoalButton} onPress={handleMarkGoalCompleted}>
-          <Text style={styles.completeGoalButtonText}>Mark Goal as Completed</Text>
-        </TouchableOpacity>
-      )}
-    </View>
+        {goal.status !== 'completed' && (
+          <TouchableOpacity style={styles.completeGoalButton} onPress={handleMarkGoalCompleted}>
+            <Text style={styles.completeGoalButtonText}>Mark Goal as Completed</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  content: {
     padding: 20,
-    backgroundColor: '#0C3B2E',
   },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: '#FFFFFF',
+    color: '#FFBA00',
   },
   category: {
     fontSize: 16,
@@ -253,7 +257,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 14,
-    color: '#6D9773',
+    color: '#ffffff',
     marginBottom: 20,
   },
   progressLabel: {
@@ -266,10 +270,11 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 5,
     marginBottom: 10,
+    backgroundColor: '#6D9773',
   },
   progressText: {
     fontSize: 14,
-    color: '#6D9773',
+    color: '#ffffff',
     marginBottom: 20,
   },
   milestonesHeader: {
@@ -279,15 +284,10 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   milestoneItem: {
-    backgroundColor: '#6D9773',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     padding: 15,
     borderRadius: 10,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
   },
   milestoneTitle: {
     fontSize: 16,
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#6D9773',
+    color: '#ffffff',
     textAlign: 'center',
     marginTop: 20,
   },
