@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Text } from 'react-native';
-import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/user-auth/LoginScreen';
@@ -64,66 +63,31 @@ import NotificationsScreen from '../screens/chatScreen/NotificationsScreen'
 //timeline
 import CreatePostScreen from '../screens/timeLineScreen/createPostScreen'
 import TimelineScreen from '../screens/timeLineScreen/timelineScreen'
+import { useAuth } from '../context/AuthContext';
 
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
   const navigationRef = useRef(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(null);
+  const { currentUser, loading } = useAuth(); 
   const [isNavigationReady, setIsNavigationReady] = useState(false);
 
   useEffect(() => {
-    const checkLoginStatus = async () => {
-      const storedLoginStatus = await AsyncStorage.getItem('isLoggedIn');
-      const user = auth().currentUser;
-
-      if (user || storedLoginStatus === 'true') {
-        setIsLoggedIn(true);
-        if (isNavigationReady) {
-          navigationRef.current?.dispatch(
-            CommonActions.reset({
-              index: 0,
-              routes: [{ name: 'Home' }],
-            })
-          );
-        }
+    if (!loading && isNavigationReady) {
+      if (currentUser) {
+        navigationRef.current?.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: 'Home' }],
+          }),
+        );
       } else {
-        setIsLoggedIn(false);
-        if (isNavigationReady) {
-          navigationRef.current?.navigate('Welcome');
-        }
+        navigationRef.current?.navigate('Welcome');
       }
-    };
+    }
+  }, [currentUser, loading, isNavigationReady]);
 
-    checkLoginStatus();
-  }, [isNavigationReady]);
-
-  useEffect(() => {
-    const unsubscribe = auth().onAuthStateChanged(async (user) => {
-      if (user) {
-        setIsLoggedIn(true);
-        await AsyncStorage.setItem('isLoggedIn', 'true');
-        if (isNavigationReady) {
-          navigationRef.current?.dispatch(
-            CommonActions.reset({
-              index: 0,
-              routes: [{ name: 'Home' }],
-            })
-          );
-        }
-      } else {
-        setIsLoggedIn(false);
-        await AsyncStorage.setItem('isLoggedIn', 'false');
-        if (isNavigationReady) {
-          navigationRef.current?.navigate('Welcome');
-        }
-      }
-    });
-
-    return unsubscribe;
-  }, [isNavigationReady]);
-
-  if (isLoggedIn === null) {
+  if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Text>Loading...</Text>
@@ -131,13 +95,14 @@ const AppNavigator = () => {
     );
   }
 
+
   return (
     <NavigationContainer
       ref={navigationRef}
       onReady={() => setIsNavigationReady(true)}
     >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {isLoggedIn ? (
+        {currentUser ? (
           <>
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="MentorshipScreen" component={MentorshipScreen} />

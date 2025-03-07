@@ -52,7 +52,7 @@ const HomeScreen = () => {
     navigation.navigate('TimelineScreen');
   };
 
-  
+
 
   return (
     <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
@@ -94,14 +94,9 @@ const HomeScreen = () => {
             <Icon name="format-list-numbered" size={24} color="#0C3B2E" style={styles.buttonIcon} />
             <Text style={styles.buttonText}>Top List Screen</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={goToCreatePostScreen}>
-            <Icon name="format-list-numbered" size={24} color="#0C3B2E" style={styles.buttonIcon} />
-            <Text style={styles.buttonText}>CreatePostScreen</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity style={styles.button} onPress={goToTimelineScreen}>
-            <Icon name="format-list-numbered" size={24} color="#0C3B2E" style={styles.buttonIcon} />
-            <Text style={styles.buttonText}>CreatePostScreen</Text>
+            <Icon name="newspaper" size={24} color="#0C3B2E" style={styles.buttonIcon} />
+            <Text style={styles.buttonText}>Community Feed</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

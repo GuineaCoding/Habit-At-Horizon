@@ -1,15 +1,14 @@
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient'; // For gradient background
+import LinearGradient from 'react-native-linear-gradient';
 import CustomAppBar from '../../components/CustomAppBar';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // For icons
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; 
 
 const MentorshipScreen = ({ navigation }) => {
     const menuItems = [
         { id: '1', title: 'Boards', navigateTo: 'BoardsScreen', icon: 'view-dashboard' },
         { id: '2', title: 'View Mentor List', navigateTo: 'MentorListPage', icon: 'account-group' },
-        { id: '3', title: 'Create Mentor Profile', navigateTo: 'MentorProfileCreationStartScreen', icon: 'account-plus' },
-        { id: '4', title: 'Go Back', navigateTo: null, icon: 'arrow-left' },
+        { id: '3', title: 'Create Mentor Profile', navigateTo: 'MentorProfileCreationStartScreen', icon: 'account-plus' }
     ];
 
     const handleNavigation = (navigateTo) => {

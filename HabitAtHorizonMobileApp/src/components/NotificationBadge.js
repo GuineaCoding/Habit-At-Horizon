@@ -10,43 +10,36 @@ const NotificationBadge = ({ userId }) => {
       console.log('[NotificationBadge] User ID is missing. Cannot query Firestore.');
       return;
     }
-
+  
     console.log(`[NotificationBadge] Logged-in user ID: ${userId}`);
-
+  
     const query = firestore()
       .collection('notifications')
       .where('userId', '==', userId)
       .where('seen', '==', false);
-
+  
     const unsubscribe = query.onSnapshot(
       (snapshot) => {
-        console.log('[NotificationBadge] Snapshot received:', snapshot);
-
         if (snapshot.empty) {
           console.log('[NotificationBadge] No unseen notifications found.');
           setCount(0);
           return;
         }
-
+  
         const totalCount = snapshot.size;
         console.log(`[NotificationBadge] Total unseen notifications: ${totalCount}`);
         setCount(totalCount);
-
-        console.log('[NotificationBadge] All notifications for the user:');
-        snapshot.forEach((doc) => {
-          console.log(`[NotificationBadge] Notification document:`, doc.id, doc.data());
-        });
       },
       (error) => {
         console.error('[NotificationBadge] Error fetching snapshot:', error);
       }
     );
-
+  
     return () => {
       console.log('[NotificationBadge] Unsubscribing from Firestore listener.');
       unsubscribe();
     };
-  }, [userId]);
+  }, [userId]); 
 
   console.log(`[NotificationBadge] Rendering badge with count: ${count}`);
 
