@@ -4,6 +4,7 @@ import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import firestore from '@react-native-firebase/firestore';
 import { findUserByUsername } from '../services/UserService';
 import CustomAppBar from '../components/CustomAppBar';
+import LinearGradient from 'react-native-linear-gradient';
 
 const BoardDetailsScreen = ({ route, navigation }) => {
     const [modalVisible, setModalVisible] = useState(false);
@@ -216,6 +217,7 @@ const BoardDetailsScreen = ({ route, navigation }) => {
     });
 
     return (
+        <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
         <View style={styles.container}>
             <CustomAppBar title={boardData.title} showBackButton={true} />
             <TabView
@@ -258,13 +260,13 @@ const BoardDetailsScreen = ({ route, navigation }) => {
                 </View>
             </Modal>
         </View>
+        </LinearGradient>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        backgroundColor: '#0C3B2E',
+        flex: 1
     },
     tabContainer: {
         flex: 1,
