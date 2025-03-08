@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, Alert, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TextInput, StyleSheet, ScrollView, Alert, TouchableOpacity, Image} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 import * as ImagePicker from 'react-native-image-picker';
+import LinearGradient from 'react-native-linear-gradient';
 import CustomAppBar from '../components/CustomAppBar';
 
 const LessonBuilderScreen = ({ route, navigation }) => {
@@ -63,12 +64,14 @@ const LessonBuilderScreen = ({ route, navigation }) => {
             } else if (response.assets && response.assets.length > 0) {
                 const uri = response.assets[0].uri;
                 setImageUri(uri);
+                addElement('image'); 
             }
         });
     };
 
     const deleteImage = () => {
         setImageUri(null);
+        setContent(content.filter((item) => item.type !== 'image')); 
     };
 
     const saveLesson = async () => {
@@ -124,8 +127,91 @@ const LessonBuilderScreen = ({ route, navigation }) => {
         }
     };
 
+    const renderContentItem = (item) => {
+        switch (item.type) {
+            case 'heading':
+            case 'paragraph':
+            case 'list':
+                return (
+                    <View key={item.id} style={styles.contentItem}>
+                        <Text style={styles.contentType}>{item.type}</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder={`Enter ${item.type}`}
+                            placeholderTextColor="#888"
+                            value={item.value}
+                            onChangeText={(text) => {
+                                setContent(
+                                    content.map((c) =>
+                                        c.id === item.id ? { ...c, value: text } : c
+                                    )
+                                );
+                            }}
+                            multiline
+                        />
+                    </View>
+                );
+            case 'image':
+                return (
+                    <View key={item.id} style={styles.contentItem}>
+                        <Text style={styles.contentType}>Image</Text>
+                        <Image source={{ uri: imageUri }} style={styles.image} />
+                        <TouchableOpacity
+                            style={styles.deleteImageButton}
+                            onPress={deleteImage}
+                        >
+                            <Text style={styles.deleteImageButtonText}>Delete Image</Text>
+                        </TouchableOpacity>
+                    </View>
+                );
+            case 'youtube':
+                return (
+                    <View key={item.id} style={styles.contentItem}>
+                        <Text style={styles.contentType}>YouTube Video</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter YouTube Video ID"
+                            placeholderTextColor="#888"
+                            value={item.value}
+                            onChangeText={(text) => {
+                                setContent(
+                                    content.map((c) =>
+                                        c.id === item.id ? { ...c, value: text } : c
+                                    )
+                                );
+                            }}
+                        />
+                    </View>
+                );
+            case 'iframe':
+                return (
+                    <View key={item.id} style={styles.contentItem}>
+                        <Text style={styles.contentType}>iFrame</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter iFrame URL"
+                            placeholderTextColor="#888"
+                            value={item.value}
+                            onChangeText={(text) => {
+                                setContent(
+                                    content.map((c) =>
+                                        c.id === item.id ? { ...c, value: text } : c
+                                    )
+                                );
+                            }}
+                        />
+                    </View>
+                );
+            default:
+                return null;
+        }
+    };
+
     return (
-        <View style={styles.container}>
+        <LinearGradient
+            colors={['#0C3B2E', '#6D9773']}
+            style={styles.container}
+        >
             <CustomAppBar
                 title={lessonId ? 'Edit Lesson' : 'Create Lesson'}
                 showBackButton={true}
@@ -167,49 +253,26 @@ const LessonBuilderScreen = ({ route, navigation }) => {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.addButton}
+                        onPress={handleImageUpload}
+                    >
+                        <Text style={styles.addButtonText}>Add Image</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.addButton}
                         onPress={() => addElement('iframe')}
                     >
                         <Text style={styles.addButtonText}>Add iFrame</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.addButton}
-                        onPress={handleImageUpload}
+                        onPress={() => addElement('youtube')}
                     >
-                        <Text style={styles.addButtonText}>Add Image</Text>
+                        <Text style={styles.addButtonText}>Add YouTube Video</Text>
                     </TouchableOpacity>
                 </View>
-                {imageUri && (
-                    <View style={styles.imageContainer}>
-                        <Image source={{ uri: imageUri }} style={styles.image} />
-                        <TouchableOpacity
-                            style={styles.deleteImageButton}
-                            onPress={deleteImage}
-                        >
-                            <Text style={styles.deleteImageButtonText}>Delete Image</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
-                {content.map((item) => (
-                    <View key={item.id} style={styles.contentItem}>
-                        <Text style={styles.contentType}>{item.type}</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder={`Enter ${item.type}`}
-                            placeholderTextColor="#888"
-                            value={item.value}
-                            onChangeText={(text) => {
-                                setContent(
-                                    content.map((c) =>
-                                        c.id === item.id ? { ...c, value: text } : c
-                                    )
-                                );
-                            }}
-                            multiline
-                        />
-                    </View>
-                ))}
+                {content.map((item) => renderContentItem(item))}
                 <TouchableOpacity
-                    style={styles.saveButton}
+                    style={[styles.saveButton, { backgroundColor: '#FFBA00' }]} 
                     onPress={saveLesson}
                     disabled={isLoading}
                 >
@@ -218,14 +281,13 @@ const LessonBuilderScreen = ({ route, navigation }) => {
                     </Text>
                 </TouchableOpacity>
             </ScrollView>
-        </View>
+        </LinearGradient>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0C3B2E',
     },
     scrollContainer: {
         padding: 20,
@@ -289,7 +351,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     saveButton: {
-        backgroundColor: '#6D9773',
         padding: 15,
         borderRadius: 8,
         alignItems: 'center',
