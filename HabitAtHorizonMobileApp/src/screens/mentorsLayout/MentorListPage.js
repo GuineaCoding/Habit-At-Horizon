@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import CustomAppBar from '../../components/CustomAppBar';
+import LinearGradient from 'react-native-linear-gradient';
 
 const MentorListPage = ({ navigation }) => {
   const [mentors, setMentors] = useState([]);
@@ -10,7 +11,7 @@ const MentorListPage = ({ navigation }) => {
     const fetchMentors = async () => {
       try {
         const mentorSnapshot = await firestore().collection('mentors').get();
-        const mentorList = mentorSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const mentorList = mentorSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setMentors(mentorList);
       } catch (error) {
         console.error('Error fetching mentors:', error);
@@ -24,47 +25,54 @@ const MentorListPage = ({ navigation }) => {
     navigation.navigate('MentorProfileViewScreen', { mentor });
   };
 
-  const renderMentorItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.mentorItem}
-      onPress={() => handleMentorPress(item)} // Make the mentor item clickable
-    >
-      <Image source={{ uri: item.profileImage }} style={styles.profileImage} />
-      <View style={styles.mentorInfo}>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.username}>@{item.username}</Text>
-        <Text style={styles.bio}>{item.bio}</Text>
-        <Text style={styles.expertise}>Offers: {item.expertise}</Text>
-        {item.tags && (
-          <View style={styles.tagsContainer}>
-            {item.tags.map((tag, index) => (
-              <Text key={index} style={styles.tag}>
-                {tag}
-              </Text>
-            ))}
-          </View>
-        )}
-      </View>
-    </TouchableOpacity>
-  );
+  const renderMentorItem = ({ item }) => {
+    const firstLetter = item.username ? item.username.charAt(0).toUpperCase() : 'M'; 
+    return (
+      <TouchableOpacity
+        style={styles.mentorItem}
+        onPress={() => handleMentorPress(item)} 
+      >
+        <LinearGradient
+          colors={['#0C3B2E', '#6D9773']}
+          style={styles.profileCircle}
+        >
+          <Text style={styles.profileLetter}>{firstLetter}</Text>
+        </LinearGradient>
+        <View style={styles.mentorInfo}>
+          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.username}>@{item.username}</Text>
+          <Text style={styles.bio}>{item.bio}</Text>
+          <Text style={styles.expertise}>Offers: {item.expertise}</Text>
+          {item.tags && (
+            <View style={styles.tagsContainer}>
+              {item.tags.map((tag, index) => (
+                <Text key={index} style={styles.tag}>
+                  {tag}
+                </Text>
+              ))}
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
-    <View style={styles.container}>
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
       <CustomAppBar title="Mentor List" showBackButton={true} />
       <FlatList
         data={mentors}
         renderItem={renderMentorItem}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
       />
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0C3B2E',
   },
   listContainer: {
     padding: 16,
@@ -81,11 +89,18 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  profileImage: {
+  profileCircle: {
     width: 60,
     height: 60,
     borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 16,
+  },
+  profileLetter: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   mentorInfo: {
     flex: 1,
