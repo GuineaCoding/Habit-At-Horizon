@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView 
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import CustomAppBar from '../../components/CustomAppBar';
+import LinearGradient from 'react-native-linear-gradient';
 
 const AddMentorForm = ({ navigation }) => {
   const [name, setName] = useState('');
@@ -22,8 +23,20 @@ const AddMentorForm = ({ navigation }) => {
   const userId = auth().currentUser?.uid;
 
   useEffect(() => {
-    const fetchMentorProfile = async () => {
+    const fetchUserAndMentorProfile = async () => {
       if (userId) {
+
+        const userSnapshot = await firestore()
+          .collection('users')
+          .doc(userId)
+          .get();
+
+        if (userSnapshot.exists) {
+          const userData = userSnapshot.data();
+          setName(userData.name || '');
+          setUsername(userData.username || '');
+        }
+
         const mentorSnapshot = await firestore()
           .collection('mentors')
           .where('userId', '==', userId)
@@ -32,14 +45,12 @@ const AddMentorForm = ({ navigation }) => {
         if (!mentorSnapshot.empty) {
           const mentorData = mentorSnapshot.docs[0].data();
           const mentorDocId = mentorSnapshot.docs[0].id;
-          setName(mentorData.name);
-          setUsername(mentorData.username);
-          setBio(mentorData.bio);
-          setExpertise(mentorData.expertise);
-          setProfileImage(mentorData.profileImage);
-          setTags(mentorData.tags || '');
-          setAvailability(mentorData.availability || '');
-          setLanguages(mentorData.languages || '');
+          setBio(mentorData.bio || '');
+          setExpertise(mentorData.expertise || '');
+          setProfileImage(mentorData.profileImage || '');
+          setTags(mentorData.tags?.join(', ') || ''); 
+          setAvailability(mentorData.availability?.join(', ') || ''); 
+          setLanguages(mentorData.languages?.join(', ') || ''); 
           setExperienceLevel(mentorData.experienceLevel || '');
           setLinkedIn(mentorData.linkedIn || '');
           setTwitter(mentorData.twitter || '');
@@ -49,7 +60,7 @@ const AddMentorForm = ({ navigation }) => {
       }
     };
 
-    fetchMentorProfile();
+    fetchUserAndMentorProfile();
   }, [userId]);
 
   const handleSaveMentor = async () => {
@@ -66,7 +77,7 @@ const AddMentorForm = ({ navigation }) => {
         expertise,
         profileImage,
         tags: tags.split(',').map(tag => tag.trim()), 
-        availability: availability.split(',').map(avail => avail.trim()), 
+        availability: availability.split(',').map(avail => avail.trim()),
         languages: languages.split(',').map(lang => lang.trim()), 
         experienceLevel,
         linkedIn,
@@ -89,96 +100,125 @@ const AddMentorForm = ({ navigation }) => {
 
   if (isLoading) {
     return (
-      <View style={styles.container}>
+      <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
         <Text style={styles.loadingText}>Loading...</Text>
-      </View>
+      </LinearGradient>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
       <CustomAppBar title="Create Mentor Profile" showBackButton={true} />
       <ScrollView contentContainerStyle={styles.content}>
-        <TextInput
-          placeholder="Name"
-          value={name}
-          onChangeText={setName}
-          style={styles.input}
-          placeholderTextColor="#999"
-        />
-        <TextInput
-          placeholder="Username"
-          value={username}
-          onChangeText={setUsername}
-          style={styles.input}
-          placeholderTextColor="#999"
-        />
-        <TextInput
-          placeholder="Bio"
-          value={bio}
-          onChangeText={setBio}
-          style={styles.input}
-          placeholderTextColor="#999"
-          multiline
-        />
-        <TextInput
-          placeholder="Expertise (e.g., Software Development, Leadership)"
-          value={expertise}
-          onChangeText={setExpertise}
-          style={styles.input}
-          placeholderTextColor="#999"
-        />
-        <TextInput
-          placeholder="Tags (comma-separated, e.g., Career, Coding, Leadership)"
-          value={tags}
-          onChangeText={setTags}
-          style={styles.input}
-          placeholderTextColor="#999"
-        />
-        <TextInput
-          placeholder="Availability (comma-separated, e.g., Weekdays, Evenings)"
-          value={availability}
-          onChangeText={setAvailability}
-          style={styles.input}
-          placeholderTextColor="#999"
-        />
-        <TextInput
-          placeholder="Languages (comma-separated, e.g., English, Spanish)"
-          value={languages}
-          onChangeText={setLanguages}
-          style={styles.input}
-          placeholderTextColor="#999"
-        />
-        <TextInput
-          placeholder="Experience Level (e.g., Beginner, Intermediate, Expert)"
-          value={experienceLevel}
-          onChangeText={setExperienceLevel}
-          style={styles.input}
-          placeholderTextColor="#999"
-        />
-        <TextInput
-          placeholder="LinkedIn Profile URL"
-          value={linkedIn}
-          onChangeText={setLinkedIn}
-          style={styles.input}
-          placeholderTextColor="#999"
-        />
-        <TextInput
-          placeholder="Twitter Profile URL"
-          value={twitter}
-          onChangeText={setTwitter}
-          style={styles.input}
-          placeholderTextColor="#999"
-        />
-        <TextInput
-          placeholder="Profile Image URL"
-          value={profileImage}
-          onChangeText={setProfileImage}
-          style={styles.input}
-          placeholderTextColor="#999"
-        />
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Name</Text>
+          <TextInput
+            value={name}
+            style={styles.disabledInput}
+            editable={false}
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Username</Text>
+          <TextInput
+            value={username}
+            style={styles.disabledInput}
+            editable={false}
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Bio</Text>
+          <TextInput
+            placeholder="Enter your bio"
+            value={bio}
+            onChangeText={setBio}
+            style={styles.input}
+            placeholderTextColor="#999"
+            multiline
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Expertise</Text>
+          <TextInput
+            placeholder="e.g., Software Development, Leadership"
+            value={expertise}
+            onChangeText={setExpertise}
+            style={styles.input}
+            placeholderTextColor="#999"
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Tags</Text>
+          <TextInput
+            placeholder="e.g., Career, Coding, Leadership"
+            value={tags}
+            onChangeText={setTags}
+            style={styles.input}
+            placeholderTextColor="#999"
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Availability</Text>
+          <TextInput
+            placeholder="e.g., Weekdays, Evenings"
+            value={availability}
+            onChangeText={setAvailability}
+            style={styles.input}
+            placeholderTextColor="#999"
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Languages</Text>
+          <TextInput
+            placeholder="e.g., English, Spanish"
+            value={languages}
+            onChangeText={setLanguages}
+            style={styles.input}
+            placeholderTextColor="#999"
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Experience Level</Text>
+          <TextInput
+            placeholder="e.g., Beginner, Intermediate, Expert"
+            value={experienceLevel}
+            onChangeText={setExperienceLevel}
+            style={styles.input}
+            placeholderTextColor="#999"
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>LinkedIn Profile URL</Text>
+          <TextInput
+            placeholder="Enter your LinkedIn URL"
+            value={linkedIn}
+            onChangeText={setLinkedIn}
+            style={styles.input}
+            placeholderTextColor="#999"
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Twitter Profile URL</Text>
+          <TextInput
+            placeholder="Enter your Twitter URL"
+            value={twitter}
+            onChangeText={setTwitter}
+            style={styles.input}
+            placeholderTextColor="#999"
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Profile Image URL</Text>
+          <TextInput
+            placeholder="Enter your profile image URL"
+            value={profileImage}
+            onChangeText={setProfileImage}
+            style={styles.input}
+            placeholderTextColor="#999"
+          />
+        </View>
         <TouchableOpacity
-          style={[styles.button, { backgroundColor: '#B46617' }]}
+          style={styles.button}
           onPress={handleSaveMentor}
         >
           <Text style={styles.buttonText}>
@@ -186,43 +226,59 @@ const AddMentorForm = ({ navigation }) => {
           </Text>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0C3B2E',
   },
   content: {
     flexGrow: 1,
     padding: 20,
   },
+  inputContainer: {
+    marginBottom: 15,
+  },
+  label: {
+    fontSize: 16,
+    color: '#FFBA00',
+    marginBottom: 5,
+  },
   input: {
     borderWidth: 1,
     borderColor: '#6D9773',
-    borderRadius: 10,
+    borderRadius: 8,
     padding: 15,
-    marginBottom: 15,
     backgroundColor: '#FFFFFF',
     color: '#000000',
   },
-  button: {
+  disabledInput: {
+    borderWidth: 1,
+    borderColor: '#6D9773',
+    borderRadius: 8,
     padding: 15,
-    borderRadius: 10,
+    backgroundColor: '#E0E0E0',
+    color: '#000000',
+  },
+  button: {
+    backgroundColor: '#FFBA00',
+    padding: 15,
+    borderRadius: 8,
     alignItems: 'center',
-    elevation: 3,
+    marginTop: 20,
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: 18,
+    color: '#0C3B2E',
     fontWeight: 'bold',
-    color: '#FFFFFF',
   },
   loadingText: {
     fontSize: 18,
     color: '#FFFFFF',
     textAlign: 'center',
+    marginTop: 20,
   },
 });
 

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import CustomAppBar from '../../components/CustomAppBar';
+import LinearGradient from 'react-native-linear-gradient';
 
 const MentorProfileViewScreen = ({ navigation }) => {
   const [mentor, setMentor] = useState(null);
@@ -36,38 +37,49 @@ const MentorProfileViewScreen = ({ navigation }) => {
 
   if (isLoading) {
     return (
-      <View style={styles.container}>
+      <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
         <Text style={styles.loadingText}>Loading...</Text>
-      </View>
+      </LinearGradient>
     );
   }
 
   if (!mentor) {
     return (
-      <View style={styles.container}>
+      <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
         <Text style={styles.noProfileText}>No mentor profile found.</Text>
-      </View>
+      </LinearGradient>
     );
   }
 
-  return (
-    <View style={styles.container}>
+  const firstLetter = mentor.username ? mentor.username.charAt(0).toUpperCase() : 'M';
 
+  return (
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
       <CustomAppBar title="My Mentor Profile" showBackButton={true} />
 
       <ScrollView contentContainerStyle={styles.content}>
+        <LinearGradient
+          colors={['#0C3B2E', '#6D9773']}
+          style={styles.profileCircle}
+        >
+          <Text style={styles.profileLetter}>{firstLetter}</Text>
+        </LinearGradient>
 
         <Text style={styles.name}>{mentor.name}</Text>
         <Text style={styles.username}>@{mentor.username}</Text>
 
-        <Text style={styles.sectionTitle}>About Me</Text>
-        <Text style={styles.bio}>{mentor.bio}</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>About Me</Text>
+          <Text style={styles.bio}>{mentor.bio}</Text>
+        </View>
 
-        <Text style={styles.sectionTitle}>Expertise</Text>
-        <Text style={styles.expertise}>{mentor.expertise}</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Expertise</Text>
+          <Text style={styles.expertise}>{mentor.expertise}</Text>
+        </View>
 
         {mentor.tags && mentor.tags.length > 0 && (
-          <>
+          <View style={styles.section}>
             <Text style={styles.sectionTitle}>Tags</Text>
             <View style={styles.tagsContainer}>
               {mentor.tags.map((tag, index) => (
@@ -76,11 +88,11 @@ const MentorProfileViewScreen = ({ navigation }) => {
                 </Text>
               ))}
             </View>
-          </>
+          </View>
         )}
 
         {mentor.availability && mentor.availability.length > 0 && (
-          <>
+          <View style={styles.section}>
             <Text style={styles.sectionTitle}>Availability</Text>
             <View style={styles.tagsContainer}>
               {mentor.availability.map((avail, index) => (
@@ -89,11 +101,11 @@ const MentorProfileViewScreen = ({ navigation }) => {
                 </Text>
               ))}
             </View>
-          </>
+          </View>
         )}
 
         {mentor.languages && mentor.languages.length > 0 && (
-          <>
+          <View style={styles.section}>
             <Text style={styles.sectionTitle}>Languages</Text>
             <View style={styles.tagsContainer}>
               {mentor.languages.map((lang, index) => (
@@ -102,98 +114,110 @@ const MentorProfileViewScreen = ({ navigation }) => {
                 </Text>
               ))}
             </View>
-          </>
+          </View>
         )}
 
-        <Text style={styles.sectionTitle}>Experience Level</Text>
-        <Text style={styles.experienceLevel}>{mentor.experienceLevel}</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Experience Level</Text>
+          <Text style={styles.experienceLevel}>{mentor.experienceLevel}</Text>
+        </View>
 
-        <Text style={styles.sectionTitle}>Social Media</Text>
-        <Image source={{ uri: mentor.profileImage }} style={styles.profileImage} />
-        {mentor.linkedIn && (
-          <Text style={styles.link}>LinkedIn: {mentor.linkedIn}</Text>
-        )}
-        {mentor.twitter && (
-          <Text style={styles.link}>Twitter: {mentor.twitter}</Text>
-        )}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Social Media</Text>
+          {mentor.linkedIn && (
+            <Text style={styles.link}>LinkedIn: {mentor.linkedIn}</Text>
+          )}
+          {mentor.twitter && (
+            <Text style={styles.link}>Twitter: {mentor.twitter}</Text>
+          )}
+        </View>
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0C3B2E', 
   },
   content: {
     padding: 20,
     alignItems: 'center',
   },
-  profileImage: {
+  profileCircle: {
     width: 120,
     height: 120,
     borderRadius: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 20,
+    borderWidth: 3,
+    borderColor: '#FFBA00',
+  },
+  profileLetter: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
   },
   name: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#FFFFFF', 
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   username: {
     fontSize: 16,
-    color: '#6D9773', 
+    color: '#6D9773',
+    marginBottom: 20,
+  },
+  section: {
+    width: '100%',
     marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#FFBA00', 
-    marginTop: 16,
+    color: '#FFBA00',
     marginBottom: 8,
   },
   bio: {
     fontSize: 14,
-    color: '#FFFFFF', 
+    color: '#FFFFFF',
     textAlign: 'center',
     marginBottom: 16,
   },
   expertise: {
     fontSize: 14,
-    color: '#FFFFFF', 
+    color: '#FFFFFF',
     marginBottom: 16,
   },
   tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
-    marginBottom: 16,
   },
   tag: {
-    fontSize: 12,
-    color: '#FFFFFF', 
-    backgroundColor: '#6D9773', 
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    fontSize: 14, 
+    color: '#FFFFFF',
+    backgroundColor: '#6D9773',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
     marginRight: 8,
     marginBottom: 8,
   },
   experienceLevel: {
     fontSize: 14,
-    color: '#FFFFFF', 
+    color: '#FFFFFF',
     marginBottom: 16,
   },
   link: {
     fontSize: 14,
-    color: '#007BFF', 
+    color: '#FFFFFF', 
     marginBottom: 8,
   },
   loadingText: {
     fontSize: 18,
-    color: '#FFFFFF', 
+    color: '#FFFFFF',
     textAlign: 'center',
   },
   noProfileText: {
