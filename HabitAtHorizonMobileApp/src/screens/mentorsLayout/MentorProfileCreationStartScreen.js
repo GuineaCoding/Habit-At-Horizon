@@ -1,16 +1,15 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import CustomAppBar from '../../components/CustomAppBar';
+import LinearGradient from 'react-native-linear-gradient';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const MentorProfileCreationStartScreen = ({ navigation }) => {
     return (
-        <View style={styles.container}>
+        <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
             <CustomAppBar title="Create Mentor Profile" showBackButton={true} />
             <ScrollView contentContainerStyle={styles.content}>
-                <Image
-                    //   source={require('../assets/mentor_intro.png')} 
-                    style={styles.image}
-                />
+                <Icon name="account-star" size={100} color="#FFBA00" style={styles.icon} />
 
                 <Text style={styles.heading}>Why Become a Mentor?</Text>
                 <Text style={styles.text}>
@@ -33,23 +32,20 @@ const MentorProfileCreationStartScreen = ({ navigation }) => {
                     <Text style={styles.buttonText}>Get Started</Text>
                 </TouchableOpacity>
             </ScrollView>
-        </View>
+        </LinearGradient>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0C3B2E',
     },
     content: {
         flexGrow: 1,
         padding: 20,
         alignItems: 'center',
     },
-    image: {
-        width: 200,
-        height: 50,
+    icon: {
         marginBottom: 20,
     },
     heading: {
@@ -69,7 +65,7 @@ const styles = StyleSheet.create({
     subHeading: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: '#B46617',
+        color: '#FFBA00',
         marginBottom: 10,
         textAlign: 'center',
     },
@@ -83,7 +79,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     button: {
-        backgroundColor: '#6D9773',
+        backgroundColor: '#FFBA00',
         padding: 15,
         borderRadius: 10,
         width: '80%',
@@ -93,7 +89,7 @@ const styles = StyleSheet.create({
     buttonText: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#FFFFFF',
+        color: '#0C3B2E',
     },
 });
 
