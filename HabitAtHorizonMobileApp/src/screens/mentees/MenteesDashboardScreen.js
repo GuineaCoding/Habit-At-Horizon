@@ -1,13 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import CustomAppBar from '../../components/CustomAppBar'; 
+import CustomAppBar from '../../components/CustomAppBar';
+import LinearGradient from 'react-native-linear-gradient';
 
 const MenteesDashboardScreen = () => {
     const navigation = useNavigation();
 
     return (
-        <View style={styles.container}>
+        <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
             <CustomAppBar
                 title="Mentee's Dashboard"
                 showBackButton={true}
@@ -19,16 +20,15 @@ const MenteesDashboardScreen = () => {
                     onPress={() => navigation.navigate('MenteeBoardsList')}
                 >
                     <Text style={styles.buttonText}>Learning Boards</Text>
-                </TouchableOpacity> 
+                </TouchableOpacity>
             </View>
-        </View>
+        </LinearGradient>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0C3B2E',
     },
     content: {
         flex: 1,
