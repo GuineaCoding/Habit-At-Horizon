@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator }
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import CustomAppBar from '../../components/CustomAppBar';
+import LinearGradient from 'react-native-linear-gradient';
 
 const MenteeBoardsList = ({ navigation }) => {
     const [boards, setBoards] = useState([]);
@@ -55,35 +56,35 @@ const MenteeBoardsList = ({ navigation }) => {
     if (loading) {
         console.log("Loading boards...");
         return (
-            <View style={styles.container}>
-                            <CustomAppBar
-                title="Learning Boards"
-                showBackButton={true}
-                onBackPress={() => navigation.goBack()}
-            />
+            <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+                <CustomAppBar
+                    title="Learning Boards"
+                    showBackButton={true}
+                    onBackPress={() => navigation.goBack()}
+                />
                 <ActivityIndicator size="large" color="#FFBA00" />
                 <Text style={styles.loadingText}>Loading boards...</Text>
-            </View>
+            </LinearGradient>
         );
     }
 
     if (!boards.length) {
         console.log("No boards to display after fetch.");
         return (
-            <View style={styles.container}>
-                            <CustomAppBar
-                title="Learning Boards"
-                showBackButton={true}
-                onBackPress={() => navigation.goBack()}
-            />
+            <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+                <CustomAppBar
+                    title="Learning Boards"
+                    showBackButton={true}
+                    onBackPress={() => navigation.goBack()}
+                />
                 <Text style={styles.emptyText}>No boards found.</Text>
-            </View>
+            </LinearGradient>
         );
     }
 
     console.log("Rendering boards list.");
     return (
-        <View style={styles.container}>
+        <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
             <CustomAppBar
                 title="Learning Boards"
                 showBackButton={true}
@@ -107,14 +108,13 @@ const MenteeBoardsList = ({ navigation }) => {
                 )}
                 ListEmptyComponent={<Text style={styles.emptyText}>No boards found.</Text>}
             />
-        </View>
+        </LinearGradient>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0C3B2E',
     },
     listContainer: {
         padding: 20,
@@ -124,15 +124,21 @@ const styles = StyleSheet.create({
         marginVertical: 8,
         backgroundColor: '#FFFFFF',
         borderRadius: 8,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
     },
     boardTitle: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: 'bold',
         color: '#0C3B2E',
     },
     boardCreator: {
         fontSize: 14,
         color: '#6D9773',
+        marginTop: 5,
     },
     loadingText: {
         color: '#FFBA00',
