@@ -2,12 +2,13 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import LinearGradient from 'react-native-linear-gradient';
 
 const WelcomeScreen = () => {
   const navigation = useNavigation();
 
   return (
-    <View style={styles.container}>
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
       <Text style={styles.textHeader}>Welcome Warrior</Text>
       <Text style={styles.text}>Welcome to the app! If you need to log in again, click below.</Text>
       
@@ -15,7 +16,7 @@ const WelcomeScreen = () => {
         <Button
           mode="contained"
           onPress={() => navigation.navigate('Login')}
-          buttonColor="#6D9773"
+          buttonColor="#FFBA00"
           style={styles.button}
           labelStyle={styles.buttonText}
         >
@@ -24,7 +25,7 @@ const WelcomeScreen = () => {
         <Button
           mode="contained"
           onPress={() => navigation.navigate('SignUp')}
-          buttonColor="#B46617"
+          buttonColor="#FFBA00"
           style={styles.button}
           labelStyle={styles.buttonText}
         >
@@ -40,7 +41,7 @@ const WelcomeScreen = () => {
           About
         </Button>
       </View>
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -49,7 +50,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#0C3B2E',
     paddingHorizontal: 20,
   },
   textHeader: {
