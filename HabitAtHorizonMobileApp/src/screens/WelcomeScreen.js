@@ -3,12 +3,14 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const WelcomeScreen = () => {
   const navigation = useNavigation();
 
   return (
     <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+      <Icon name="shield-sword" size={100} color="#FFBA00" style={styles.icon} />
       <Text style={styles.textHeader}>Welcome Warrior</Text>
       <Text style={styles.text}>Welcome to the app! If you need to log in again, click below.</Text>
       
@@ -41,6 +43,8 @@ const WelcomeScreen = () => {
           About
         </Button>
       </View>
+
+      <Text style={styles.footerText}>Built by Andrian B</Text>
     </LinearGradient>
   );
 };
@@ -51,6 +55,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
+  },
+  icon: {
+    marginBottom: 20,
   },
   textHeader: {
     color: '#FFBA00',
@@ -79,6 +86,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#0C3B2E',
+  },
+  footerText: {
+    position: 'absolute',
+    bottom: 20,
+    color: '#FFFFFF',
+    fontSize: 14,
+    textAlign: 'center',
   },
 });
 
