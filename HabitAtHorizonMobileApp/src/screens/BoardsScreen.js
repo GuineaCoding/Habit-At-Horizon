@@ -13,25 +13,25 @@ const BoardsScreen = ({ navigation }) => {
     const [editBoardId, setEditBoardId] = useState(null);
     const user = auth().currentUser;
 
+    const fetchBoards = async () => {
+        try {
+            const boardsSnapshot = await firestore()
+                .collection('boards')
+                .where('creator', '==', user.uid)
+                .get();
+
+            const userBoards = boardsSnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+
+            setBoards(userBoards);
+        } catch (error) {
+            console.error('Error fetching boards:', error);
+        }
+    };
+
     useEffect(() => {
-        const fetchBoards = async () => {
-            try {
-                const boardsSnapshot = await firestore()
-                    .collection('boards')
-                    .where('creator', '==', user.uid)
-                    .get();
-
-                const userBoards = boardsSnapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
-
-                setBoards(userBoards);
-            } catch (error) {
-                console.error('Error fetching boards:', error);
-            }
-        };
-
         fetchBoards();
     }, [user]);
 
@@ -94,6 +94,8 @@ const BoardsScreen = ({ navigation }) => {
                 });
             }
 
+            await fetchBoards();
+
             setModalVisible(false);
             setBoardTitle('');
             setEditBoardId(null);
@@ -115,6 +117,8 @@ const BoardsScreen = ({ navigation }) => {
                     onPress: async () => {
                         try {
                             await firestore().collection('boards').doc(boardId).delete();
+                   
+                            await fetchBoards();
                         } catch (error) {
                             console.error('Error deleting board:', error);
                         }
