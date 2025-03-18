@@ -211,6 +211,7 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
     },
     boardItem: {
+        margin: 10,
         flexDirection: 'row',
         alignItems: 'center',
         padding: 15,
