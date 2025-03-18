@@ -1,16 +1,17 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import CustomAppBar from '../../components/CustomAppBar';
+import LinearGradient from 'react-native-linear-gradient';
 
 const MenteeTestResultScreen = ({ route }) => {
     const { submission } = route.params;
 
     return (
-        <View style={styles.container}>
+        <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
             <CustomAppBar title="Test Results" showBackButton={true} />
 
             <ScrollView contentContainerStyle={styles.content}>
-                <Text style={styles.title}>Generic Test Feedback</Text>
+                <Text style={styles.title}>Test Feedback</Text>
                 <Text style={styles.feedback}>{submission.genericTestFeedback}</Text>
                 {submission.responses.map((response, index) => (
                     <View key={index} style={styles.responseContainer}>
@@ -19,14 +20,13 @@ const MenteeTestResultScreen = ({ route }) => {
                     </View>
                 ))}
             </ScrollView>
-        </View>
+        </LinearGradient>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0C3B2E', 
     },
     content: {
         padding: 20,
@@ -34,26 +34,29 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#FFBA00', 
-        marginBottom: 16,
+        color: '#FFBA00',
+        marginBottom: 20,
+        textAlign: 'center',
     },
     feedback: {
         fontSize: 16,
-        color: '#FFFFFF', 
-        marginBottom: 16,
+        color: '#FFFFFF',
+        marginBottom: 20,
         lineHeight: 24,
     },
     responseContainer: {
-        marginTop: 15,
+        marginBottom: 20,
         padding: 15,
-        backgroundColor: '#6D9773', 
+        backgroundColor: 'rgba(255, 255, 255, 0.1)', 
         borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#FFBA00',
     },
     questionTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#FFFFFF', 
-        marginBottom: 8,
+        color: '#FFBA00',
+        marginBottom: 10,
     },
 });
 
