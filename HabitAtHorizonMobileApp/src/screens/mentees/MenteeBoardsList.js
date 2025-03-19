@@ -4,7 +4,7 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import CustomAppBar from '../../components/CustomAppBar';
 import LinearGradient from 'react-native-linear-gradient';
-import { styles } from './menteesScreenStyle'; 
+import { menteeBoardsListStyles as styles } from './menteesScreenStyle';
 
 const MenteeBoardsList = ({ navigation }) => {
     const [boards, setBoards] = useState([]);

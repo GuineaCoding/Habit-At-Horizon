@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 
-export const styles = StyleSheet.create({
+// Styles for MenteeBoardsList
+export const menteeBoardsListStyles = StyleSheet.create({
     container: {
         flex: 1,
     },
@@ -38,5 +39,43 @@ export const styles = StyleSheet.create({
         color: '#FFBA00',
         fontSize: 16,
         textAlign: 'center',
+    },
+});
+
+// Styles for MenteeCheckedTestScreen
+export const menteeCheckedTestScreenStyles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 20,
+        backgroundColor: '#fff',
+    },
+    header: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 20,
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    passStatus: {
+        fontSize: 16,
+        color: '#333',
+        marginBottom: 10,
+    },
+    responseContainer: {
+        padding: 10,
+        marginVertical: 8,
+        backgroundColor: '#f0f0f0',
+        borderRadius: 5,
+    },
+    questionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    feedback: {
+        fontSize: 16,
+        marginTop: 5,
     },
 });
