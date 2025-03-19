@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import CustomAppBar from '../../components/CustomAppBar';
 import LinearGradient from 'react-native-linear-gradient';
+import { styles } from './menteesScreenStyle'; 
 
 const MenteeBoardsList = ({ navigation }) => {
     const [boards, setBoards] = useState([]);
@@ -111,46 +112,5 @@ const MenteeBoardsList = ({ navigation }) => {
         </LinearGradient>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    listContainer: {
-        padding: 20,
-    },
-    boardItem: {
-        padding: 15,
-        marginVertical: 8,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 8,
-        elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 3,
-    },
-    boardTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#0C3B2E',
-    },
-    boardCreator: {
-        fontSize: 14,
-        color: '#6D9773',
-        marginTop: 5,
-    },
-    loadingText: {
-        color: '#FFBA00',
-        fontSize: 16,
-        textAlign: 'center',
-        marginTop: 10,
-    },
-    emptyText: {
-        color: '#FFBA00',
-        fontSize: 16,
-        textAlign: 'center',
-    },
-});
 
 export default MenteeBoardsList;
