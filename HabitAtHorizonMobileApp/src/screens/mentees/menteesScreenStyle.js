@@ -203,3 +203,29 @@ export const menteeLessonBoardsScreenStyles = StyleSheet.create({
         alignItems: 'center',
     },
 });
+
+// Styles for MenteesDashboardScreen
+export const menteesDashboardScreenStyles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    content: {
+        flex: 1,
+        padding: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    button: {
+        width: '100%',
+        padding: 15,
+        marginVertical: 10,
+        backgroundColor: '#FFBA00',
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    buttonText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#0C3B2E',
+    },
+});
