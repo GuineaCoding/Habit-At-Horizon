@@ -1,21 +1,28 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import CustomAppBar from '../../components/CustomAppBar';
 import LinearGradient from 'react-native-linear-gradient';
+import { menteeTestResultScreenStyles as styles } from './menteesScreenStyle'; 
 
 const MenteeTestResultScreen = ({ route }) => {
+    // Get the submission data passed from the previous screen
     const { submission } = route.params;
 
     return (
+        // Gradient background for the screen
         <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+            {/* Custom AppBar for navigation and title */}
             <CustomAppBar title="Test Results" showBackButton={true} />
 
             <ScrollView contentContainerStyle={styles.content}>
                 <Text style={styles.title}>Test Feedback</Text>
                 <Text style={styles.feedback}>{submission.genericTestFeedback}</Text>
+
+                {/* Loop through each response to show question-specific feedback */}
                 {submission.responses.map((response, index) => (
                     <View key={index} style={styles.responseContainer}>
                         <Text style={styles.questionTitle}>{response.questionTitle}</Text>
+
                         <Text style={styles.feedback}>{response.feedback}</Text>
                     </View>
                 ))}
@@ -23,41 +30,5 @@ const MenteeTestResultScreen = ({ route }) => {
         </LinearGradient>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    content: {
-        padding: 20,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#FFBA00',
-        marginBottom: 20,
-        textAlign: 'center',
-    },
-    feedback: {
-        fontSize: 16,
-        color: '#FFFFFF',
-        marginBottom: 20,
-        lineHeight: 24,
-    },
-    responseContainer: {
-        marginBottom: 20,
-        padding: 15,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#FFBA00',
-    },
-    questionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#FFBA00',
-        marginBottom: 10,
-    },
-});
 
 export default MenteeTestResultScreen;

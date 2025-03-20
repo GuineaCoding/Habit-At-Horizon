@@ -229,3 +229,40 @@ export const menteesDashboardScreenStyles = StyleSheet.create({
         color: '#0C3B2E',
     },
 });
+
+// Styles for MenteeTestResultScreen
+export const menteeTestResultScreenStyles = StyleSheet.create({
+    container: {
+        flex: 1, 
+    },
+    content: {
+        padding: 20, 
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#FFBA00', 
+        marginBottom: 20,
+        textAlign: 'center', 
+    },
+    feedback: {
+        fontSize: 16,
+        color: '#FFFFFF', 
+        marginBottom: 20,
+        lineHeight: 24, 
+    },
+    responseContainer: {
+        marginBottom: 20,
+        padding: 15,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#FFBA00', 
+    },
+    questionTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#FFBA00', 
+        marginBottom: 10,
+    },
+});
