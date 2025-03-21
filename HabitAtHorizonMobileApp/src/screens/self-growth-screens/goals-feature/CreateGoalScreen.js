@@ -1,10 +1,12 @@
+// CreateGoalScreen.js
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import firestore from '@react-native-firebase/firestore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomAppBar from '../../../components/CustomAppBar';
+import { createGoalStyles } from './styles'; 
 
 const CreateGoalScreen = ({ navigation, route }) => {
   const { userId } = route.params || {};
@@ -27,8 +29,8 @@ const CreateGoalScreen = ({ navigation, route }) => {
 
   if (!userId) {
     return (
-      <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
-        <Text style={styles.errorText}>User ID is missing. Please log in again.</Text>
+      <LinearGradient colors={['#0C3B2E', '#6D9773']} style={createGoalStyles.container}>
+        <Text style={createGoalStyles.errorText}>User ID is missing. Please log in again.</Text>
       </LinearGradient>
     );
   }
@@ -95,45 +97,45 @@ const CreateGoalScreen = ({ navigation, route }) => {
   };
 
   const renderMilestoneItem = ({ item }) => (
-    <View style={styles.milestoneItem}>
-      <Text style={styles.milestoneTitle}>{item.title}</Text>
-      <Text style={styles.milestoneDeadline}>
+    <View style={createGoalStyles.milestoneItem}>
+      <Text style={createGoalStyles.milestoneTitle}>{item.title}</Text>
+      <Text style={createGoalStyles.milestoneDeadline}>
         Deadline: {formatDate(item.deadline)}
       </Text>
     </View>
   );
 
   return (
-    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={createGoalStyles.container}>
       <CustomAppBar title="Create Goal" showBackButton={true} />
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.header}>Create a New Goal</Text>
+      <ScrollView contentContainerStyle={createGoalStyles.content}>
+        <Text style={createGoalStyles.header}>Create a New Goal</Text>
 
-        <Text style={styles.label}>Goal Title</Text>
+        <Text style={createGoalStyles.label}>Goal Title</Text>
         <TextInput
-          style={styles.input}
+          style={createGoalStyles.input}
           value={title}
           onChangeText={setTitle}
           placeholder="Enter goal title"
           placeholderTextColor="#ffffff"
         />
 
-        <Text style={styles.label}>Goal Type</Text>
+        <Text style={createGoalStyles.label}>Goal Type</Text>
         <Picker
           selectedValue={type}
           onValueChange={(itemValue) => setType(itemValue)}
-          style={styles.picker}
+          style={createGoalStyles.picker}
           dropdownIconColor="#FFBA00"
         >
           <Picker.Item label="Short-term" value="short-term" color="#FFBA00" />
           <Picker.Item label="Long-term" value="long-term" color="#FFBA00" />
         </Picker>
 
-        <Text style={styles.label}>Category</Text>
+        <Text style={createGoalStyles.label}>Category</Text>
         <Picker
           selectedValue={category}
           onValueChange={(itemValue) => setCategory(itemValue)}
-          style={styles.picker}
+          style={createGoalStyles.picker}
           dropdownIconColor="#FFBA00"
         >
           <Picker.Item label="Health" value="Health" color="#FFBA00" />
@@ -143,9 +145,9 @@ const CreateGoalScreen = ({ navigation, route }) => {
           <Picker.Item label="Other" value="Other" color="#FFBA00" />
         </Picker>
 
-        <Text style={styles.label}>Description (Optional)</Text>
+        <Text style={createGoalStyles.label}>Description (Optional)</Text>
         <TextInput
-          style={[styles.input, styles.multilineInput]}
+          style={[createGoalStyles.input, createGoalStyles.multilineInput]}
           value={description}
           onChangeText={setDescription}
           placeholder="Enter goal description"
@@ -154,19 +156,19 @@ const CreateGoalScreen = ({ navigation, route }) => {
           textAlignVertical="top"
         />
 
-        <Text style={styles.label}>Add Milestones</Text>
+        <Text style={createGoalStyles.label}>Add Milestones</Text>
         <TextInput
-          style={styles.input}
+          style={createGoalStyles.input}
           value={milestoneTitle}
           onChangeText={setMilestoneTitle}
           placeholder="Enter milestone title"
           placeholderTextColor="#ffffff"
         />
         <TouchableOpacity
-          style={styles.dateButton}
+          style={createGoalStyles.dateButton}
           onPress={() => setShowDatePicker(true)}
         >
-          <Text style={styles.dateButtonText}>
+          <Text style={createGoalStyles.dateButtonText}>
             Select Deadline: {formatDate(milestoneDeadline)}
           </Text>
         </TouchableOpacity>
@@ -179,125 +181,24 @@ const CreateGoalScreen = ({ navigation, route }) => {
             minimumDate={new Date()}
           />
         )}
-        <TouchableOpacity style={styles.addMilestoneButton} onPress={handleAddMilestone}>
-          <Text style={styles.addMilestoneButtonText}>Add Milestone</Text>
+        <TouchableOpacity style={createGoalStyles.addMilestoneButton} onPress={handleAddMilestone}>
+          <Text style={createGoalStyles.addMilestoneButtonText}>Add Milestone</Text>
         </TouchableOpacity>
 
         <FlatList
           data={milestones}
           renderItem={renderMilestoneItem}
           keyExtractor={(item) => item.id}
-          style={styles.milestoneList}
-          scrollEnabled={false} // Disable scrolling in FlatList since ScrollView handles it
+          style={createGoalStyles.milestoneList}
+          scrollEnabled={false} 
         />
 
-        <TouchableOpacity style={styles.createButton} onPress={handleCreateGoal}>
-          <Text style={styles.createButtonText}>Create Goal</Text>
+        <TouchableOpacity style={createGoalStyles.createButton} onPress={handleCreateGoal}>
+          <Text style={createGoalStyles.createButtonText}>Create Goal</Text>
         </TouchableOpacity>
       </ScrollView>
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    padding: 20,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#FFBA00',
-    textAlign: 'center',
-  },
-  label: {
-    fontSize: 16,
-    marginTop: 10,
-    color: '#FFFFFF',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#6D9773',
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    color: '#FFFFFF',
-  },
-  multilineInput: {
-    height: 120,
-    textAlignVertical: 'top',
-  },
-  picker: {
-    borderWidth: 1,
-    borderColor: '#6D9773',
-    borderRadius: 5,
-    marginBottom: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  createButton: {
-    backgroundColor: '#B46617',
-    padding: 15,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  createButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#FF0000',
-    textAlign: 'center',
-    marginTop: 20,
-  },
-  dateButton: {
-    backgroundColor: '#FFBA00',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  dateButtonText: {
-    color: '#0C3B2E',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  addMilestoneButton: {
-    backgroundColor: '#6D9773',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  addMilestoneButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  milestoneList: {
-    marginTop: 10,
-  },
-  milestoneItem: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  milestoneTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  milestoneDeadline: {
-    fontSize: 14,
-    color: '#6D9773',
-  },
-});
 
 export default CreateGoalScreen;

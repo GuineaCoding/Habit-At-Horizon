@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Alert } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { ProgressBar } from 'react-native-paper';
 import CustomAppBar from '../../../components/CustomAppBar';
 import LinearGradient from 'react-native-linear-gradient';
+import { goalDetailsStyles } from './styles'; 
 
 const GoalDetailsScreen = ({ navigation, route }) => {
   const { goal: initialGoal, userId } = route.params;
@@ -182,157 +183,59 @@ const GoalDetailsScreen = ({ navigation, route }) => {
   };
 
   const renderMilestoneItem = ({ item }) => (
-    <View style={styles.milestoneItem}>
-      <Text style={styles.milestoneTitle}>{item.title}</Text>
-      <Text style={styles.milestoneDeadline}>
+    <View style={goalDetailsStyles.milestoneItem}>
+      <Text style={goalDetailsStyles.milestoneTitle}>{item.title}</Text>
+      <Text style={goalDetailsStyles.milestoneDeadline}>
         Deadline: {new Date(item.deadline).toLocaleDateString()}
       </Text>
-      <Text style={styles.milestoneStatus}>Status: {item.status}</Text>
+      <Text style={goalDetailsStyles.milestoneStatus}>Status: {item.status}</Text>
       {item.status !== 'completed' && (
         <TouchableOpacity
-          style={styles.completeButton}
+          style={goalDetailsStyles.completeButton}
           onPress={() => handleMarkMilestoneCompleted(item.id)}
         >
-          <Text style={styles.completeButtonText}>Mark as Completed</Text>
+          <Text style={goalDetailsStyles.completeButtonText}>Mark as Completed</Text>
         </TouchableOpacity>
       )}
     </View>
   );
 
   return (
-    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={goalDetailsStyles.container}>
       <CustomAppBar
         title="Goal Details"
         showBackButton={true}
         onBackPress={() => navigation.goBack()}
       />
-      <View style={styles.content}>
-        <Text style={styles.header}>{goal.title}</Text>
-        <Text style={styles.category}>Category: {goal.category}</Text>
-        <Text style={styles.description}>{goal.description}</Text>
+      <View style={goalDetailsStyles.content}>
+        <Text style={goalDetailsStyles.header}>{goal.title}</Text>
+        <Text style={goalDetailsStyles.category}>Category: {goal.category}</Text>
+        <Text style={goalDetailsStyles.description}>{goal.description}</Text>
 
-        <Text style={styles.progressLabel}>Progress</Text>
+        <Text style={goalDetailsStyles.progressLabel}>Progress</Text>
         <ProgressBar
           progress={progress}
           color="#FFBA00"
-          style={styles.progressBar}
+          style={goalDetailsStyles.progressBar}
         />
-        <Text style={styles.progressText}>{Math.round(progress * 100)}% completed</Text>
+        <Text style={goalDetailsStyles.progressText}>{Math.round(progress * 100)}% completed</Text>
 
-        <Text style={styles.milestonesHeader}>Milestones</Text>
+        <Text style={goalDetailsStyles.milestonesHeader}>Milestones</Text>
         <FlatList
           data={milestones}
           renderItem={renderMilestoneItem}
           keyExtractor={(item) => item.id}
-          ListEmptyComponent={<Text style={styles.emptyText}>No milestones added.</Text>}
+          ListEmptyComponent={<Text style={goalDetailsStyles.emptyText}>No milestones added.</Text>}
         />
 
         {goal.status !== 'completed' && (
-          <TouchableOpacity style={styles.completeGoalButton} onPress={handleMarkGoalCompleted}>
-            <Text style={styles.completeGoalButtonText}>Mark Goal as Completed</Text>
+          <TouchableOpacity style={goalDetailsStyles.completeGoalButton} onPress={handleMarkGoalCompleted}>
+            <Text style={goalDetailsStyles.completeGoalButtonText}>Mark Goal as Completed</Text>
           </TouchableOpacity>
         )}
       </View>
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    padding: 20,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#FFBA00',
-  },
-  category: {
-    fontSize: 16,
-    color: '#B46617',
-    marginBottom: 10,
-  },
-  description: {
-    fontSize: 14,
-    color: '#ffffff',
-    marginBottom: 20,
-  },
-  progressLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#FFFFFF',
-  },
-  progressBar: {
-    height: 10,
-    borderRadius: 5,
-    marginBottom: 10,
-    backgroundColor: '#6D9773',
-  },
-  progressText: {
-    fontSize: 14,
-    color: '#ffffff',
-    marginBottom: 20,
-  },
-  milestonesHeader: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#FFFFFF',
-  },
-  milestoneItem: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  milestoneTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  milestoneDeadline: {
-    fontSize: 14,
-    color: '#B46617',
-    marginTop: 5,
-  },
-  milestoneStatus: {
-    fontSize: 14,
-    color: '#FFBA00',
-    marginTop: 5,
-  },
-  completeButton: {
-    backgroundColor: '#B46617',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  completeButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-  },
-  completeGoalButton: {
-    backgroundColor: '#FFBA00',
-    padding: 15,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  completeGoalButtonText: {
-    color: '#0C3B2E',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#ffffff',
-    textAlign: 'center',
-    marginTop: 20,
-  },
-});
 
 export default GoalDetailsScreen;

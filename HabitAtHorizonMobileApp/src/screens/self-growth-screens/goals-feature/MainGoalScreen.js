@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import CustomAppBar from '../../../components/CustomAppBar';
 import LinearGradient from 'react-native-linear-gradient';
+import { mainGoalPageStyles } from './styles';
 
 const MainGoalPage = ({ navigation }) => {
   const [goals, setGoals] = useState([]);
@@ -45,12 +46,12 @@ const MainGoalPage = ({ navigation }) => {
 
   const renderGoalItem = ({ item }) => (
     <TouchableOpacity
-      style={styles.goalItem}
+      style={mainGoalPageStyles.goalItem}
       onPress={() => navigation.navigate('GoalDetailsScreen', { goal: item, userId })}
     >
-      <Text style={styles.goalTitle}>{item.title}</Text>
-      <Text style={styles.goalCategory}>{item.category}</Text>
-      <Text style={styles.goalStatus}>Status: {item.status}</Text>
+      <Text style={mainGoalPageStyles.goalTitle}>{item.title}</Text>
+      <Text style={mainGoalPageStyles.goalCategory}>{item.category}</Text>
+      <Text style={mainGoalPageStyles.goalStatus}>Status: {item.status}</Text>
     </TouchableOpacity>
   );
 
@@ -59,7 +60,7 @@ const MainGoalPage = ({ navigation }) => {
       data={goals.filter((goal) => goal.status === 'active')}
       renderItem={renderGoalItem}
       keyExtractor={(item) => item.id}
-      ListEmptyComponent={<Text style={styles.emptyText}>No ongoing goals.</Text>}
+      ListEmptyComponent={<Text style={mainGoalPageStyles.emptyText}>No ongoing goals.</Text>}
     />
   );
 
@@ -68,7 +69,7 @@ const MainGoalPage = ({ navigation }) => {
       data={goals.filter((goal) => goal.status === 'completed')}
       renderItem={renderGoalItem}
       keyExtractor={(item) => item.id}
-      ListEmptyComponent={<Text style={styles.emptyText}>No achieved goals.</Text>}
+      ListEmptyComponent={<Text style={mainGoalPageStyles.emptyText}>No achieved goals.</Text>}
     />
   );
 
@@ -81,7 +82,7 @@ const MainGoalPage = ({ navigation }) => {
       data={goals.filter((goal) => goal.status === 'abandoned')}
       renderItem={renderGoalItem}
       keyExtractor={(item) => item.id}
-      ListEmptyComponent={<Text style={styles.emptyText}>No abandoned goals.</Text>}
+      ListEmptyComponent={<Text style={mainGoalPageStyles.emptyText}>No abandoned goals.</Text>}
     />
   );
 
@@ -92,7 +93,7 @@ const MainGoalPage = ({ navigation }) => {
   });
 
   return (
-    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={mainGoalPageStyles.container}>
       <CustomAppBar title="My Goals" showBackButton={true} />
 
       <TabView
@@ -102,105 +103,25 @@ const MainGoalPage = ({ navigation }) => {
         renderTabBar={(props) => (
           <TabBar
             {...props}
-            style={styles.tabBar}
-            indicatorStyle={styles.indicator}
-            labelStyle={styles.tabLabel}
+            style={mainGoalPageStyles.tabBar}
+            indicatorStyle={mainGoalPageStyles.indicator}
+            labelStyle={mainGoalPageStyles.tabLabel}
           />
         )}
       />
 
       <TouchableOpacity
-        style={styles.addButton}
+        style={mainGoalPageStyles.addButton}
         onPress={() => navigation.navigate('CreateGoalScreen', { userId })}
       >
-        <Text style={styles.addButtonText}>+</Text>
+        <Text style={mainGoalPageStyles.addButtonText}>+</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.progressButton} onPress={goToProgressScreen}>
-        <Text style={styles.progressButtonText}>Motivation & Rewards</Text>
+      <TouchableOpacity style={mainGoalPageStyles.progressButton} onPress={goToProgressScreen}>
+        <Text style={mainGoalPageStyles.progressButtonText}>Motivation & Rewards</Text>
       </TouchableOpacity>
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  goalItem: {
-    backgroundColor: '#FFFFFF',
-    padding: 15,
-    marginHorizontal: 20,
-    marginBottom: 10,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
-  },
-  goalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#0C3B2E',
-  },
-  goalCategory: {
-    fontSize: 14,
-    color: '#6D9773',
-    marginTop: 5,
-  },
-  goalStatus: {
-    fontSize: 14,
-    color: '#B46617',
-    marginTop: 5,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginTop: 20,
-  },
-  addButton: {
-    position: 'absolute',
-    bottom: 90,
-    right: 20,
-    backgroundColor: '#6D9773',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 3,
-  },
-  addButtonText: {
-    fontSize: 30,
-    color: '#FFFFFF',
-  },
-  progressButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: '#B46617',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    elevation: 3,
-  },
-  progressButtonText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  tabBar: {
-    backgroundColor: '#6D9773',
-  },
-  indicator: {
-    backgroundColor: '#FFBA00',
-  },
-  tabLabel: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-});
 
 export default MainGoalPage;
