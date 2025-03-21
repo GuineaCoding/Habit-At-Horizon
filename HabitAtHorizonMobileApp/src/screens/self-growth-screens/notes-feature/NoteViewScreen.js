@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import firestore from '@react-native-firebase/firestore';
-import CustomAppBar from '../../../components/CustomAppBar'; 
+import CustomAppBar from '../../../components/CustomAppBar';
+import { noteViewStyles } from './styles'; 
 
 const NoteViewScreen = ({ route, navigation }) => {
   const { noteId, userId } = route.params;
@@ -71,55 +72,55 @@ const NoteViewScreen = ({ route, navigation }) => {
 
   if (!note) {
     return (
-      <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+      <LinearGradient colors={['#0C3B2E', '#6D9773']} style={noteViewStyles.container}>
         <CustomAppBar title="View Note" showBackButton={true} />
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading note...</Text>
+        <View style={noteViewStyles.loadingContainer}>
+          <Text style={noteViewStyles.loadingText}>Loading note...</Text>
         </View>
       </LinearGradient>
     );
   }
 
   return (
-    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={noteViewStyles.container}>
       <CustomAppBar title="View Note" showBackButton={true} />
-      <ScrollView contentContainerStyle={styles.contentContainer}>
+      <ScrollView contentContainerStyle={noteViewStyles.contentContainer}>
         {/* Title Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Title</Text>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>{note.title}</Text>
+        <View style={noteViewStyles.section}>
+          <Text style={noteViewStyles.sectionTitle}>Title</Text>
+          <View style={noteViewStyles.titleContainer}>
+            <Text style={noteViewStyles.title}>{note.title}</Text>
           </View>
         </View>
 
         {/* Content Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Content</Text>
-          <View style={styles.contentContainer}>
-            <Text style={styles.content}>{note.content}</Text>
+        <View style={noteViewStyles.section}>
+          <Text style={noteViewStyles.sectionTitle}>Content</Text>
+          <View style={noteViewStyles.contentContainer}>
+            <Text style={noteViewStyles.content}>{note.content}</Text>
           </View>
         </View>
 
         {/* Category Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Category</Text>
-          <Text style={styles.sectionContent}>{note.category}</Text>
+        <View style={noteViewStyles.section}>
+          <Text style={noteViewStyles.sectionTitle}>Category</Text>
+          <Text style={noteViewStyles.sectionContent}>{note.category}</Text>
         </View>
 
         {/* Tags Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Tags</Text>
-          <Text style={styles.sectionContent}>
+        <View style={noteViewStyles.section}>
+          <Text style={noteViewStyles.sectionTitle}>Tags</Text>
+          <Text style={noteViewStyles.sectionContent}>
             {note.tags ? note.tags.join(', ') : 'No tags'}
           </Text>
         </View>
 
         {/* Attachments Section */}
         {note.attachments && note.attachments.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Attachments</Text>
+          <View style={noteViewStyles.section}>
+            <Text style={noteViewStyles.sectionTitle}>Attachments</Text>
             {note.attachments.map((attachment, index) => (
-              <Text key={index} style={styles.sectionContent}>
+              <Text key={index} style={noteViewStyles.sectionContent}>
                 {attachment}
               </Text>
             ))}
@@ -128,84 +129,21 @@ const NoteViewScreen = ({ route, navigation }) => {
 
         {/* Buttons */}
         <TouchableOpacity
-          style={[styles.button, { backgroundColor: '#6D9773' }]}
+          style={[noteViewStyles.button, { backgroundColor: '#6D9773' }]}
           onPress={handleEditNote}
         >
-          <Text style={styles.buttonText}>Edit Note</Text>
+          <Text style={noteViewStyles.buttonText}>Edit Note</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.button, { backgroundColor: '#B46617' }]}
+          style={[noteViewStyles.button, { backgroundColor: '#B46617' }]}
           onPress={handleDeleteNote}
         >
-          <Text style={styles.buttonText}>Delete Note</Text>
+          <Text style={noteViewStyles.buttonText}>Delete Note</Text>
         </TouchableOpacity>
       </ScrollView>
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 18,
-    color: '#FFFFFF',
-  },
-  contentContainer: {
-    padding: 20,
-  },
-  section: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFBA00',
-    marginBottom: 10,
-  },
-  titleContainer: {
-    borderRadius: 10,
-    padding: 15
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  contentContainer: {
-    padding: 15,
-    borderColor: '#6D9773',
-  },
-  content: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    lineHeight: 24,
-  },
-  sectionContent: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    padding: 10,
-    
-  },
-  button: {
-    padding: 15,
-    marginVertical: 10,
-    alignItems: 'center',
-    borderRadius: 10,
-    elevation: 3,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-});
 
 export default NoteViewScreen;

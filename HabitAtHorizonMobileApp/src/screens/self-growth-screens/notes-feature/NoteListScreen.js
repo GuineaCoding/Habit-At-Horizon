@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-import CustomAppBar from '../../../components/CustomAppBar'; // Ensure this component exists
+import CustomAppBar from '../../../components/CustomAppBar';
+import { noteListStyles } from './styles';
 
 const NoteListScreen = ({ navigation }) => {
   const [index, setIndex] = useState(0);
@@ -73,24 +74,24 @@ const NoteListScreen = ({ navigation }) => {
   const renderNoteItem = ({ item, isArchived }) => {
     const noteColor = item.priority === 'high' ? '#FF3B30' : item.priority === 'medium' ? '#FFCC00' : '#34C759';
     return (
-      <View style={[styles.noteItem, { borderLeftColor: noteColor, borderLeftWidth: 5 }]}>
+      <View style={[noteListStyles.noteItem, { borderLeftColor: noteColor, borderLeftWidth: 5 }]}>
         <TouchableOpacity onPress={() => navigation.navigate('NoteViewScreen', { noteId: item.id, userId })}>
-          <Text style={styles.noteTitle}>{item.title}</Text>
-          <Text style={styles.noteCategoryr}>Category: {item.category}</Text>
-          <Text style={styles.noteTags}>Tags: {item.tags?.join(', ') || 'No tags'}</Text>
+          <Text style={noteListStyles.noteTitle}>{item.title}</Text>
+          <Text style={noteListStyles.noteCategory}>Category: {item.category}</Text>
+          <Text style={noteListStyles.noteTags}>Tags: {item.tags?.join(', ') || 'No tags'}</Text>
         </TouchableOpacity>
-        <View style={styles.buttonsContainer}>
+        <View style={noteListStyles.buttonsContainer}>
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: '#6D9773' }]}
+            style={[noteListStyles.button, { backgroundColor: '#6D9773' }]}
             onPress={() => handleArchiveNote(item.id, !isArchived)}
           >
-            <Text style={styles.buttonText}>{isArchived ? 'Unarchive' : 'Archive'}</Text>
+            <Text style={noteListStyles.buttonText}>{isArchived ? 'Unarchive' : 'Archive'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.button, styles.deleteButton]}
+            style={[noteListStyles.button, noteListStyles.deleteButton]}
             onPress={() => handleDeleteNote(item.id)}
           >
-            <Text style={styles.buttonText}>Delete</Text>
+            <Text style={noteListStyles.buttonText}>Delete</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -102,7 +103,7 @@ const NoteListScreen = ({ navigation }) => {
       data={filteredNotes.length > 0 ? filteredNotes : notes}
       renderItem={(item) => renderNoteItem({ ...item, isArchived: false })}
       keyExtractor={(item) => item.id}
-      contentContainerStyle={styles.listContent}
+      contentContainerStyle={noteListStyles.listContent}
     />
   );
 
@@ -111,24 +112,24 @@ const NoteListScreen = ({ navigation }) => {
       data={archivedNotes}
       renderItem={(item) => renderNoteItem({ ...item, isArchived: true })}
       keyExtractor={(item) => item.id}
-      contentContainerStyle={styles.listContent}
+      contentContainerStyle={noteListStyles.listContent}
     />
   );
 
   const TagsTab = () => (
     <FlatList
       ListHeaderComponent={
-        <View style={styles.tagsContainer}>
+        <View style={noteListStyles.tagsContainer}>
           {tags.map((tag) => (
             <TouchableOpacity
               key={tag}
               style={[
-                styles.tagItem,
-                selectedTag === tag && styles.selectedTagItem,
+                noteListStyles.tagItem,
+                selectedTag === tag && noteListStyles.selectedTagItem,
               ]}
               onPress={() => handleTagPress(tag)}
             >
-              <Text style={styles.tagText}>{tag}</Text>
+              <Text style={noteListStyles.tagText}>{tag}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -137,11 +138,11 @@ const NoteListScreen = ({ navigation }) => {
       renderItem={(item) => renderNoteItem({ ...item, isArchived: false })}
       keyExtractor={(item) => item.id}
       ListEmptyComponent={
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>Select a tag to view related notes.</Text>
+        <View style={noteListStyles.emptyContainer}>
+          <Text style={noteListStyles.emptyText}>Select a tag to view related notes.</Text>
         </View>
       }
-      contentContainerStyle={styles.listContent}
+      contentContainerStyle={noteListStyles.listContent}
     />
   );
 
@@ -176,7 +177,7 @@ const NoteListScreen = ({ navigation }) => {
   };
 
   return (
-    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={noteListStyles.container}>
       <CustomAppBar title="Notes" showBackButton={true} />
       <TabView
         navigationState={{ index, routes }}
@@ -197,106 +198,13 @@ const NoteListScreen = ({ navigation }) => {
         )}
       />
       <TouchableOpacity
-        style={styles.addButton}
+        style={noteListStyles.addButton}
         onPress={() => navigation.navigate('CreateNoteScreen', { userId })}
       >
-        <Text style={styles.addButtonText}>+</Text>
+        <Text style={noteListStyles.addButtonText}>+</Text>
       </TouchableOpacity>
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  listContent: {
-    padding: 10,
-  },
-  noteItem: {
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    backgroundColor: '#FFFFFF',
-    elevation: 3,
-  },
-  noteTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#0C3B2E',
-  },
-  noteCategory: {
-    fontSize: 14,
-    color: '#666',
-  },
-  noteTags: {
-    fontSize: 14,
-    color: '#666',
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 10,
-  },
-  button: {
-    padding: 10,
-    borderRadius: 5,
-    flex: 1,
-    marginHorizontal: 5,
-    alignItems: 'center',
-  },
-  deleteButton: {
-    backgroundColor: '#FF3B30',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 14,
-  },
-  addButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: '#FFBA00',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
-  },
-  addButtonText: {
-    fontSize: 30,
-    color: '#0C3B2E',
-    fontWeight: 'bold',
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 10,
-  },
-  tagItem: {
-    padding: 10,
-    margin: 5,
-    borderRadius: 20,
-    backgroundColor: '#e0e0e0',
-  },
-  selectedTagItem: {
-    backgroundColor: '#FFBA00',
-  },
-  tagText: {
-    fontSize: 16,
-    color: '#000',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: 'white',
-  },
-});
 
 export default NoteListScreen;

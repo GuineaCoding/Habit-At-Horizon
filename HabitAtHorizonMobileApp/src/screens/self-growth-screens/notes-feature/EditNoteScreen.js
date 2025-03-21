@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import firestore from '@react-native-firebase/firestore';
 import CustomAppBar from '../../../components/CustomAppBar';
+import { editNoteStyles } from './styles'; 
 
 const EditNoteScreen = ({ route, navigation }) => {
   const { noteId, userId } = route.params;
@@ -71,14 +72,14 @@ const EditNoteScreen = ({ route, navigation }) => {
   };
 
   return (
-    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={editNoteStyles.container}>
       <CustomAppBar title="Edit Note" showBackButton={true} />
-      <ScrollView contentContainerStyle={styles.contentContainer}>
+      <ScrollView contentContainerStyle={editNoteStyles.contentContainer}>
         {/* Title Field */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Title:</Text>
+        <View style={editNoteStyles.inputContainer}>
+          <Text style={editNoteStyles.label}>Title:</Text>
           <TextInput
-            style={styles.input}
+            style={editNoteStyles.input}
             value={note.title}
             onChangeText={(text) => handleChange(text, 'title')}
             placeholder="Enter note title"
@@ -87,10 +88,10 @@ const EditNoteScreen = ({ route, navigation }) => {
         </View>
 
         {/* Content Field */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Content:</Text>
+        <View style={editNoteStyles.inputContainer}>
+          <Text style={editNoteStyles.label}>Content:</Text>
           <TextInput
-            style={[styles.input, styles.contentInput]}
+            style={[editNoteStyles.input, editNoteStyles.contentInput]}
             value={note.content}
             onChangeText={(text) => handleChange(text, 'content')}
             placeholder="Enter note content"
@@ -100,10 +101,10 @@ const EditNoteScreen = ({ route, navigation }) => {
         </View>
 
         {/* Category Field */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Category:</Text>
+        <View style={editNoteStyles.inputContainer}>
+          <Text style={editNoteStyles.label}>Category:</Text>
           <TextInput
-            style={styles.input}
+            style={editNoteStyles.input}
             value={note.category}
             onChangeText={(text) => handleChange(text, 'category')}
             placeholder="Enter note category"
@@ -112,10 +113,10 @@ const EditNoteScreen = ({ route, navigation }) => {
         </View>
 
         {/* Tags Field */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Tags (comma-separated):</Text>
+        <View style={editNoteStyles.inputContainer}>
+          <Text style={editNoteStyles.label}>Tags (comma-separated):</Text>
           <TextInput
-            style={styles.input}
+            style={editNoteStyles.input}
             value={note.tags.join(', ')}
             onChangeText={(text) => handleChange(text.split(',').map((tag) => tag.trim()), 'tags')}
             placeholder="e.g., #Study, #Ideas"
@@ -124,55 +125,12 @@ const EditNoteScreen = ({ route, navigation }) => {
         </View>
 
         {/* Save Button */}
-        <TouchableOpacity style={styles.button} onPress={handleSave}>
-          <Text style={styles.buttonText}>Save Changes</Text>
+        <TouchableOpacity style={editNoteStyles.button} onPress={handleSave}>
+          <Text style={editNoteStyles.buttonText}>Save Changes</Text>
         </TouchableOpacity>
       </ScrollView>
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: 20,
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFBA00',
-    marginBottom: 10,
-  },
-  input: {
-    fontSize: 14,
-    padding: 15,
-    borderWidth: 1,
-    borderColor: '#6D9773',
-    borderRadius: 10,
-    backgroundColor: '#FFFFFF',
-    color: '#000000',
-  },
-  contentInput: {
-    height: 150,
-    textAlignVertical: 'top',
-  },
-  button: {
-    backgroundColor: '#FFBA00',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    elevation: 3,
-  },
-  buttonText: {
-    color: '#0C3B2E',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-});
 
 export default EditNoteScreen;

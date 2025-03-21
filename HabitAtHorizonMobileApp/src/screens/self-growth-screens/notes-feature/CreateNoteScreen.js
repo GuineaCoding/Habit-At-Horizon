@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import firestore from '@react-native-firebase/firestore';
 import { Picker } from '@react-native-picker/picker';
-import CustomAppBar from '../../../components/CustomAppBar'; 
+import CustomAppBar from '../../../components/CustomAppBar';
+import { createNoteStyles } from './styles';
 
 const CreateNoteScreen = ({ navigation, route }) => {
   const { userId } = route.params;
@@ -39,43 +40,42 @@ const CreateNoteScreen = ({ navigation, route }) => {
   };
 
   return (
-    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={createNoteStyles.container}>
       <CustomAppBar title="Create New Note" showBackButton={true} />
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={createNoteStyles.content}>
         {/* Title Field */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Title *</Text>
+        <View style={createNoteStyles.inputContainer}>
+          <Text style={createNoteStyles.label}>Title *</Text>
           <TextInput
             placeholder="Enter note title"
             value={title}
             onChangeText={setTitle}
-            style={styles.input}
+            style={createNoteStyles.input}
             placeholderTextColor="#999"
           />
         </View>
 
         {/* Content Field */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Content *</Text>
+        <View style={createNoteStyles.inputContainer}>
+          <Text style={createNoteStyles.label}>Content *</Text>
           <TextInput
             placeholder="Enter note content"
             value={content}
             onChangeText={setContent}
-            style={[styles.input, styles.bioInput]}
+            style={[createNoteStyles.input, createNoteStyles.bioInput]}
             placeholderTextColor="#999"
             multiline
           />
         </View>
 
-        {/* Category Picker */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Category</Text>
-          <View style={styles.pickerContainer}>
+        <View style={createNoteStyles.inputContainer}>
+          <Text style={createNoteStyles.label}>Category</Text>
+          <View style={createNoteStyles.pickerContainer}>
             <Picker
               selectedValue={category}
               onValueChange={(itemValue) => setCategory(itemValue)}
-              style={styles.picker}
+              style={createNoteStyles.picker}
             >
               <Picker.Item label="Work" value="Work" />
               <Picker.Item label="Personal" value="Personal" />
@@ -85,77 +85,24 @@ const CreateNoteScreen = ({ navigation, route }) => {
         </View>
 
         {/* Tags Field */}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Tags (comma-separated)</Text>
+        <View style={createNoteStyles.inputContainer}>
+          <Text style={createNoteStyles.label}>Tags (comma-separated)</Text>
           <TextInput
             placeholder="e.g., #Study, #Ideas"
             value={tags}
             onChangeText={setTags}
-            style={styles.input}
+            style={createNoteStyles.input}
             placeholderTextColor="#999"
           />
         </View>
 
         {/* Save Button */}
-        <TouchableOpacity style={styles.button} onPress={handleAddNote}>
-          <Text style={styles.buttonText}>Add Note</Text>
+        <TouchableOpacity style={createNoteStyles.button} onPress={handleAddNote}>
+          <Text style={createNoteStyles.buttonText}>Add Note</Text>
         </TouchableOpacity>
       </ScrollView>
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flexGrow: 1,
-    padding: 20,
-  },
-  inputContainer: {
-    marginBottom: 15,
-  },
-  label: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    marginBottom: 4,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#6D9773',
-    borderRadius: 10,
-    padding: 15,
-    backgroundColor: '#FFFFFF',
-    color: '#000000',
-  },
-  bioInput: {
-    height: 150,
-    textAlignVertical: 'top',
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: '#6D9773',
-    borderRadius: 10,
-    backgroundColor: '#FFFFFF',
-    overflow: 'hidden',
-  },
-  picker: {
-    height: 50,
-    width: '100%',
-  },
-  button: {
-    backgroundColor: '#FFBA00',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    elevation: 3,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#0C3B2E',
-  },
-});
 
 export default CreateNoteScreen;
