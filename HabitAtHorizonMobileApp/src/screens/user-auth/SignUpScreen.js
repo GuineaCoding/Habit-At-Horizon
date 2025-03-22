@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { Button, TextInput, Snackbar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import LinearGradient from 'react-native-linear-gradient'; 
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; 
+import LinearGradient from 'react-native-linear-gradient';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { signupStyles } from './styles'; 
 
 const SignupScreen = () => {
   const navigation = useNavigation();
@@ -45,7 +46,7 @@ const SignupScreen = () => {
       console.log('User account created & signed in! Navigating to home screen...');
       navigation.replace('Home');
     } catch (error) {
-      console.error("Failed to sign up and navigate: ", error);
+      console.error('Failed to sign up and navigate: ', error);
       if (error.code === 'auth/email-already-in-use') {
         showError('That email address is already in use!');
       } else if (error.code === 'auth/invalid-email') {
@@ -62,23 +63,20 @@ const SignupScreen = () => {
   };
 
   return (
-    <LinearGradient
-      colors={['#0C3B2E', '#6D9773']}
-      style={styles.container}
-    >
+    <LinearGradient colors={['#0C3B2E', '#6D9773']} style={signupStyles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardAvoidingView}
+        style={signupStyles.keyboardAvoidingView}
       >
-        <View style={styles.content}>
-          <Icon name="account-plus" size={60} color="#FFBA00" style={styles.icon} />
-          <Text style={styles.header}>Signup to Habit-at-Horizon</Text>
+        <View style={signupStyles.content}>
+          <Icon name="account-plus" size={60} color="#FFBA00" style={signupStyles.icon} />
+          <Text style={signupStyles.header}>Signup to Habit-at-Horizon</Text>
 
           <TextInput
             value={email}
             onChangeText={setEmail}
             mode="outlined"
-            style={styles.input}
+            style={signupStyles.input}
             placeholder="Enter your email"
             keyboardType="email-address"
             autoCapitalize="none"
@@ -90,7 +88,7 @@ const SignupScreen = () => {
             value={name}
             onChangeText={setName}
             mode="outlined"
-            style={styles.input}
+            style={signupStyles.input}
             placeholder="Enter your name"
             left={<TextInput.Icon name="account" color="#0C3B2E" />}
             theme={{ colors: { primary: '#0C3B2E', background: '#FFFFFF' } }}
@@ -100,7 +98,7 @@ const SignupScreen = () => {
             value={username}
             onChangeText={setUsername}
             mode="outlined"
-            style={styles.input}
+            style={signupStyles.input}
             placeholder="Enter your username"
             autoCapitalize="none"
             left={<TextInput.Icon name="account-circle" color="#0C3B2E" />}
@@ -111,7 +109,7 @@ const SignupScreen = () => {
             value={password}
             onChangeText={setPassword}
             mode="outlined"
-            style={styles.input}
+            style={signupStyles.input}
             secureTextEntry={!isPasswordVisible}
             placeholder="Enter your password"
             left={<TextInput.Icon name="lock" color="#0C3B2E" />}
@@ -129,7 +127,7 @@ const SignupScreen = () => {
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             mode="outlined"
-            style={styles.input}
+            style={signupStyles.input}
             secureTextEntry={!isConfirmPasswordVisible}
             placeholder="Confirm your password"
             left={<TextInput.Icon name="lock" color="#0C3B2E" />}
@@ -146,8 +144,8 @@ const SignupScreen = () => {
           <Button
             mode="contained"
             onPress={handleSignup}
-            style={styles.button}
-            labelStyle={styles.buttonText}
+            style={signupStyles.button}
+            labelStyle={signupStyles.buttonText}
             buttonColor="#FFBA00"
           >
             Signup
@@ -155,9 +153,9 @@ const SignupScreen = () => {
 
           <TouchableOpacity
             onPress={() => navigation.navigate('Login')}
-            style={styles.backButton}
+            style={signupStyles.backButton}
           >
-            <Text style={styles.backButtonText}>Already have an account? Login</Text>
+            <Text style={signupStyles.backButtonText}>Already have an account? Login</Text>
           </TouchableOpacity>
 
           <Snackbar
@@ -170,7 +168,7 @@ const SignupScreen = () => {
                 setVisible(false);
               },
             }}
-            style={styles.snackbar}
+            style={signupStyles.snackbar}
           >
             {error}
           </Snackbar>
@@ -179,59 +177,5 @@ const SignupScreen = () => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  keyboardAvoidingView: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  content: {
-    padding: 20,
-  },
-  icon: {
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-  header: {
-    fontSize: 28,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  input: {
-    width: '100%',
-    marginBottom: 15,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-  },
-  button: {
-    width: '100%',
-    marginVertical: 10,
-    borderRadius: 8,
-    paddingVertical: 8,
-    elevation: 3,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#0C3B2E',
-  },
-  backButton: {
-    marginTop: 15,
-    alignItems: 'center',
-  },
-  backButtonText: {
-    color: '#FFBA00',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  snackbar: {
-    backgroundColor: '#FF0000',
-  },
-});
 
 export default SignupScreen;
