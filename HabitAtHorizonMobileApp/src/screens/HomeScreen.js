@@ -1,5 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, BackHandler, Alert, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  BackHandler, 
+  Alert, 
+  ActivityIndicator, 
+  ScrollView, 
+  RefreshControl 
+} from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CustomAppBar from '../components/CustomAppBar';
 import { useQuote } from '../components/useQuote';
@@ -9,12 +19,24 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const { quote, isLoading, error, fetchQuote } = useQuote();
+  const { quote, isLoading, error, fetchQuote } = useQuote(false);
   const { refreshing, onRefresh } = useRefreshService(fetchQuote);
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchQuote();
+      let isActive = true;
+      
+      const fetchData = async () => {
+        try {
+          await fetchQuote();
+        } catch (err) {
+          console.error('Failed to fetch quote:', err);
+        }
+      };
+
+      if (isActive) {
+        fetchData();
+      }
 
       const backAction = () => {
         Alert.alert('Exit App', 'Are you sure you want to exit?', [
@@ -25,7 +47,11 @@ const HomeScreen = () => {
       };
 
       const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-      return () => backHandler.remove();
+      
+      return () => {
+        isActive = false;
+        backHandler.remove();
+      };
     }, [fetchQuote])
   );
 
@@ -44,22 +70,22 @@ const HomeScreen = () => {
   const goToTopListScreen = () => {
     navigation.navigate('TopListScreen');
   };
-  const goToCreatePostScreen = () => {
-    navigation.navigate('CreatePostScreen');
-  };
 
   const goToTimelineScreen = () => {
     navigation.navigate('TimelineScreen');
   };
-
-
 
   return (
     <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            colors={['#FFBA00']}
+            tintColor="#FFBA00"
+          />
         }
       >
         <CustomAppBar title="Home Screen" showBackButton={false} />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Appbar, Menu } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { StyleSheet, View } from 'react-native';
@@ -11,51 +11,33 @@ const CustomAppBar = ({ title, showBackButton = false }) => {
   const [menuVisible, setMenuVisible] = useState(false);
   const userId = auth().currentUser?.uid;
 
-  console.log('[CustomAppBar] Current user ID:', userId);
+  const menuItems = useMemo(() => [
+    { title: 'My Personal Space', icon: 'account', onPress: () => navigation.navigate('PersonalSpaceScreen') },
+    { title: 'Mentoring Space', icon: 'school', onPress: () => navigation.navigate('MentorshipScreen') },
+    { title: 'Mentee Space', icon: 'account-group', onPress: () => navigation.navigate('MenteesDashboardScreen') },
+    { title: 'Logout', icon: 'logout', onPress: () => auth().signOut().catch(console.error) },
+  ], [navigation]);
 
-  const openMenu = () => setMenuVisible(true);
-  const closeMenu = () => setMenuVisible(false);
-
-  const handleLogout = async () => {
+  const markNotificationsAsSeen = async () => {
     try {
-      await auth().signOut();
+      const snapshot = await firestore()
+        .collection('notifications')
+        .where('userId', '==', userId)
+        .where('seen', '==', false)
+        .get();
+
+      const batch = firestore().batch();
+      snapshot.forEach(doc => batch.update(doc.ref, { seen: true }));
+      await batch.commit();
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('Notification update error:', error);
     }
   };
 
   const handleBellPress = () => {
-    markNotificationsAsSeen(userId);
+    markNotificationsAsSeen();
     navigation.navigate('NotificationsScreen');
   };
-
-  const markNotificationsAsSeen = async (userId) => {
-    try {
-      const notificationsRef = firestore()
-        .collection('notifications')
-        .where('userId', '==', userId)
-        .where('seen', '==', false);
-
-      const snapshot = await notificationsRef.get();
-      const batch = firestore().batch();
-
-      snapshot.forEach((doc) => {
-        batch.update(doc.ref, { seen: true });
-      });
-
-      await batch.commit();
-      console.log('All notifications marked as seen.');
-    } catch (error) {
-      console.error('Error marking notifications as seen:', error);
-    }
-  };
-
-  const menuItems = [
-    { title: 'My Personal Space', icon: 'account', onPress: () => navigation.navigate('PersonalSpaceScreen') },
-    { title: 'Mentoring Space', icon: 'school', onPress: () => navigation.navigate('MentorshipScreen') },
-    { title: 'Mentee Space', icon: 'account-group', onPress: () => navigation.navigate('MenteesDashboardScreen') },
-    { title: 'Logout', icon: 'logout', onPress: handleLogout },
-  ];
 
   return (
     <Appbar.Header style={styles.appbar}>
@@ -85,9 +67,9 @@ const CustomAppBar = ({ title, showBackButton = false }) => {
 
       <Menu
         visible={menuVisible}
-        onDismiss={closeMenu}
+        onDismiss={() => setMenuVisible(false)}
         anchor={
-          <Appbar.Action icon="menu" color="#FFFFFF" onPress={openMenu} />
+          <Appbar.Action icon="menu" color="#FFFFFF" onPress={() => setMenuVisible(true)} />
         }
         contentStyle={styles.menuContent}
       >
@@ -96,7 +78,7 @@ const CustomAppBar = ({ title, showBackButton = false }) => {
             key={index}
             onPress={() => {
               item.onPress();
-              closeMenu();
+              setMenuVisible(false);
             }}
             title={item.title}
             titleStyle={styles.menuItemTitle}

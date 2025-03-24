@@ -6,42 +6,22 @@ const NotificationBadge = ({ userId }) => {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (!userId) {
-      console.log('[NotificationBadge] User ID is missing. Cannot query Firestore.');
-      return;
-    }
-  
-    console.log(`[NotificationBadge] Logged-in user ID: ${userId}`);
-  
-    const query = firestore()
+    if (!userId) return; 
+
+    const unsubscribe = firestore()
       .collection('notifications')
       .where('userId', '==', userId)
-      .where('seen', '==', false);
-  
-    const unsubscribe = query.onSnapshot(
-      (snapshot) => {
-        if (snapshot.empty) {
-          console.log('[NotificationBadge] No unseen notifications found.');
-          setCount(0);
-          return;
-        }
-  
-        const totalCount = snapshot.size;
-        console.log(`[NotificationBadge] Total unseen notifications: ${totalCount}`);
-        setCount(totalCount);
-      },
-      (error) => {
-        console.error('[NotificationBadge] Error fetching snapshot:', error);
-      }
-    );
-  
-    return () => {
-      console.log('[NotificationBadge] Unsubscribing from Firestore listener.');
-      unsubscribe();
-    };
-  }, [userId]); 
+      .where('seen', '==', false)
+      .onSnapshot(
+        (snapshot) => {
+          const newCount = snapshot.empty ? 0 : snapshot.size;
+          setCount(newCount);
+        },
+        (error) => console.error('Notification error:', error)
+      );
 
-  console.log(`[NotificationBadge] Rendering badge with count: ${count}`);
+    return () => unsubscribe();
+  }, [userId]);
 
   return count > 0 ? <Badge style={styles.badge}>{count}</Badge> : null;
 };
@@ -49,8 +29,8 @@ const NotificationBadge = ({ userId }) => {
 const styles = {
   badge: {
     position: 'absolute',
-    top: 5, 
-    right: 5, 
+    top: 5,
+    right: 5,
     backgroundColor: '#FF3B30',
     color: '#FFFFFF',
   },
