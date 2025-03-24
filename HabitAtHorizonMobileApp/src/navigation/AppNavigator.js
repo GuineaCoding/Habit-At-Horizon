@@ -67,23 +67,76 @@ import { useAuth } from '../context/AuthContext';
 
 const Stack = createNativeStackNavigator();
 
+const AuthStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="Welcome" component={WelcomeScreen} />
+    <Stack.Screen name="Login" component={LoginScreen} />
+    <Stack.Screen name="SignUp" component={SignupScreen} />
+    <Stack.Screen name="PasswordResetScreen" component={PasswordResetScreen} />
+    <Stack.Screen name="AboutScreen" component={AboutScreen} />
+  </Stack.Navigator>
+);
+
+const AppStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="Home" component={HomeScreen} />
+    <Stack.Screen name="MentorshipScreen" component={MentorshipScreen} />
+    <Stack.Screen name="BoardsScreen" component={BoardsScreen} />
+    <Stack.Screen name="BoardDetailsScreen" component={BoardDetailsScreen} />
+    <Stack.Screen name="LessonBuilderScreen" component={LessontBuilderScreen} />
+    <Stack.Screen name="LessonScreen" component={LessonScreen} />
+    <Stack.Screen name="TestCreateScreen" component={TestCreateScreen} />
+    <Stack.Screen name="TestViewScreen" component={TestViewScreen} />
+    <Stack.Screen name="MenteeLessonsActivityScreen" component={MenteeLessonsActivityScreen} />
+    <Stack.Screen name="DetailedSubmissionView" component={DetailedSubmissionView} />
+    <Stack.Screen name="MenteesDashboardScreen" component={MenteesDashboardScreen} />
+    <Stack.Screen name="MenteeLessonsBoardsScreen" component={MenteeLessonsBoardsScreen} />
+    <Stack.Screen name="MenteeBoardsList" component={MenteeBoardsList} />
+    <Stack.Screen name="MenteeCheckedTestScreen" component={MenteeCheckedTestScreen} />
+    <Stack.Screen name="MenteeTestResultScreen" component={MenteeTestResultScreen} />
+    <Stack.Screen name="PersonalSpaceScreen" component={PersonalSpaceScreen} />
+    <Stack.Screen name="TaskListScreen" component={TaskListScreen} />
+    <Stack.Screen name="CreateTaskScreen" component={CreateTaskScreen} />
+    <Stack.Screen name="TaskDetailsScreen" component={TaskDetailsScreen} />
+    <Stack.Screen name="NoteListScreen" component={NoteListScreen} />
+    <Stack.Screen name="CreateNoteScreen" component={CreateNoteScreen} />
+    <Stack.Screen name="NoteViewScreen" component={NoteViewScreen} />
+    <Stack.Screen name="EditNoteScreen" component={EditNoteScreen} />
+    <Stack.Screen name="ViewTaskScreen" component={ViewTaskScreen} />
+    <Stack.Screen name="MainGoalScreen" component={MainGoalScreen} />
+    <Stack.Screen name="CreateGoalScreen" component={CreateGoalScreen} />
+    <Stack.Screen name="GoalDetailsScreen" component={GoalDetailsScreen} />
+    <Stack.Screen name="MentorListPage" component={MentorListPage} />
+    <Stack.Screen name="AddMentorScreen" component={AddMentorScreen} />
+    <Stack.Screen name="MentorProfileCreationStartScreen" component={MentorProfileCreationStartScreen} />
+    <Stack.Screen name="MentorProfileViewScreen" component={MentorProfileViewScreen} />
+    <Stack.Screen name="MenteeProfileCreationStartScreen" component={MenteeProfileCreationStartScreen} />
+    <Stack.Screen name="CreateMenteeProfile" component={CreateMenteeProfile} />
+    <Stack.Screen name="MenteeListScreen" component={MenteeListScreen} />
+    <Stack.Screen name="MenteeProfileViewScreen" component={MenteeProfileViewScreen} />
+    <Stack.Screen name="ProgressScreen" component={ProgressScreen} />
+    <Stack.Screen name="TopListScreen" component={TopListScreen} />
+    <Stack.Screen name="ChatScreen" component={ChatScreen} />
+    <Stack.Screen name="UserListScreen" component={UserListScreen} />
+    <Stack.Screen name="NotificationsScreen" component={NotificationsScreen} />
+    <Stack.Screen name="CreatePostScreen" component={CreatePostScreen} />
+    <Stack.Screen name="TimelineScreen" component={TimelineScreen} />
+  </Stack.Navigator>
+);
+
 const AppNavigator = () => {
   const navigationRef = useRef(null);
-  const { currentUser, loading } = useAuth(); 
+  const { currentUser, loading } = useAuth();
   const [isNavigationReady, setIsNavigationReady] = useState(false);
 
   useEffect(() => {
-    if (!loading && isNavigationReady) {
-      if (currentUser) {
-        navigationRef.current?.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: 'Home' }],
-          }),
-        );
-      } else {
-        navigationRef.current?.navigate('Welcome');
-      }
+    if (!loading && isNavigationReady && navigationRef.current) {
+      navigationRef.current.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: currentUser ? 'AppStack' : 'AuthStack' }],
+        })
+      );
     }
   }, [currentUser, loading, isNavigationReady]);
 
@@ -95,7 +148,6 @@ const AppNavigator = () => {
     );
   }
 
-
   return (
     <NavigationContainer
       ref={navigationRef}
@@ -103,223 +155,9 @@ const AppNavigator = () => {
     >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {currentUser ? (
-          <>
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="MentorshipScreen" component={MentorshipScreen} />
-            <Stack.Screen
-              name="BoardsScreen"
-              component={BoardsScreen}
-              options={{ headerShown: false, title: 'Boards' }}
-            />
-            <Stack.Screen
-              name="BoardDetailsScreen"
-              component={BoardDetailsScreen}
-              options={{ headerShown: false, title: 'Board Details' }}
-            />
-            <Stack.Screen
-              name="LessonBuilderScreen"
-              component={LessontBuilderScreen}
-              options={{ headerShown: false, title: 'Lesson Builder' }}
-            />
-            <Stack.Screen
-              name="LessonScreen"
-              component={LessonScreen}
-              options={{ headerShown: false, title: 'Lesson Screen' }}
-            />
-            <Stack.Screen
-              name="TestCreateScreen"
-              component={TestCreateScreen}
-              options={{ headerShown: false, title: 'Test Creation Screen' }}
-            />
-            <Stack.Screen name="TestViewScreen" component={TestViewScreen} />
-            <Stack.Screen
-              name="MenteeLessonsActivityScreen"
-              component={MenteeLessonsActivityScreen}
-              options={{ title: 'Mentee Activity' }}
-            />
-            <Stack.Screen
-              name="DetailedSubmissionView"
-              component={DetailedSubmissionView}
-              options={{ title: 'Submitted Test' }}
-            />
-            <Stack.Screen
-              name="MenteesDashboardScreen"
-              component={MenteesDashboardScreen}
-              options={{ title: 'Mentee Dashboard' }}
-            />
-            <Stack.Screen
-              name="MenteeLessonsBoardsScreen"
-              component={MenteeLessonsBoardsScreen}
-              options={{ title: 'Mentee Lesson' }}
-            />
-            <Stack.Screen
-              name="MenteeBoardsList"
-              component={MenteeBoardsList}
-              options={{ title: 'Mentee Board List' }}
-            />
-            <Stack.Screen
-              name="MenteeCheckedTestScreen"
-              component={MenteeCheckedTestScreen}
-              options={{ title: 'Checked Tests' }}
-            />
-            <Stack.Screen
-              name="MenteeTestResultScreen"
-              component={MenteeTestResultScreen}
-              options={{ title: 'Test Result' }}
-            />
-            <Stack.Screen
-              name="PersonalSpaceScreen"
-              component={PersonalSpaceScreen}
-              options={{ title: 'Personal Space Screen' }}
-            />
-            <Stack.Screen
-              name="TaskListScreen"
-              component={TaskListScreen}
-              options={{ title: 'Task List Screen' }}
-            />
-            <Stack.Screen
-              name="CreateTaskScreen"
-              component={CreateTaskScreen}
-              options={{ title: 'Create Task Screen' }}
-            />
-            <Stack.Screen
-              name="TaskDetailsScreen"
-              component={TaskDetailsScreen}
-              options={{ title: 'Task Details Screen' }}
-            />
-            <Stack.Screen
-              name="NoteListScreen"
-              component={NoteListScreen}
-              options={{ title: 'Note List Screen' }}
-            />
-            <Stack.Screen
-              name="CreateNoteScreen"
-              component={CreateNoteScreen}
-              options={{ title: 'Create Note Screen' }}
-            />
-            <Stack.Screen
-              name="NoteViewScreen"
-              component={NoteViewScreen}
-              options={{ title: 'Note View Screen' }}
-            />
-            <Stack.Screen
-              name="EditNoteScreen"
-              component={EditNoteScreen}
-              options={{ title: 'Note Edit Screen' }}
-            />
-            <Stack.Screen
-              name="ViewTaskScreen"
-              component={ViewTaskScreen}
-              options={{ title: 'View Task Screen' }}
-            />
-            <Stack.Screen
-              name="MainGoalScreen"
-              component={MainGoalScreen}
-              options={{ title: 'Goals Screen' }}
-            />
-            <Stack.Screen
-              name="CreateGoalScreen"
-              component={CreateGoalScreen}
-              options={{ title: 'Create Goals Screen' }}
-            />
-            <Stack.Screen
-              name="GoalDetailsScreen"
-              component={GoalDetailsScreen}
-              options={{ title: 'Goal Details Screen' }}
-            />
-            <Stack.Screen
-              name="MentorListPage"
-              component={MentorListPage}
-              options={{ title: 'Mentor List' }}
-            />
-            <Stack.Screen
-              name="AddMentorScreen"
-              component={AddMentorScreen}
-              options={{ title: 'Mentor Screen' }}
-            />
-            <Stack.Screen
-              name="MentorProfileCreationStartScreen"
-              component={MentorProfileCreationStartScreen}
-              options={{ title: 'Mentor Screen' }}
-            />
-            <Stack.Screen
-              name="MentorProfileViewScreen"
-              component={MentorProfileViewScreen}
-              options={{ title: 'Mentor Screen' }}
-            />
-            <Stack.Screen
-              name="MenteeProfileCreationStartScreen"
-              component={MenteeProfileCreationStartScreen}
-              options={{ title: 'Start Screen' }}
-            />
-
-            <Stack.Screen
-              name="CreateMenteeProfile"
-              component={CreateMenteeProfile}
-              options={{ title: 'Create Mentee' }}
-            />
-            <Stack.Screen
-              name="MenteeListScreen"
-              component={MenteeListScreen}
-              options={{ title: 'Mentee List' }}
-            />
-            <Stack.Screen
-              name="MenteeProfileViewScreen"
-              component={MenteeProfileViewScreen}
-              options={{ title: 'Mentee Profile' }}
-            />
-            <Stack.Screen
-              name="ProgressScreen"
-              component={ProgressScreen}
-              options={{ title: 'Progress Screen' }}
-            />
-            <Stack.Screen
-              name="TopListScreen"
-              component={TopListScreen}
-              options={{ title: 'Top List Screen' }}
-            />
-            <Stack.Screen
-              name="ChatScreen"
-              component={ChatScreen}
-              options={{ title: 'Chat Screen' }}
-            />
-            <Stack.Screen
-              name="UserListScreen"
-              component={UserListScreen}
-              options={{ title: 'User List Screen' }}
-            />
-
-            <Stack.Screen
-              name="NotificationsScreen"
-              component={NotificationsScreen}
-              options={{ title: 'Notification Screen' }}
-            />
-
-            
-<Stack.Screen
-              name="CreatePostScreen"
-              component={CreatePostScreen}
-              options={{ title: 'Create Post Screen' }}
-            />
-
-<Stack.Screen
-              name="TimelineScreen"
-              component={TimelineScreen}
-              options={{ title: 'Time Line Screen' }}
-            />
-          </>
-
-          
-          
+          <Stack.Screen name="AppStack" component={AppStack} />
         ) : (
-
-          <>
-            <Stack.Screen name="Welcome" component={WelcomeScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="SignUp" component={SignupScreen} />
-            <Stack.Screen name="PasswordResetScreen" component={PasswordResetScreen} />
-            <Stack.Screen name="AboutScreen" component={AboutScreen} />
-          </>
+          <Stack.Screen name="AuthStack" component={AuthStack} />
         )}
       </Stack.Navigator>
     </NavigationContainer>

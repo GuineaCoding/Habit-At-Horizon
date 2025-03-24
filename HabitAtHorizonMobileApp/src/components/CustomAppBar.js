@@ -19,10 +19,6 @@ const CustomAppBar = ({ title, showBackButton = false }) => {
   const handleLogout = async () => {
     try {
       await auth().signOut();
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Welcome' }],
-      });
     } catch (error) {
       console.error('Logout failed:', error);
     }
