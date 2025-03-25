@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import CustomAppBar from '../../components/CustomAppBar';
 import LinearGradient from 'react-native-linear-gradient';
@@ -26,18 +26,26 @@ const MentorListPage = ({ navigation }) => {
   };
 
   const renderMentorItem = ({ item }) => {
-    const firstLetter = item.username ? item.username.charAt(0).toUpperCase() : 'M'; 
+    const firstLetter = item.username ? item.username.charAt(0).toUpperCase() : 'M';
+    
     return (
       <TouchableOpacity
         style={styles.mentorItem}
         onPress={() => handleMentorPress(item)} 
       >
-        <LinearGradient
-          colors={['#0C3B2E', '#6D9773']}
-          style={styles.profileCircle}
-        >
-          <Text style={styles.profileLetter}>{firstLetter}</Text>
-        </LinearGradient>
+        {item.profileImage ? (
+          <Image 
+            source={{ uri: item.profileImage }}
+            style={styles.profileImage}
+          />
+        ) : (
+          <LinearGradient
+            colors={['#0C3B2E', '#6D9773']}
+            style={styles.profileCircle}
+          >
+            <Text style={styles.profileLetter}>{firstLetter}</Text>
+          </LinearGradient>
+        )}
         <View style={styles.mentorInfo}>
           <Text style={styles.name}>{item.name}</Text>
           <Text style={styles.username}>@{item.username}</Text>
@@ -88,6 +96,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+  },
+  profileImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 16,
+    resizeMode: 'cover',
   },
   profileCircle: {
     width: 60,
