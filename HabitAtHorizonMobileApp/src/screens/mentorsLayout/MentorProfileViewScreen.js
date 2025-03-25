@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, Linking, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, Text, ScrollView, StyleSheet, Linking, TouchableOpacity, Image } from 'react-native';
 import CustomAppBar from '../../components/CustomAppBar';
 import LinearGradient from 'react-native-linear-gradient';
 
 const MentorProfileViewScreen = ({ route, navigation }) => {
-  // Get the mentor data from navigation params
   const { mentor } = route.params;
 
   if (!mentor) {
@@ -24,13 +23,19 @@ const MentorProfileViewScreen = ({ route, navigation }) => {
 
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.profileHeader}>
-          <LinearGradient
-            colors={['#0C3B2E', '#6D9773']}
-            style={styles.profileCircle}
-          >
-            <Text style={styles.profileLetter}>{firstLetter}</Text>
-          </LinearGradient>
-
+          {mentor.profileImage ? (
+            <Image
+              source={{ uri: mentor.profileImage }}
+              style={styles.profileImage}
+            />
+          ) : (
+            <LinearGradient
+              colors={['#0C3B2E', '#6D9773']}
+              style={styles.profileCircle}
+            >
+              <Text style={styles.profileLetter}>{firstLetter}</Text>
+            </LinearGradient>
+          )}
           <View style={styles.profileInfo}>
             <Text style={styles.name}>{mentor.name}</Text>
             <Text style={styles.username}>@{mentor.username}</Text>
@@ -120,6 +125,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
+  },
+  profileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 20,
+    borderWidth: 3,
+    borderColor: '#FFBA00',
+    resizeMode: 'cover',
   },
   profileCircle: {
     width: 80,
