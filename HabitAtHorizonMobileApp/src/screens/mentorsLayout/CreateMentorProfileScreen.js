@@ -35,6 +35,7 @@ const AddMentorForm = ({ navigation }) => {
           const userData = userSnapshot.data();
           setName(userData.name || '');
           setUsername(userData.username || '');
+          setProfileImage(userData.profileImage || ''); 
         }
 
         const mentorSnapshot = await firestore()
@@ -203,16 +204,6 @@ const AddMentorForm = ({ navigation }) => {
             placeholder="Enter your Twitter URL"
             value={twitter}
             onChangeText={setTwitter}
-            style={styles.input}
-            placeholderTextColor="#999"
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Profile Image URL</Text>
-          <TextInput
-            placeholder="Enter your profile image URL"
-            value={profileImage}
-            onChangeText={setProfileImage}
             style={styles.input}
             placeholderTextColor="#999"
           />
