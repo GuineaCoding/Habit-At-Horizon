@@ -4,6 +4,7 @@ import { Button, TextInput } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import LinearGradient from 'react-native-linear-gradient';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { loginStyles } from './styles';
 
 const LoginScreen = () => {
@@ -13,6 +14,18 @@ const LoginScreen = () => {
   const [error, setError] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Consistent theme for all inputs
+  const inputTheme = {
+    colors: {
+      primary: '#0C3B2E',
+      background: '#FFFFFF',
+      text: '#000000',
+      placeholder: '#6D9773',
+      accent: '#FFBA00',
+    },
+    roundness: 8,
+  };
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -67,6 +80,14 @@ const LoginScreen = () => {
         style={loginStyles.keyboardAvoidingView}
       >
         <View style={loginStyles.content}>
+          {/* Large decorative icon */}
+          <Icon 
+            name="account-circle" 
+            size={80} 
+            color="#FFBA00" 
+            style={loginStyles.decorativeIcon}
+          />
+          
           <Text style={loginStyles.header}>Login to Your Account</Text>
 
           {error ? <Text style={loginStyles.error}>{error}</Text> : null}
@@ -81,14 +102,12 @@ const LoginScreen = () => {
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
-            left={<TextInput.Icon name="email" />}
-            theme={{ 
-              colors: { 
-                primary: '#0C3B2E', 
-                background: '#FFFFFF',
-                placeholder: '#6D9773'
-              } 
-            }}
+            left={
+              <TextInput.Icon 
+                icon={() => <Icon name="email" size={24} color="#FFBA00" />}
+              />
+            }
+            theme={inputTheme}
           />
 
           <TextInput
@@ -100,20 +119,24 @@ const LoginScreen = () => {
             secureTextEntry={!isPasswordVisible}
             placeholder="••••••••"
             autoCapitalize="none"
-            left={<TextInput.Icon name="lock" />}
+            left={
+              <TextInput.Icon 
+                icon={() => <Icon name="lock" size={24} color="#FFBA00" />}
+              />
+            }
             right={
               <TextInput.Icon
-                name={isPasswordVisible ? 'eye-off' : 'eye'}
+                icon={() => (
+                  <Icon 
+                    name={isPasswordVisible ? 'eye-off' : 'eye'} 
+                    size={24} 
+                    color="#FFBA00" 
+                  />
+                )}
                 onPress={() => setIsPasswordVisible(!isPasswordVisible)}
               />
             }
-            theme={{ 
-              colors: { 
-                primary: '#0C3B2E', 
-                background: '#FFFFFF',
-                placeholder: '#6D9773'
-              } 
-            }}
+            theme={inputTheme}
           />
 
           <Button

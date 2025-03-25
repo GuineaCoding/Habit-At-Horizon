@@ -12,11 +12,31 @@ const PasswordResetScreen = () => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
 
+  const inputTheme = {
+    colors: {
+      primary: '#0C3B2E',
+      background: '#FFFFFF',
+      text: '#000000',
+      placeholder: '#6D9773',
+      accent: '#FFBA00',
+    },
+    roundness: 8,
+  };
+
   const handlePasswordReset = async () => {
+    if (!email.trim()) {
+      setError('Please enter your email address');
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
     try {
       await auth().sendPasswordResetEmail(email);
-      console.log('Reset instructions sent to:', email);
-      alert('Reset instructions sent to your email.');
+      alert('Password reset instructions sent to your email.');
       navigation.navigate('Login');
     } catch (error) {
       setError(error.message);
@@ -45,8 +65,12 @@ const PasswordResetScreen = () => {
             placeholder="Enter your email"
             keyboardType="email-address"
             autoCapitalize="none"
-            left={<TextInput.Icon name="email" color="#0C3B2E" />}
-            theme={{ colors: { primary: '#0C3B2E', background: '#FFFFFF' } }}
+            left={
+              <TextInput.Icon 
+                icon={() => <Icon name="email" size={24} color="#FFBA00" />}
+              />
+            }
+            theme={inputTheme}
           />
 
           <Button

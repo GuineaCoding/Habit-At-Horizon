@@ -148,7 +148,7 @@ const TimelineScreen = ({ navigation }) => {
 
   return (
     <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
-      <CustomAppBar title="Timeline" showBackButton={false} />
+      <CustomAppBar title="Timeline" showBackButton={true} />
 
       <FlatList
         data={posts}
