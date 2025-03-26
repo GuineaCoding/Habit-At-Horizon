@@ -84,7 +84,7 @@ const CreatePostScreen = ({ navigation }) => {
       setPostDescription('');
       setImageUri(null);
       setYoutubeUrl('');
-      navigation.goBack();
+      navigation.navigate('TimelineScreen', { refresh: true });
     } catch (error) {
       console.error('Error creating post:', error);
       Alert.alert('Error', 'Failed to create post.');
