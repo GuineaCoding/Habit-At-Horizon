@@ -65,6 +65,9 @@ import CreatePostScreen from '../screens/timeLineScreen/createPostScreen'
 import TimelineScreen from '../screens/timeLineScreen/timelineScreen'
 import { useAuth } from '../context/AuthContext';
 
+//family board
+import FamilyBoardScreen from '../screens/familyBoardScreen/FamilyBoardScreen'
+
 const Stack = createNativeStackNavigator();
 
 const AuthStack = () => (
@@ -121,6 +124,7 @@ const AppStack = () => (
     <Stack.Screen name="NotificationsScreen" component={NotificationsScreen} />
     <Stack.Screen name="CreatePostScreen" component={CreatePostScreen} />
     <Stack.Screen name="TimelineScreen" component={TimelineScreen} />
+    <Stack.Screen name="FamilyBoardScreen" component={FamilyBoardScreen} />
   </Stack.Navigator>
 );
 

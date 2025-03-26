@@ -75,6 +75,12 @@ const HomeScreen = () => {
     navigation.navigate('TimelineScreen');
   };
 
+  const goToFamilyBoardScreen = () => {
+    navigation.navigate('FamilyBoardScreen');
+  };
+
+  
+
   return (
     <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
       <ScrollView
@@ -124,6 +130,11 @@ const HomeScreen = () => {
             <Icon name="newspaper" size={24} color="#0C3B2E" style={styles.buttonIcon} />
             <Text style={styles.buttonText}>Community Feed</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={goToFamilyBoardScreen}>
+            <Icon name="newspaper" size={24} color="#0C3B2E" style={styles.buttonIcon} />
+            <Text style={styles.buttonText}>Community Feed</Text>
+          </TouchableOpacity>
+          
         </View>
       </ScrollView>
     </LinearGradient>
