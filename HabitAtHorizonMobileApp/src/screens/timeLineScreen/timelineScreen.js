@@ -10,29 +10,64 @@ import auth from '@react-native-firebase/auth';
 const TimelineScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [lastVisible, setLastVisible] = useState(null);
+  const [allPostsLoaded, setAllPostsLoaded] = useState(false);
   const currentUserId = auth().currentUser?.uid;
+  const postsPerPage = 10;
+
+  const fetchPosts = async (loadMore = false) => {
+    try {
+      if (loadMore) {
+        if (allPostsLoaded) return;
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
+
+      let query = firestore()
+        .collection('posts')
+        .orderBy('createdAt', 'desc')
+        .limit(postsPerPage);
+
+      if (loadMore && lastVisible) {
+        query = query.startAfter(lastVisible);
+      }
+
+      const snapshot = await query.get();
+      
+      if (snapshot.docs.length > 0) {
+        const newPosts = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        setPosts(prevPosts => loadMore ? [...prevPosts, ...newPosts] : newPosts);
+        setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
+        
+        if (snapshot.docs.length < postsPerPage) {
+          setAllPostsLoaded(true);
+        }
+      } else {
+        setAllPostsLoaded(true);
+      }
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
-    const unsubscribe = firestore()
-      .collection('posts')
-      .orderBy('createdAt', 'desc')
-      .onSnapshot(
-        (snapshot) => {
-          const postsList = [];
-          snapshot.forEach((doc) => {
-            postsList.push({ id: doc.id, ...doc.data() });
-          });
-          setPosts(postsList);
-          setLoading(false);
-        },
-        (error) => {
-          console.error('Error fetching posts:', error);
-          setLoading(false);
-        }
-      );
-
-    return () => unsubscribe();
+    fetchPosts();
   }, []);
+
+  const handleLoadMore = () => {
+    if (!loadingMore && !allPostsLoaded) {
+      fetchPosts(true);
+    }
+  };
 
   const sendNotification = async (postCreatorId, type, message) => {
     if (!currentUserId || !postCreatorId || currentUserId === postCreatorId) {
@@ -60,7 +95,6 @@ const TimelineScreen = ({ navigation }) => {
       const likedBy = postDoc.data()?.likedBy || [];
 
       if (likedBy.includes(currentUserId)) {
- 
         await postRef.update({
           likesCount: firestore.FieldValue.increment(-1),
           likedBy: firestore.FieldValue.arrayRemove(currentUserId),
@@ -88,7 +122,6 @@ const TimelineScreen = ({ navigation }) => {
       const congratulatedBy = postDoc.data()?.congratulatedBy || [];
 
       if (congratulatedBy.includes(currentUserId)) {
-      
         await postRef.update({
           congratsCount: firestore.FieldValue.increment(-1),
           congratulatedBy: firestore.FieldValue.arrayRemove(currentUserId),
@@ -116,13 +149,11 @@ const TimelineScreen = ({ navigation }) => {
       const encouragedBy = postDoc.data()?.encouragedBy || [];
 
       if (encouragedBy.includes(currentUserId)) {
-
         await postRef.update({
           encourageCount: firestore.FieldValue.increment(-1),
           encouragedBy: firestore.FieldValue.arrayRemove(currentUserId),
         });
       } else {
-  
         await postRef.update({
           encourageCount: firestore.FieldValue.increment(1),
           encouragedBy: firestore.FieldValue.arrayUnion(currentUserId),
@@ -138,7 +169,31 @@ const TimelineScreen = ({ navigation }) => {
     }
   };
 
-  if (loading) {
+  const renderFooter = () => {
+    if (loadingMore) {
+      return (
+        <View style={styles.footerContainer}>
+          <ActivityIndicator size="small" color="#FFBA00" />
+        </View>
+      );
+    }
+
+    if (!allPostsLoaded && posts.length >= postsPerPage) {
+      return (
+        <TouchableOpacity
+          style={styles.loadMoreButton}
+          onPress={handleLoadMore}
+          disabled={loadingMore}
+        >
+          <Text style={styles.loadMoreText}>Load More</Text>
+        </TouchableOpacity>
+      );
+    }
+
+    return null;
+  };
+
+  if (loading && !loadingMore) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#0C3B2E" />
@@ -221,6 +276,8 @@ const TimelineScreen = ({ navigation }) => {
             <Text style={styles.emptyText}>No posts found.</Text>
           </View>
         }
+        ListFooterComponent={renderFooter}
+        onEndReachedThreshold={0.5}
       />
 
       <TouchableOpacity
@@ -316,6 +373,21 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
+  },
+  footerContainer: {
+    padding: 10,
+    alignItems: 'center',
+  },
+  loadMoreButton: {
+    padding: 10,
+    backgroundColor: '#FFBA00',
+    borderRadius: 5,
+    margin: 10,
+    alignItems: 'center',
+  },
+  loadMoreText: {
+    color: '#0C3B2E',
+    fontWeight: 'bold',
   },
 });
 
