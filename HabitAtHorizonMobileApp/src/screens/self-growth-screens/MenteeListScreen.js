@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import firestore from '@react-native-firebase/firestore';
 import CustomAppBar from '../../components/CustomAppBar';
@@ -13,6 +13,7 @@ const MenteeListScreen = ({ navigation }) => {
         const menteeSnapshot = await firestore()
           .collection('users')
           .where('roles', 'array-contains', 'mentee')
+          .where('visibleToOthers', '==', true) // Only show visible mentees
           .get();
 
         const menteeList = menteeSnapshot.docs.map((doc) => ({
@@ -28,46 +29,54 @@ const MenteeListScreen = ({ navigation }) => {
     fetchMentees();
   }, []);
 
-  const renderProfileImage = (profileImage, username) => {
-    if (profileImage) {
-      return (
-        <Image source={{ uri: profileImage }} style={styles.profileImage} />
-      );
-    } else {
-      const firstLetter = username ? username.charAt(0).toUpperCase() : 'U';
-      return (
-        <View style={styles.profilePlaceholder}>
-          <Text style={styles.profilePlaceholderText}>{firstLetter}</Text>
-        </View>
-      );
-    }
-  };
-
-  const renderMenteeItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.menteeItem}
-      onPress={() => navigation.navigate('MenteeProfileViewScreen', { mentee: item })}
-    >
-      {renderProfileImage(item.profileImage, item.username)}
-      <View style={styles.menteeInfo}>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.username}>@{item.username}</Text>
-        <Text style={styles.bio}>{item.bio}</Text>
-        {item.tags && (
-          <View style={styles.tagsContainer}>
-            <Text style={styles.sectionTitle}>Interests:</Text>
-            <View style={styles.tagsRow}>
-              {item.tags.map((tag, index) => (
-                <Text key={index} style={styles.tag}>
-                  {tag}
-                </Text>
-              ))}
-            </View>
-          </View>
+  const renderMenteeItem = ({ item }) => {
+    const firstLetter = item.username ? item.username.charAt(0).toUpperCase() : 'U';
+    
+    return (
+      <TouchableOpacity
+        style={styles.menteeItem}
+        onPress={() => navigation.navigate('MenteeProfileViewScreen', { mentee: item })}
+      >
+        {item.profileImage ? (
+          <Image 
+            source={{ uri: item.profileImage }}
+            style={styles.profileImage}
+          />
+        ) : (
+          <LinearGradient
+            colors={['#0C3B2E', '#6D9773']}
+            style={styles.profileCircle}
+          >
+            <Text style={styles.profileLetter}>{firstLetter}</Text>
+          </LinearGradient>
         )}
-      </View>
-    </TouchableOpacity>
-  );
+        
+        <View style={styles.menteeInfo}>
+          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.username}>@{item.username}</Text>
+          <Text style={styles.bio} numberOfLines={2} ellipsizeMode="tail">
+            {item.bio}
+          </Text>
+          
+          {item.menteeData?.goals?.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Goals:</Text>
+              <View style={styles.tagsContainer}>
+                {item.menteeData.goals.slice(0, 3).map((goal, index) => (
+                  <Text key={index} style={styles.tag}>
+                    {goal}
+                  </Text>
+                ))}
+                {item.menteeData.goals.length > 3 && (
+                  <Text style={styles.moreTag}>+{item.menteeData.goals.length - 3}</Text>
+                )}
+              </View>
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
@@ -77,6 +86,9 @@ const MenteeListScreen = ({ navigation }) => {
         renderItem={renderMenteeItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>No mentees found</Text>
+        }
       />
     </LinearGradient>
   );
@@ -95,28 +107,28 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
     borderRadius: 10,
-    shadowColor: '#264d00',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 186, 0, 0.2)',
   },
   profileImage: {
     width: 60,
     height: 60,
     borderRadius: 30,
     marginRight: 16,
+    borderWidth: 2,
+    borderColor: '#FFBA00',
   },
-  profilePlaceholder: {
+  profileCircle: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#6D9773',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
+    borderWidth: 2,
+    borderColor: '#FFBA00',
   },
-  profilePlaceholderText: {
+  profileLetter: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#FFFFFF',
@@ -127,41 +139,56 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 4,
     color: '#FFBA00',
+    marginBottom: 2,
   },
   username: {
     fontSize: 14,
-    color: '#6D9773',
+    color: '#FFFFFF',
+    opacity: 0.8,
     marginBottom: 8,
   },
   bio: {
     fontSize: 14,
     color: '#FFFFFF',
     marginBottom: 8,
+    opacity: 0.9,
   },
-  tagsContainer: {
-    marginBottom: 8,
+  section: {
+    marginTop: 4,
   },
   sectionTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 12,
     color: '#FFBA00',
     marginBottom: 4,
+    fontWeight: '600',
   },
-  tagsRow: {
+  tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
   tag: {
     fontSize: 12,
     color: '#FFFFFF',
-    backgroundColor: '#6D9773',
-    paddingHorizontal: 8,
+    backgroundColor: 'rgba(255, 186, 0, 0.2)',
+    paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
-    marginRight: 8,
-    marginBottom: 8,
+    marginRight: 6,
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 186, 0, 0.5)',
+  },
+  moreTag: {
+    fontSize: 12,
+    color: '#FFBA00',
+    paddingVertical: 4,
+  },
+  emptyText: {
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
   },
 });
 

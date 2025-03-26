@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, Image } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { Checkbox } from 'react-native-paper';
 import firestore from '@react-native-firebase/firestore';
@@ -36,9 +36,9 @@ const CreateMenteeProfile = ({ navigation }) => {
             setName(userData.name || '');
             setUsername(userData.username || '');
             setBio(userData.bio || '');
+            setProfileImage(userData.profileImage || ''); // Automatically get profile image
             setGoals(userData.menteeData?.goals?.join(', ') || '');
             setSkills(userData.menteeData?.skills?.join(', ') || '');
-            setProfileImage(userData.profileImage || '');
             setLinkedIn(userData.menteeData?.linkedIn || '');
             setTwitter(userData.menteeData?.twitter || '');
 
@@ -94,7 +94,7 @@ const CreateMenteeProfile = ({ navigation }) => {
           name,
           username,
           bio,
-          profileImage,
+          profileImage, // Automatically saved from registration
           roles: ['mentee'],
           menteeData,
           visibleToOthers: true,
@@ -111,9 +111,9 @@ const CreateMenteeProfile = ({ navigation }) => {
 
   if (isLoading) {
     return (
-      <View style={styles.container}>
+      <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
         <Text style={styles.loadingText}>Loading...</Text>
-      </View>
+      </LinearGradient>
     );
   }
 
@@ -122,31 +122,42 @@ const CreateMenteeProfile = ({ navigation }) => {
       <CustomAppBar title="Create/Edit Mentee Profile" showBackButton={true} />
 
       <ScrollView contentContainerStyle={styles.content}>
-
-        <View style={styles.readOnlyField}>
-          <Text style={styles.readOnlyLabel}>Name</Text>
-          <Text style={styles.readOnlyText}>{name}</Text>
+        <View style={styles.profileHeader}>
+          {profileImage ? (
+            <Image
+              source={{ uri: profileImage }}
+              style={styles.profileImage}
+            />
+          ) : (
+            <LinearGradient
+              colors={['#0C3B2E', '#6D9773']}
+              style={styles.profileCircle}
+            >
+              <Text style={styles.profileLetter}>
+                {username ? username.charAt(0).toUpperCase() : 'M'}
+              </Text>
+            </LinearGradient>
+          )}
+          <View style={styles.profileInfo}>
+            <Text style={styles.name}>{name}</Text>
+            <Text style={styles.username}>@{username}</Text>
+          </View>
         </View>
 
-        <View style={styles.readOnlyField}>
-          <Text style={styles.readOnlyLabel}>Username</Text>
-          <Text style={styles.readOnlyText}>{username}</Text>
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Bio *</Text>
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>About Me *</Text>
           <TextInput
             placeholder="Tell us about yourself..."
             value={bio}
             onChangeText={setBio}
-            style={[styles.input, styles.bioInput]}
+            style={styles.bioInput}
             placeholderTextColor="#999"
             multiline
           />
         </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Goals</Text>
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Goals</Text>
           <TextInput
             placeholder="e.g., Learn Python, Improve Leadership"
             value={goals}
@@ -156,8 +167,8 @@ const CreateMenteeProfile = ({ navigation }) => {
           />
         </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Skills</Text>
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Skills</Text>
           <TextInput
             placeholder="e.g., Coding, Public Speaking"
             value={skills}
@@ -167,8 +178,8 @@ const CreateMenteeProfile = ({ navigation }) => {
           />
         </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Availability</Text>
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Availability</Text>
           <View style={styles.checkboxContainer}>
             <View style={styles.checkboxItem}>
               <Checkbox
@@ -205,35 +216,20 @@ const CreateMenteeProfile = ({ navigation }) => {
           </View>
         </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Profile Image URL</Text>
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Social Media</Text>
           <TextInput
-            placeholder="Enter a URL for your profile image"
-            value={profileImage}
-            onChangeText={setProfileImage}
-            style={styles.input}
-            placeholderTextColor="#999"
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>LinkedIn Profile URL</Text>
-          <TextInput
-            placeholder="Enter your LinkedIn profile URL"
+            placeholder="LinkedIn profile URL"
             value={linkedIn}
             onChangeText={setLinkedIn}
             style={styles.input}
             placeholderTextColor="#999"
           />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Twitter Profile URL</Text>
           <TextInput
-            placeholder="Enter your Twitter profile URL"
+            placeholder="Twitter username"
             value={twitter}
             onChangeText={setTwitter}
-            style={styles.input}
+            style={[styles.input, { marginTop: 10 }]}
             placeholderTextColor="#999"
           />
         </View>
@@ -254,63 +250,98 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    flexGrow: 1,
-    padding: 20,
+    padding: 16,
   },
-  readOnlyField: {
-    marginBottom: 15,
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
   },
-  readOnlyLabel: {
-    fontSize: 14,
+  profileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginRight: 20,
+    borderWidth: 3,
+    borderColor: '#FFBA00',
+    resizeMode: 'cover',
+  },
+  profileCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 20,
+    borderWidth: 3,
+    borderColor: '#FFBA00',
+  },
+  profileLetter: {
+    fontSize: 36,
+    fontWeight: 'bold',
     color: '#FFFFFF',
-    marginBottom: 4,
   },
-  readOnlyText: {
+  profileInfo: {
+    flex: 1,
+  },
+  name: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  username: {
     fontSize: 16,
-    color: '#FFFFFF',
-    padding: 12,
-    backgroundColor: '#6D9773',
+    color: '#FFBA00',
+  },
+  card: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 10,
+    padding: 16,
+    marginBottom: 16,
   },
-  inputContainer: {
-    marginBottom: 15,
-  },
-  label: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    marginBottom: 4,
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFBA00',
+    marginBottom: 8,
   },
   input: {
     borderWidth: 1,
     borderColor: '#6D9773',
-    borderRadius: 10,
-    padding: 15,
+    borderRadius: 8,
+    padding: 12,
     backgroundColor: '#FFFFFF',
     color: '#000000',
   },
   bioInput: {
+    borderWidth: 1,
+    borderColor: '#6D9773',
+    borderRadius: 8,
+    padding: 12,
+    backgroundColor: '#FFFFFF',
+    color: '#000000',
     height: 100,
     textAlignVertical: 'top',
   },
   checkboxContainer: {
-    marginTop: 10,
+    marginTop: 8,
   },
   checkboxItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   checkboxText: {
     fontSize: 16,
     color: '#FFFFFF',
-    marginLeft: 10,
+    marginLeft: 8,
   },
   button: {
     backgroundColor: '#FFBA00',
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 8,
     alignItems: 'center',
-    elevation: 3,
+    marginTop: 10,
   },
   buttonText: {
     fontSize: 16,
@@ -321,6 +352,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#FFFFFF',
     textAlign: 'center',
+    marginTop: 20,
   },
 });
 
