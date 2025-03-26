@@ -6,10 +6,39 @@ import LinearGradient from 'react-native-linear-gradient';
 import CustomAppBar from '../../components/CustomAppBar';
 
 const ChatScreen = ({ route, navigation }) => {
-  const { chatId } = route.params || { chatId: '' };
+  const { chatId, participantInfo } = route.params || { chatId: '', participantInfo: null };
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const [recipient, setRecipient] = useState(null);
   const userId = auth().currentUser.uid;
+
+  // Fetch recipient info if not passed in params
+  useEffect(() => {
+    if (participantInfo) {
+      setRecipient(participantInfo);
+    } else if (chatId) {
+      const fetchRecipientInfo = async () => {
+        try {
+          const chatDoc = await firestore().collection('chats').doc(chatId).get();
+          const participantIds = chatDoc.data()?.participantIds || [];
+          const recipientId = participantIds.find(id => id !== userId);
+          
+          if (recipientId) {
+            const recipientDoc = await firestore().collection('users').doc(recipientId).get();
+            setRecipient({
+              id: recipientId,
+              username: recipientDoc.data()?.username || 'Unknown User',
+              roles: recipientDoc.data()?.roles || []
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching recipient info:', error);
+        }
+      };
+      
+      fetchRecipientInfo();
+    }
+  }, [chatId, userId, participantInfo]);
 
   const fetchMessages = (chatId, setMessages) => {
     const messagesRef = firestore()
@@ -46,7 +75,6 @@ const ChatScreen = ({ route, navigation }) => {
   };
 
   useEffect(() => {
-    console.log('Route Params:', route.params);
     if (chatId) {
       const unsubscribe = fetchMessages(chatId, setMessages);
       markMessagesAsSeen(chatId, userId);
@@ -69,7 +97,6 @@ const ChatScreen = ({ route, navigation }) => {
     const chatRef = firestore().collection('chats').doc(chatId);
     const messagesRef = chatRef.collection('messages');
   
-    // Add the message to the chat
     await messagesRef.add({
       senderId,
       text,
@@ -77,7 +104,6 @@ const ChatScreen = ({ route, navigation }) => {
       seen: false,
     });
   
-    // Update the chat document
     await chatRef.update({
       lastMessage: text,
       lastMessageTimestamp: firestore.Timestamp.now(),
@@ -104,7 +130,12 @@ const ChatScreen = ({ route, navigation }) => {
 
   return (
     <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
-      <CustomAppBar title="Chat" showBackButton={true} onBackPress={() => navigation.goBack()} />
+      <CustomAppBar 
+        title={recipient?.username || 'Chat'} 
+        subtitle={recipient?.roles?.includes('mentee') ? 'Mentee' : 'Mentor'}
+        showBackButton={true} 
+        onBackPress={() => navigation.goBack()} 
+      />
       <FlatList
         data={messages}
         keyExtractor={(item) => item.id}

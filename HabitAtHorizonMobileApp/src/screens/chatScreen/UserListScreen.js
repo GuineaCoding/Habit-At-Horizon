@@ -81,11 +81,11 @@ const UserListScreen = ({ navigation }) => {
     }
   };
 
-  const startChat = async (otherUserId) => {
-    console.log('Starting chat with user:', otherUserId);
+  const startChat = async (otherUser) => {
+    console.log('Starting chat with user:', otherUser.id);
 
     try {
-      const chatId = [userId, otherUserId].sort().join('_');
+      const chatId = [userId, otherUser.id].sort().join('_');
 
       const chatRef = firestore().collection('chats').doc(chatId);
 
@@ -94,14 +94,21 @@ const UserListScreen = ({ navigation }) => {
       if (!chatDoc.exists) {
         console.log('Creating new chat...');
         await chatRef.set({
-          participantIds: [userId, otherUserId],
+          participantIds: [userId, otherUser.id],
           lastMessage: '',
           lastMessageTimestamp: firestore.Timestamp.now(),
           lastMessageSenderId: '',
         });
       }
 
-      navigation.navigate('ChatScreen', { chatId });
+      navigation.navigate('ChatScreen', { 
+        chatId,
+        participantInfo: {
+          id: otherUser.id,
+          username: otherUser.username,
+          roles: otherUser.roles
+        }
+      });
     } catch (error) {
       console.error('Error starting chat:', error);
       Alert.alert('Error', 'Unable to start chat. Please try again.');
@@ -156,7 +163,7 @@ const UserListScreen = ({ navigation }) => {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.userItem}
-            onPress={() => startChat(item.id)}
+            onPress={() => startChat(item)}
           >
             <Text style={styles.userName}>{item.username}</Text>
             <Text style={styles.userRole}>
