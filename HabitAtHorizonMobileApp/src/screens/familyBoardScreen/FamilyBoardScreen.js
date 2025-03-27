@@ -66,7 +66,7 @@ const FamilyBoardScreen = ({ navigation }) => {
           renderItem={({ item }) => (
             <TouchableOpacity 
               style={styles.boardCard}
-              onPress={() => navigation.navigate('BoardDetail', { boardId: item.id })}
+              onPress={() => navigation.navigate('BoardDetailScreen', { boardId: item.id })}
             >
               <Text style={styles.boardName}>{item.name}</Text>
               <Text style={styles.boardInfo}>Members: {Object.keys(item.members).length}</Text>
