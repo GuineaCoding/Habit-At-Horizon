@@ -131,9 +131,9 @@ const HomeScreen = () => {
             <Text style={styles.buttonText}>Community Feed</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={goToFamilyBoardScreen}>
-            <Icon name="newspaper" size={24} color="#0C3B2E" style={styles.buttonIcon} />
-            <Text style={styles.buttonText}>Community Feed</Text>
-          </TouchableOpacity>
+  <Icon name="view-dashboard" size={24} color="#0C3B2E" style={styles.buttonIcon} />
+  <Text style={styles.buttonText}>Family Board</Text>
+</TouchableOpacity>
           
         </View>
       </ScrollView>

@@ -68,7 +68,7 @@ import { useAuth } from '../context/AuthContext';
 //family board
 import FamilyBoardScreen from '../screens/familyBoardScreen/FamilyBoardScreen';
 import BoardDetailScreen from '../screens/familyBoardScreen/BoardDetailScreen';
-
+import TaskViewScreen from '../screens/familyBoardScreen/TaskViewScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -128,6 +128,7 @@ const AppStack = () => (
     <Stack.Screen name="TimelineScreen" component={TimelineScreen} />
     <Stack.Screen name="FamilyBoardScreen" component={FamilyBoardScreen} />
     <Stack.Screen name="BoardDetailScreen" component={BoardDetailScreen} />
+    <Stack.Screen name="TaskViewScreen" component={TaskViewScreen} />
   </Stack.Navigator>
 );
 
