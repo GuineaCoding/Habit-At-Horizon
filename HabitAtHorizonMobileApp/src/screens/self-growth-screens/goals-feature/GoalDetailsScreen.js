@@ -182,11 +182,18 @@ const GoalDetailsScreen = ({ navigation, route }) => {
     }
   };
 
+  const formatDisplayDate = (date) => {
+    if (!date) return 'No date set';
+    // Fix: Handle both Date objects and Firestore Timestamps
+    const jsDate = date instanceof Date ? date : date.toDate();
+    return jsDate.toLocaleDateString();
+  };
+
   const renderMilestoneItem = ({ item }) => (
     <View style={goalDetailsStyles.milestoneItem}>
       <Text style={goalDetailsStyles.milestoneTitle}>{item.title}</Text>
       <Text style={goalDetailsStyles.milestoneDeadline}>
-        Deadline: {new Date(item.deadline).toLocaleDateString()}
+        Deadline: {formatDisplayDate(item.deadline)}
       </Text>
       <Text style={goalDetailsStyles.milestoneStatus}>Status: {item.status}</Text>
       {item.status !== 'completed' && (

@@ -1,5 +1,4 @@
-// CreateGoalScreen.js
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import firestore from '@react-native-firebase/firestore';
@@ -19,21 +18,21 @@ const CreateGoalScreen = ({ navigation, route }) => {
   const [milestoneDeadline, setMilestoneDeadline] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  useEffect(() => {
-    if (!route.params) {
-      console.error('route.params is undefined');
-      alert('Navigation error. Please try again.');
-      navigation.goBack();
+  const formatFirestoreDate = (date) => {
+    if (date && typeof date.toDate === 'function') {
+      return date;
     }
-  }, [route.params]);
+    return firestore.Timestamp.fromDate(date instanceof Date ? date : new Date(date));
+  };
 
-  if (!userId) {
-    return (
-      <LinearGradient colors={['#0C3B2E', '#6D9773']} style={createGoalStyles.container}>
-        <Text style={createGoalStyles.errorText}>User ID is missing. Please log in again.</Text>
-      </LinearGradient>
-    );
-  }
+  const formatDisplayDate = (date) => {
+    if (!date) return 'No date set';
+    const jsDate = date instanceof Date ? date : date.toDate();
+    const day = jsDate.getDate().toString().padStart(2, '0');
+    const month = (jsDate.getMonth() + 1).toString().padStart(2, '0');
+    const year = jsDate.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   const handleAddMilestone = () => {
     if (!milestoneTitle.trim()) {
@@ -44,7 +43,7 @@ const CreateGoalScreen = ({ navigation, route }) => {
     const newMilestone = {
       id: Date.now().toString(),
       title: milestoneTitle,
-      deadline: milestoneDeadline,
+      deadline: milestoneDeadline, // Store as Date object initially
       status: 'not started',
     };
 
@@ -69,7 +68,10 @@ const CreateGoalScreen = ({ navigation, route }) => {
           type,
           category,
           description,
-          milestones,
+          milestones: milestones.map(m => ({
+            ...m,
+            deadline: formatFirestoreDate(m.deadline) // Convert to Firestore Timestamp here
+          })),
           status: 'active',
           createdAt: firestore.Timestamp.fromDate(new Date()),
           updatedAt: firestore.Timestamp.fromDate(new Date()),
@@ -89,18 +91,11 @@ const CreateGoalScreen = ({ navigation, route }) => {
     }
   };
 
-  const formatDate = (date) => {
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
-
   const renderMilestoneItem = ({ item }) => (
     <View style={createGoalStyles.milestoneItem}>
       <Text style={createGoalStyles.milestoneTitle}>{item.title}</Text>
       <Text style={createGoalStyles.milestoneDeadline}>
-        Deadline: {formatDate(item.deadline)}
+        Deadline: {formatDisplayDate(item.deadline)}
       </Text>
     </View>
   );
@@ -169,7 +164,7 @@ const CreateGoalScreen = ({ navigation, route }) => {
           onPress={() => setShowDatePicker(true)}
         >
           <Text style={createGoalStyles.dateButtonText}>
-            Select Deadline: {formatDate(milestoneDeadline)}
+            Select Deadline: {formatDisplayDate(milestoneDeadline)}
           </Text>
         </TouchableOpacity>
         {showDatePicker && (
