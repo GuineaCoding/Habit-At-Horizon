@@ -74,6 +74,18 @@ const LessonBuilderScreen = ({ route, navigation }) => {
     setContent(content.filter((item) => item.type !== 'image'));
   };
 
+  const formatUrl = (url) => {
+    let cleanedUrl = url.replace(/^(https?:\/\/)?(www\.)?/, '');
+    
+    if (!url.startsWith('http')) {
+      return `https://www.${cleanedUrl}`;
+    }
+    if (url.startsWith('http://')) {
+      return `https://${cleanedUrl}`;
+    }
+    return url;
+  };
+
   const saveLesson = async () => {
     if (!title || !description) {
       Alert.alert('Error', 'Please fill in all required fields.');
@@ -101,10 +113,17 @@ const LessonBuilderScreen = ({ route, navigation }) => {
         imageUrl = await reference.getDownloadURL();
       }
 
+      const formattedContent = content.map(item => {
+        if (item.type === 'iframe' && item.value) {
+          return {...item, value: formatUrl(item.value)};
+        }
+        return item;
+      });
+
       const lessonData = {
         title,
         description,
-        content,
+        content: formattedContent,
         imageUrl,
         createdAt: new Date(),
       };
@@ -172,12 +191,9 @@ const LessonBuilderScreen = ({ route, navigation }) => {
           </View>
         );
       case 'youtube':
-      case 'iframe':
         return (
           <View key={item.id} style={styles.contentItem}>
-            <Text style={styles.contentType}>
-              {item.type === 'youtube' ? 'YouTube Video' : 'iFrame'}
-            </Text>
+            <Text style={styles.contentType}>YouTube Video</Text>
             <TextInput
               style={styles.input}
               placeholder="Enter title/description"
@@ -193,11 +209,39 @@ const LessonBuilderScreen = ({ route, navigation }) => {
             />
             <TextInput
               style={styles.input}
-              placeholder={
-                item.type === 'youtube'
-                  ? 'Enter YouTube Video ID'
-                  : 'Enter iFrame URL'
-              }
+              placeholder="Enter YouTube Video ID"
+              placeholderTextColor="#888"
+              value={item.value}
+              onChangeText={(text) => {
+                setContent(
+                  content.map((c) =>
+                    c.id === item.id ? { ...c, value: text } : c
+                  )
+                );
+              }}
+            />
+          </View>
+        );
+      case 'iframe':
+        return (
+          <View key={item.id} style={styles.contentItem}>
+            <Text style={styles.contentType}>Website URL</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter title/description"
+              placeholderTextColor="#888"
+              value={item.title}
+              onChangeText={(text) => {
+                setContent(
+                  content.map((c) =>
+                    c.id === item.id ? { ...c, title: text } : c
+                  )
+                );
+              }}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Enter website URL (e.g., wix.com)"
               placeholderTextColor="#888"
               value={item.value}
               onChangeText={(text) => {
@@ -266,7 +310,7 @@ const LessonBuilderScreen = ({ route, navigation }) => {
             style={styles.addButton}
             onPress={() => addElement('iframe')}
           >
-            <Text style={styles.addButtonText}>Add iFrame</Text>
+            <Text style={styles.addButtonText}>Add Website</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.addButton}
