@@ -76,10 +76,12 @@ const CreateNoteScreen = ({ navigation, route }) => {
               selectedValue={category}
               onValueChange={(itemValue) => setCategory(itemValue)}
               style={createNoteStyles.picker}
+              dropdownIconColor="#000000"
+              itemStyle={createNoteStyles.pickerItem}
             >
-              <Picker.Item label="Work" value="Work" />
-              <Picker.Item label="Personal" value="Personal" />
-              <Picker.Item label="Ideas" value="Ideas" />
+              <Picker.Item label="Work" value="Work" style={{ color: '#000000' }} />
+              <Picker.Item label="Personal" value="Personal" style={{ color: '#000000' }} />
+              <Picker.Item label="Ideas" value="Ideas" style={{ color: '#000000' }} />
             </Picker>
           </View>
         </View>
