@@ -107,7 +107,7 @@ const TaskTab = ({ tasks, navigation, userId }) => {
   };
 
   const handleEditTask = (task) => {
-    navigation.navigate('EditTaskScreen', { task, userId });
+    navigation.navigate('TaskDetailsScreen', { task, userId });
   };
 
   const getPriorityColor = (priority) => {
