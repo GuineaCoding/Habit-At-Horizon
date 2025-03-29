@@ -62,7 +62,7 @@ const PersonalSpaceScreen = () => {
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={goToProgressScreen}>
           <Icon name="trophy" size={24} color="#0C3B2E" style={styles.icon} />
-          <Text style={styles.buttonText}>Motivation & Rewards</Text>
+          <Text style={styles.buttonText}>Leaderboard</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={goToMenteeProfileCreationStartScreen}>
           <Icon name="account" size={24} color="#0C3B2E" style={styles.icon} />

@@ -102,7 +102,9 @@ const CreateMenteeProfile = ({ navigation }) => {
         { merge: true }
       );
   
-      Alert.alert('Success', 'Mentee profile saved successfully!');
+      Alert.alert('Success', 'Mentee profile saved successfully!', [
+        { text: 'OK', onPress: () => navigation.navigate('MenteeListScreen') }
+      ]);
     } catch (error) {
       console.error('Error saving mentee profile:', error);
       Alert.alert('Error', 'Failed to save mentee profile.');
