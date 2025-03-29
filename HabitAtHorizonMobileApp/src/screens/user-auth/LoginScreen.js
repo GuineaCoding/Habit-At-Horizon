@@ -19,10 +19,11 @@ const LoginScreen = () => {
   const inputTheme = {
     colors: {
       primary: '#0C3B2E',
-      background: '#FFFFFF',
-      text: '#000000',
-      placeholder: '#6D9773',
-      accent: '#FFBA00',
+      background: '#FFFFFF', 
+      text: '#000000', 
+      placeholder: '#000000', 
+      accent: '#FFBA00',  
+      onSurface: '#000000',
     },
     roundness: 8,
   };

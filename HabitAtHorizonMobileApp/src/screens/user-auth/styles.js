@@ -26,6 +26,7 @@ export const loginStyles = StyleSheet.create({
     width: '100%',
     marginBottom: 15,
     backgroundColor: '#FFFFFF',
+    color: '#000000'
   },
   button: {
     width: '100%',
@@ -107,6 +108,7 @@ export const passwordResetStyles = StyleSheet.create({
     width: '100%',
     marginBottom: 15,
     backgroundColor: '#FFFFFF',
+    color: '#000000'
   },
   button: {
     width: '100%',
@@ -156,6 +158,7 @@ export const signupStyles = StyleSheet.create({
     width: '100%',
     marginBottom: 15,
     backgroundColor: '#FFFFFF',
+    color: '#000000'
   },
   button: {
     width: '100%',
