@@ -16,33 +16,53 @@ const TimelineScreen = ({ navigation }) => {
   const currentUserId = auth().currentUser?.uid;
   const postsPerPage = 10;
 
-  const fetchPosts = async (loadMore = false) => {
-    try {
-      if (loadMore) {
-        if (allPostsLoaded) return;
-        setLoadingMore(true);
-      } else {
-        setLoading(true);
-      }
+  // Real-time listener for posts
+  useEffect(() => {
+    const unsubscribe = firestore()
+      .collection('posts')
+      .orderBy('createdAt', 'desc')
+      .limit(postsPerPage)
+      .onSnapshot(snapshot => {
+        const updatedPosts = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          likedBy: doc.data().likedBy || [],
+          congratulatedBy: doc.data().congratulatedBy || [],
+          encouragedBy: doc.data().encouragedBy || []
+        }));
+        setPosts(updatedPosts);
+        setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
+        setLoading(false);
+      }, error => {
+        console.error('Snapshot error:', error);
+        setLoading(false);
+      });
 
-      let query = firestore()
+    return () => unsubscribe();
+  }, []);
+
+  const fetchMorePosts = async () => {
+    if (loadingMore || allPostsLoaded) return;
+    
+    setLoadingMore(true);
+    try {
+      const snapshot = await firestore()
         .collection('posts')
         .orderBy('createdAt', 'desc')
-        .limit(postsPerPage);
+        .startAfter(lastVisible)
+        .limit(postsPerPage)
+        .get();
 
-      if (loadMore && lastVisible) {
-        query = query.startAfter(lastVisible);
-      }
-
-      const snapshot = await query.get();
-      
       if (snapshot.docs.length > 0) {
         const newPosts = snapshot.docs.map(doc => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
+          likedBy: doc.data().likedBy || [],
+          congratulatedBy: doc.data().congratulatedBy || [],
+          encouragedBy: doc.data().encouragedBy || []
         }));
         
-        setPosts(prevPosts => loadMore ? [...prevPosts, ...newPosts] : newPosts);
+        setPosts(prev => [...prev, ...newPosts]);
         setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
         
         if (snapshot.docs.length < postsPerPage) {
@@ -52,27 +72,14 @@ const TimelineScreen = ({ navigation }) => {
         setAllPostsLoaded(true);
       }
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      console.error('Error loading more posts:', error);
     } finally {
-      setLoading(false);
       setLoadingMore(false);
     }
   };
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-
-  const handleLoadMore = () => {
-    if (!loadingMore && !allPostsLoaded) {
-      fetchPosts(true);
-    }
-  };
-
   const sendNotification = async (postCreatorId, type, message) => {
-    if (!currentUserId || !postCreatorId || currentUserId === postCreatorId) {
-      return;
-    }
+    if (!currentUserId || !postCreatorId || currentUserId === postCreatorId) return;
 
     try {
       await firestore().collection('notifications').add({
@@ -82,92 +89,76 @@ const TimelineScreen = ({ navigation }) => {
         timestamp: firestore.FieldValue.serverTimestamp(),
         seen: false,
       });
-      console.log('Notification sent successfully:', message);
     } catch (error) {
       console.error('Error sending notification:', error);
     }
   };
 
-  const handleLike = async (postId, postCreatorId) => {
+  const updateInteraction = async (postId, field, arrayField, postCreatorId, actionType) => {
     try {
+      setPosts(prevPosts => prevPosts.map(post => {
+        if (post.id !== postId) return post;
+        
+        const currentArray = post[arrayField] || [];
+        const isActive = currentArray.includes(currentUserId);
+        const countChange = isActive ? -1 : 1;
+        const updatedArray = isActive
+          ? currentArray.filter(id => id !== currentUserId)
+          : [...currentArray, currentUserId];
+
+        return {
+          ...post,
+          [field]: (post[field] || 0) + countChange,
+          [arrayField]: updatedArray
+        };
+      }));
+
       const postRef = firestore().collection('posts').doc(postId);
-      const postDoc = await postRef.get();
-      const likedBy = postDoc.data()?.likedBy || [];
+      const currentArray = posts.find(p => p.id === postId)?.[arrayField] || [];
+      const isActive = currentArray.includes(currentUserId);
+      
+      const updateData = {
+        [field]: firestore.FieldValue.increment(isActive ? -1 : 1),
+        [arrayField]: isActive
+          ? firestore.FieldValue.arrayRemove(currentUserId)
+          : firestore.FieldValue.arrayUnion(currentUserId)
+      };
 
-      if (likedBy.includes(currentUserId)) {
-        await postRef.update({
-          likesCount: firestore.FieldValue.increment(-1),
-          likedBy: firestore.FieldValue.arrayRemove(currentUserId),
-        });
-      } else {
-        await postRef.update({
-          likesCount: firestore.FieldValue.increment(1),
-          likedBy: firestore.FieldValue.arrayUnion(currentUserId),
-        });
+      await postRef.update(updateData);
 
+      // Send notification if it's a new interaction
+      if (!isActive) {
         const currentUser = auth().currentUser;
         const username = currentUser?.displayName || 'a user';
-        const message = `Your post was liked by ${username}`;
-        await sendNotification(postCreatorId, 'like', message);
+        const messageMap = {
+          like: `Your post was liked by ${username}`,
+          congratulate: `Your post was congratulated by ${username}`,
+          encourage: `Your post was encouraged by ${username}`
+        };
+        await sendNotification(postCreatorId, actionType, messageMap[actionType]);
       }
     } catch (error) {
-      console.error('Error liking/unliking post:', error);
+      console.error(`Error updating ${field}:`, error);
+      // Revert optimistic update on error
+      setPosts(prevPosts => prevPosts.map(post => {
+        if (post.id !== postId) return post;
+        return {
+          ...post,
+          [field]: post[field] || 0,
+          [arrayField]: post[arrayField] || []
+        };
+      }));
     }
   };
 
-  const handleCongratulate = async (postId, postCreatorId) => {
-    try {
-      const postRef = firestore().collection('posts').doc(postId);
-      const postDoc = await postRef.get();
-      const congratulatedBy = postDoc.data()?.congratulatedBy || [];
+  const handleLike = (postId, postCreatorId) => 
+    updateInteraction(postId, 'likesCount', 'likedBy', postCreatorId, 'like');
 
-      if (congratulatedBy.includes(currentUserId)) {
-        await postRef.update({
-          congratsCount: firestore.FieldValue.increment(-1),
-          congratulatedBy: firestore.FieldValue.arrayRemove(currentUserId),
-        });
-      } else {
-        await postRef.update({
-          congratsCount: firestore.FieldValue.increment(1),
-          congratulatedBy: firestore.FieldValue.arrayUnion(currentUserId),
-        });
+  const handleCongratulate = (postId, postCreatorId) => 
+    updateInteraction(postId, 'congratsCount', 'congratulatedBy', postCreatorId, 'congratulate');
 
-        const currentUser = auth().currentUser;
-        const username = currentUser?.displayName || 'a user';
-        const message = `Your post was congratulated by ${username}`;
-        await sendNotification(postCreatorId, 'congratulate', message);
-      }
-    } catch (error) {
-      console.error('Error congratulating/undoing congratulate:', error);
-    }
-  };
-
-  const handleEncourage = async (postId, postCreatorId) => {
-    try {
-      const postRef = firestore().collection('posts').doc(postId);
-      const postDoc = await postRef.get();
-      const encouragedBy = postDoc.data()?.encouragedBy || [];
-
-      if (encouragedBy.includes(currentUserId)) {
-        await postRef.update({
-          encourageCount: firestore.FieldValue.increment(-1),
-          encouragedBy: firestore.FieldValue.arrayRemove(currentUserId),
-        });
-      } else {
-        await postRef.update({
-          encourageCount: firestore.FieldValue.increment(1),
-          encouragedBy: firestore.FieldValue.arrayUnion(currentUserId),
-        });
-
-        const currentUser = auth().currentUser;
-        const username = currentUser?.displayName || 'a user';
-        const message = `Your post was encouraged by ${username}`;
-        await sendNotification(postCreatorId, 'encourage', message);
-      }
-    } catch (error) {
-      console.error('Error encouraging/undoing encourage:', error);
-    }
-  };
+  const handleEncourage = (postId, postCreatorId) => 
+    updateInteraction(postId, 'encourageCount', 'encouragedBy', postCreatorId, 'encourage');
 
   const renderFooter = () => {
     if (loadingMore) {
@@ -182,7 +173,7 @@ const TimelineScreen = ({ navigation }) => {
       return (
         <TouchableOpacity
           style={styles.loadMoreButton}
-          onPress={handleLoadMore}
+          onPress={fetchMorePosts}
           disabled={loadingMore}
         >
           <Text style={styles.loadMoreText}>Load More</Text>
@@ -193,7 +184,7 @@ const TimelineScreen = ({ navigation }) => {
     return null;
   };
 
-  if (loading && !loadingMore) {
+  if (loading && posts.length === 0) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#0C3B2E" />
@@ -240,7 +231,7 @@ const TimelineScreen = ({ navigation }) => {
                 <Icon
                   name="thumb-up"
                   size={20}
-                  color={item.likedBy?.includes(currentUserId) ? '#CCCCCC' : '#FFBA00'}
+                  color={(item.likedBy || []).includes(currentUserId) ? '#CCCCCC' : '#FFBA00'}
                 />
                 <Text style={styles.interactionText}>{item.likesCount || 0}</Text>
               </TouchableOpacity>
@@ -252,7 +243,7 @@ const TimelineScreen = ({ navigation }) => {
                 <Icon
                   name="party-popper"
                   size={20}
-                  color={item.congratulatedBy?.includes(currentUserId) ? '#CCCCCC' : '#FFBA00'}
+                  color={(item.congratulatedBy || []).includes(currentUserId) ? '#CCCCCC' : '#FFBA00'}
                 />
                 <Text style={styles.interactionText}>{item.congratsCount || 0}</Text>
               </TouchableOpacity>
@@ -264,7 +255,7 @@ const TimelineScreen = ({ navigation }) => {
                 <Icon
                   name="hand-heart"
                   size={20}
-                  color={item.encouragedBy?.includes(currentUserId) ? '#CCCCCC' : '#FFBA00'}
+                  color={(item.encouragedBy || []).includes(currentUserId) ? '#CCCCCC' : '#FFBA00'}
                 />
                 <Text style={styles.interactionText}>{item.encourageCount || 0}</Text>
               </TouchableOpacity>
@@ -277,6 +268,7 @@ const TimelineScreen = ({ navigation }) => {
           </View>
         }
         ListFooterComponent={renderFooter}
+        onEndReached={fetchMorePosts}
         onEndReachedThreshold={0.5}
       />
 
