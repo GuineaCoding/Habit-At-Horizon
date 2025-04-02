@@ -12,7 +12,7 @@ const WelcomeScreen = () => {
     <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
       <Icon name="shield-sword" size={100} color="#FFBA00" style={styles.icon} />
       <Text style={styles.textHeader}>Welcome Warrior</Text>
-      <Text style={styles.text}>Welcome to the app! If you need to log in again, click below.</Text>
+      <Text style={styles.text}>Welcome to the Habit At Horizon App! If you need to log in again, click below.</Text>
       
       <View style={styles.buttonContainer}>
         <Button
