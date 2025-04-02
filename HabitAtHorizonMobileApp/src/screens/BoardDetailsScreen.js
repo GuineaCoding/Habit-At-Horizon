@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Dimensions, Modal, TextInput } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 import { findUserByUsername } from '../services/UserService';
 import CustomAppBar from '../components/CustomAppBar';
 import LinearGradient from 'react-native-linear-gradient';
@@ -21,6 +22,7 @@ const BoardDetailsScreen = ({ route, navigation }) => {
     const [lessons, setLessons] = useState([]);
     const [tests, setTests] = useState([]);
     const [members, setMembers] = useState([]);
+    const currentUser = auth().currentUser;
 
     useEffect(() => {
         const unsubscribeBoard = firestore().collection('boards').doc(boardId).onSnapshot(doc => {
@@ -63,6 +65,14 @@ const BoardDetailsScreen = ({ route, navigation }) => {
         };
     }, [boardId]);
 
+    const isOwner = () => {
+        return boardData && boardData.creator === currentUser?.uid;
+    };
+
+    const isCurrentUser = (userId) => {
+        return userId === currentUser?.uid;
+    };
+
     if (!boardData) {
         return (
             <View style={styles.container}>
@@ -72,6 +82,11 @@ const BoardDetailsScreen = ({ route, navigation }) => {
     }
 
     const inviteUser = async () => {
+        if (!isOwner()) {
+            Alert.alert('Permission Denied', 'Only the board owner can invite members.');
+            return;
+        }
+
         if (!username) {
             setErrorMessage("Please enter a username.");
             return;
@@ -125,24 +140,34 @@ const BoardDetailsScreen = ({ route, navigation }) => {
                         <TouchableOpacity onPress={() => navigation.navigate('LessonScreen', { boardId, lessonId: item.id })}>
                             <Text style={styles.lessonTitle}>{item.title}</Text>
                         </TouchableOpacity>
-                        <View style={styles.buttonGroup}>
-                            <TouchableOpacity onPress={() => navigation.navigate('LessonBuilderScreen', { boardId, lessonId: item.id })} style={styles.editButton}>
-                                <Text style={styles.buttonText}>Edit</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => firestore().collection('boards').doc(boardId).collection('lessons').doc(item.id).delete()} style={styles.deleteButton}>
-                                <Text style={styles.buttonText}>Delete</Text>
-                            </TouchableOpacity>
-                        </View>
+                        {isOwner() && (
+                            <View style={styles.buttonGroup}>
+                                <TouchableOpacity 
+                                    onPress={() => navigation.navigate('LessonBuilderScreen', { boardId, lessonId: item.id })} 
+                                    style={styles.editButton}
+                                >
+                                    <Text style={styles.buttonText}>Edit</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity 
+                                    onPress={() => firestore().collection('boards').doc(boardId).collection('lessons').doc(item.id).delete()} 
+                                    style={styles.deleteButton}
+                                >
+                                    <Text style={styles.buttonText}>Delete</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
                     </View>
                 )}
                 ListEmptyComponent={<Text style={styles.noLessons}>No lessons added yet.</Text>}
             />
-            <TouchableOpacity
-                style={styles.addLessonButton}
-                onPress={() => navigation.navigate('LessonBuilderScreen', { boardId })}
-            >
-                <Text style={styles.addLessonButtonText}>Add Lesson</Text>
-            </TouchableOpacity>
+            {isOwner() && (
+                <TouchableOpacity
+                    style={styles.addLessonButton}
+                    onPress={() => navigation.navigate('LessonBuilderScreen', { boardId })}
+                >
+                    <Text style={styles.addLessonButtonText}>Add Lesson</Text>
+                </TouchableOpacity>
+            )}
         </View>
     );
 
@@ -159,24 +184,33 @@ const BoardDetailsScreen = ({ route, navigation }) => {
                         >
                             <Text style={styles.testTitle}>{item.testName}</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => handleDeleteTest(item.id)} style={styles.deleteButton}>
-                            <Text style={styles.buttonText}>Delete</Text>
-                        </TouchableOpacity>
+                        {isOwner() && (
+                            <TouchableOpacity 
+                                onPress={() => handleDeleteTest(item.id)} 
+                                style={styles.deleteButton}
+                            >
+                                <Text style={styles.buttonText}>Delete</Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
                 )}
                 ListFooterComponent={
-                    <TouchableOpacity
-                        style={styles.addTestButton}
-                        onPress={() => navigation.navigate('TestCreateScreen', { boardId })}
-                    >
-                        <Text style={styles.addTestButtonText}>Add Test</Text>
-                    </TouchableOpacity>
+                    isOwner() ? (
+                        <TouchableOpacity
+                            style={styles.addTestButton}
+                            onPress={() => navigation.navigate('TestCreateScreen', { boardId })}
+                        >
+                            <Text style={styles.addTestButtonText}>Add Test</Text>
+                        </TouchableOpacity>
+                    ) : null
                 }
             />
         </View>
     );
 
     const handleDeleteTest = (testId) => {
+        if (!isOwner()) return;
+        
         Alert.alert("Confirm Delete", "Are you sure you want to delete this test?", [
             { text: "Cancel", style: "cancel" },
             { text: "OK", onPress: () => firestore().collection('boards').doc(boardId).collection('tests').doc(testId).delete() }
@@ -193,18 +227,29 @@ const BoardDetailsScreen = ({ route, navigation }) => {
                         onPress={() => navigation.navigate('MenteeLessonsActivityScreen', { boardId, userId: item.id })}
                     >
                         <View style={styles.memberItem}>
-                            <Text style={styles.memberEmail}>{item.email}</Text>
-                            <Text style={styles.memberRole}>Username: {item.username || 'Not defined'}</Text>
+                            <View style={styles.memberNameContainer}>
+                                <Text style={styles.memberName}>{item.username || 'No username'}</Text>
+                                {isCurrentUser(item.id) && (
+                                    <Text style={styles.currentUserLabel}>Me</Text>
+                                )}
+                            </View>
+                            {item.role === 'Admin' ? (
+                                <Text style={styles.adminLabel}>Admin</Text>
+                            ) : (
+                                <Text style={styles.memberRole}>Mentee</Text>
+                            )}
                         </View>
                     </TouchableOpacity>
                 )}
                 ListFooterComponent={
-                    <TouchableOpacity
-                        style={styles.inviteButton}
-                        onPress={() => setModalVisible(true)}
-                    >
-                        <Text style={styles.inviteButtonText}>Invite Member</Text>
-                    </TouchableOpacity>
+                    isOwner() ? (
+                        <TouchableOpacity
+                            style={styles.inviteButton}
+                            onPress={() => setModalVisible(true)}
+                        >
+                            <Text style={styles.inviteButtonText}>Invite Member</Text>
+                        </TouchableOpacity>
+                    ) : null
                 }
             />
         </View>
@@ -218,48 +263,48 @@ const BoardDetailsScreen = ({ route, navigation }) => {
 
     return (
         <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
-        <View style={styles.container}>
-            <CustomAppBar title={boardData.title} showBackButton={true} />
-            <TabView
-                navigationState={{ index, routes }}
-                renderScene={renderScene}
-                onIndexChange={setIndex}
-                initialLayout={{ width: Dimensions.get('window').width }}
-                renderTabBar={props => (
-                    <TabBar
-                        {...props}
-                        indicatorStyle={styles.tabIndicator}
-                        style={styles.tabBar}
-                        labelStyle={styles.tabLabel}
-                    />
-                )}
-            />
-            <Modal
-                visible={modalVisible}
-                animationType="slide"
-                transparent={true}
-                onRequestClose={() => setModalVisible(false)}
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Invite Member</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Enter username"
-                            value={username}
-                            onChangeText={setUsername}
+            <View style={styles.container}>
+                <CustomAppBar title={boardData.title} showBackButton={true} />
+                <TabView
+                    navigationState={{ index, routes }}
+                    renderScene={renderScene}
+                    onIndexChange={setIndex}
+                    initialLayout={{ width: Dimensions.get('window').width }}
+                    renderTabBar={props => (
+                        <TabBar
+                            {...props}
+                            indicatorStyle={styles.tabIndicator}
+                            style={styles.tabBar}
+                            labelStyle={styles.tabLabel}
                         />
-                        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
-                        <TouchableOpacity onPress={inviteUser} style={styles.modalButton}>
-                            <Text style={styles.modalButtonText}>Invite</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalButtonCancel}>
-                            <Text style={styles.modalButtonText}>Cancel</Text>
-                        </TouchableOpacity>
+                    )}
+                />
+                <Modal
+                    visible={modalVisible}
+                    animationType="slide"
+                    transparent={true}
+                    onRequestClose={() => setModalVisible(false)}
+                >
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Invite Member</Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Enter username"
+                                value={username}
+                                onChangeText={setUsername}
+                            />
+                            {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+                            <TouchableOpacity onPress={inviteUser} style={styles.modalButton}>
+                                <Text style={styles.modalButtonText}>Invite</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalButtonCancel}>
+                                <Text style={styles.modalButtonText}>Cancel</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                </View>
-            </Modal>
-        </View>
+                </Modal>
+            </View>
         </LinearGradient>
     );
 };
@@ -342,13 +387,34 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         backgroundColor: '#6D9773',
     },
-    memberEmail: {
+    memberNameContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 5,
+    },
+    memberName: {
         fontSize: 16,
+        fontWeight: 'bold',
         color: '#FFFFFF',
+    },
+    currentUserLabel: {
+        fontSize: 12,
+        color: '#FFBA00',
+        backgroundColor: 'rgba(255, 186, 0, 0.2)',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 10,
+        marginLeft: 8,
     },
     memberRole: {
         fontSize: 14,
-        color: '#FFFFFF',
+        color: '#FFBA00',
+        fontStyle: 'italic',
+    },
+    adminLabel: {
+        fontSize: 14,
+        color: '#FFBA00',
+        fontWeight: 'bold',
     },
     inviteButton: {
         backgroundColor: '#FFBA00',

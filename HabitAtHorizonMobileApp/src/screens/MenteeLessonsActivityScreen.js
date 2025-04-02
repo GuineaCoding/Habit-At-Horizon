@@ -5,10 +5,9 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
-  Dimensions,
   ActivityIndicator,
   TextInput,
+  Alert,Dimensions
 } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import firestore from '@react-native-firebase/firestore';
@@ -20,22 +19,58 @@ import LinearGradient from 'react-native-linear-gradient';
 const MenteeLessonsActivityScreen = () => {
   const { userId, boardId } = useRoute().params;
   const [index, setIndex] = useState(0);
-  const [routes] = useState([
-    { key: 'checked', title: 'Checked' },
-    { key: 'unchecked', title: 'Unchecked' },
-    { key: 'chat', title: 'Chat' },
-  ]);
+  const [routes, setRoutes] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [boardData, setBoardData] = useState(null);
+  const [hasSubmissionAccess, setHasSubmissionAccess] = useState(false);
   const navigation = useNavigation();
+  const currentUser = auth().currentUser;
 
   useEffect(() => {
-    console.log(`Attempting to fetch submissions with Board ID: ${boardId}, User ID: ${userId}`);
-    if (!userId || !boardId) {
-      console.error('Invalid user or board ID:', { userId, boardId });
-      setLoading(false);
-      return;
-    }
+    const checkAccess = async () => {
+      try {
+        // Get board data
+        const boardDoc = await firestore()
+          .collection('boards')
+          .doc(boardId)
+          .get();
+        
+        if (boardDoc.exists) {
+          setBoardData(boardDoc.data());
+          
+          // Check if current user is board owner or the submission owner
+          const isOwnerOrSubmitter = boardDoc.data().creator === currentUser?.uid || 
+                                    userId === currentUser?.uid;
+          
+          setHasSubmissionAccess(isOwnerOrSubmitter);
+          
+          // Always show Chat tab, conditionally show submission tabs
+          const availableRoutes = [
+            { key: 'chat', title: 'Chat' }
+          ];
+          
+          if (isOwnerOrSubmitter) {
+            availableRoutes.unshift(
+              { key: 'checked', title: 'Checked' },
+              { key: 'unchecked', title: 'Unchecked' }
+            );
+          }
+          
+          setRoutes(availableRoutes);
+        }
+      } catch (error) {
+        console.error('Error checking access:', error);
+        setHasSubmissionAccess(false);
+        setRoutes([{ key: 'chat', title: 'Chat' }]);
+      }
+    };
+
+    checkAccess();
+  }, [userId, boardId, currentUser?.uid]);
+
+  useEffect(() => {
+    if (!hasSubmissionAccess) return;
 
     const fetchSubmissions = async () => {
       setLoading(true);
@@ -69,7 +104,7 @@ const MenteeLessonsActivityScreen = () => {
     };
 
     fetchSubmissions();
-  }, [userId, boardId]);
+  }, [userId, boardId, hasSubmissionAccess]);
 
   const filteredSubmissions = (checked) =>
     submissions.filter((sub) => sub.isTestCheckedByMentor === checked);
@@ -81,6 +116,7 @@ const MenteeLessonsActivityScreen = () => {
         navigation={navigation}
         userId={userId}
         boardId={boardId}
+        hasAccess={hasSubmissionAccess}
       />
     ),
     checked: () => (
@@ -89,12 +125,13 @@ const MenteeLessonsActivityScreen = () => {
         navigation={navigation}
         userId={userId}
         boardId={boardId}
+        hasAccess={hasSubmissionAccess}
       />
     ),
     chat: () => <ChatTab userId={userId} boardId={boardId} />,
   });
 
-  if (loading) {
+  if (loading && hasSubmissionAccess) {
     return (
       <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
         <ActivityIndicator size="large" color="#FFBA00" />
@@ -130,7 +167,17 @@ const MenteeLessonsActivityScreen = () => {
   );
 };
 
-const SubmissionList = ({ submissions, navigation, userId, boardId }) => {
+const SubmissionList = ({ submissions, navigation, userId, boardId, hasAccess }) => {
+  if (!hasAccess) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>
+          Only the board owner or submission owner can view these submissions
+        </Text>
+      </View>
+    );
+  }
+
   if (submissions.length === 0) {
     return (
       <View style={styles.emptyContainer}>
@@ -175,9 +222,9 @@ const SubmissionList = ({ submissions, navigation, userId, boardId }) => {
 const ChatTab = ({ userId, boardId }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const currentUser = auth().currentUser;
 
   useEffect(() => {
-    console.log('Setting up Firestore listener for chat messages...');
     const unsubscribe = firestore()
       .collection('boards')
       .doc(boardId)
@@ -187,11 +234,9 @@ const ChatTab = ({ userId, boardId }) => {
       .orderBy('timestamp', 'asc')
       .onSnapshot(
         async (snapshot) => {
-          console.log('New messages snapshot received:', snapshot.docs.length);
           const fetchedMessages = await Promise.all(
             snapshot.docs.map(async (doc) => {
               const messageData = doc.data();
-              console.log('Fetched message data:', messageData);
               const userDoc = await firestore()
                 .collection('users')
                 .doc(messageData.senderId)
@@ -201,6 +246,7 @@ const ChatTab = ({ userId, boardId }) => {
                 id: doc.id,
                 ...messageData,
                 username,
+                isCurrentUser: messageData.senderId === currentUser?.uid,
               };
             })
           );
@@ -211,31 +257,18 @@ const ChatTab = ({ userId, boardId }) => {
         }
       );
 
-    return () => {
-      console.log('Unsubscribing from Firestore listener...');
-      unsubscribe();
-    };
-  }, [userId, boardId]);
+    return () => unsubscribe();
+  }, [userId, boardId, currentUser?.uid]);
 
   const sendMessage = async () => {
-    if (!newMessage.trim()) {
-      console.log('Message is empty, not sending.');
-      return;
-    }
-
-    const currentUser = auth().currentUser;
-    if (!currentUser) {
-      console.error('No authenticated user found.');
-      return;
-    }
+    if (!newMessage.trim()) return;
+    if (!currentUser) return;
 
     const messageData = {
       text: newMessage,
       timestamp: firestore.FieldValue.serverTimestamp(),
       senderId: currentUser.uid,
     };
-
-    console.log('Sending message:', messageData);
 
     try {
       await firestore()
@@ -245,10 +278,10 @@ const ChatTab = ({ userId, boardId }) => {
         .doc(userId)
         .collection('messages')
         .add(messageData);
-      console.log('Message sent successfully.');
       setNewMessage('');
     } catch (error) {
       console.error('Failed to send message:', error);
+      Alert.alert('Error', 'Failed to send message. Please try again.');
     }
   };
 
@@ -259,9 +292,15 @@ const ChatTab = ({ userId, boardId }) => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.chatList}
         renderItem={({ item }) => (
-          <View style={styles.messageItem}>
+          <View style={[
+            styles.messageItem, 
+            item.isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage
+          ]}>
             <Text style={styles.messageUsername}>{item.username}</Text>
             <Text style={styles.messageText}>{item.text}</Text>
+            <Text style={styles.messageTime}>
+              {item.timestamp?.toDate?.().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </Text>
           </View>
         )}
       />
@@ -273,6 +312,7 @@ const ChatTab = ({ userId, boardId }) => {
           placeholder="Type a message..."
           placeholderTextColor="#888"
           onSubmitEditing={sendMessage}
+          multiline
         />
         <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
           <Text style={styles.sendButtonText}>Send</Text>
@@ -338,33 +378,51 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
   },
   emptyText: {
     fontSize: 16,
     color: '#FFBA00',
+    textAlign: 'center',
   },
   chatContainer: {
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
   chatList: {
-    padding: 20,
+    padding: 10,
   },
   messageItem: {
-    padding: 15,
-    marginVertical: 8,
-    backgroundColor: '#F0F0F0',
+    padding: 12,
+    marginVertical: 6,
     borderRadius: 8,
+    maxWidth: '80%',
+  },
+  currentUserMessage: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#FFBA00',
+    borderTopRightRadius: 0,
+  },
+  otherUserMessage: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#F0F0F0',
+    borderTopLeftRadius: 0,
   },
   messageUsername: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
     color: '#0C3B2E',
+    marginBottom: 4,
   },
   messageText: {
     fontSize: 14,
     color: '#0C3B2E',
-    marginTop: 5,
+  },
+  messageTime: {
+    fontSize: 10,
+    color: '#666',
+    textAlign: 'right',
+    marginTop: 4,
   },
   chatInputContainer: {
     flexDirection: 'row',
@@ -379,15 +437,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#6D9773',
     padding: 10,
-    borderRadius: 8,
+    borderRadius: 20,
     marginRight: 10,
     color: '#0C3B2E',
     backgroundColor: '#F0F0F0',
+    maxHeight: 100,
   },
   sendButton: {
     backgroundColor: '#FFBA00',
-    padding: 10,
-    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 20,
   },
   sendButtonText: {
     color: '#0C3B2E',

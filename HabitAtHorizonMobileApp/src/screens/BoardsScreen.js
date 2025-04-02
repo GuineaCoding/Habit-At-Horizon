@@ -15,19 +15,51 @@ const BoardsScreen = ({ navigation }) => {
 
     const fetchBoards = async () => {
         try {
-            const boardsSnapshot = await firestore()
+            const userBoards = [];
+            
+            // 1. Get boards where user is the creator
+            const creatorBoards = await firestore()
                 .collection('boards')
                 .where('creator', '==', user.uid)
                 .get();
+            
+            creatorBoards.forEach(doc => {
+                userBoards.push({
+                    id: doc.id,
+                    ...doc.data(),
+                    isCreator: true
+                });
+            });
 
-            const userBoards = boardsSnapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
+            // 2. Get boards where user is a member (using alternative approach)
+            const allBoards = await firestore()
+                .collection('boards')
+                .get();
+
+            const memberBoardsPromises = allBoards.docs.map(async (doc) => {
+                if (doc.data().creator === user.uid) return null;
+                
+                const memberDoc = await firestore()
+                    .collection('boards')
+                    .doc(doc.id)
+                    .collection('members')
+                    .doc(user.uid)
+                    .get();
+                
+                return memberDoc.exists ? {
+                    id: doc.id,
+                    ...doc.data(),
+                    isCreator: false
+                } : null;
+            });
+
+            const memberBoards = (await Promise.all(memberBoardsPromises)).filter(b => b !== null);
+            userBoards.push(...memberBoards);
 
             setBoards(userBoards);
         } catch (error) {
             console.error('Error fetching boards:', error);
+            Alert.alert('Error', 'Failed to load boards. Please try again later.');
         }
     };
 
@@ -87,6 +119,7 @@ const BoardsScreen = ({ navigation }) => {
                     createdAt: new Date(),
                 });
                 await newBoardRef.collection('members').doc(user.uid).set({
+                    userId: user.uid,
                     role: 'Admin',
                     creatorEmail: user.email,
                     username: username,
@@ -117,7 +150,6 @@ const BoardsScreen = ({ navigation }) => {
                     onPress: async () => {
                         try {
                             await firestore().collection('boards').doc(boardId).delete();
-                   
                             await fetchBoards();
                         } catch (error) {
                             console.error('Error deleting board:', error);
@@ -142,15 +174,22 @@ const BoardsScreen = ({ navigation }) => {
                 onPress={() => navigation.navigate('BoardDetailsScreen', { boardId: item.id })}
             >
                 <Text style={styles.boardTitle}>{item.title}</Text>
-                <Text style={styles.boardCreator}>Created by Mentor: {item.username}</Text>
+                <Text style={styles.boardCreator}>Created by: {item.username}</Text>
+                {item.creator !== user.uid && (
+                    <Text style={styles.boardMemberNote}>(Shared with you)</Text>
+                )}
             </TouchableOpacity>
             <View style={styles.boardActions}>
-                <TouchableOpacity onPress={() => openEditModal(item)}>
-                    <Icon name="edit" size={24} color="#FFBA00" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => deleteBoard(item.id)}>
-                    <Icon name="delete" size={24} color="#B46617" />
-                </TouchableOpacity>
+                {item.creator === user.uid && (
+                    <>
+                        <TouchableOpacity onPress={() => openEditModal(item)}>
+                            <Icon name="edit" size={24} color="#FFBA00" />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => deleteBoard(item.id)}>
+                            <Icon name="delete" size={24} color="#B46617" />
+                        </TouchableOpacity>
+                    </>
+                )}
             </View>
         </View>
     );
@@ -237,6 +276,11 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#FFFFFF',
     },
+    boardMemberNote: {
+        fontSize: 12,
+        color: '#FFBA00',
+        fontStyle: 'italic',
+    },
     boardActions: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -253,7 +297,7 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 8,
         alignItems: 'center',
-        margin: 20, 
+        margin: 20,
     },
     addButtonText: {
         color: '#0C3B2E',

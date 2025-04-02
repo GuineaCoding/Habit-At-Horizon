@@ -1,7 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  TextInput, 
+  TouchableOpacity, 
+  ActivityIndicator, 
+  Alert 
+} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 import CustomAppBar from '../components/CustomAppBar';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -12,12 +22,23 @@ const DetailedSubmissionView = ({ route, navigation }) => {
   const [passStatus, setPassStatus] = useState('pass');
   const [genericTestFeedback, setGenericTestFeedback] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isOwner, setIsOwner] = useState(false);
+  const currentUser = auth().currentUser;
 
   useEffect(() => {
-    const fetchSubmissionDetails = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
-        const doc = await firestore()
+        // Check if current user is the board owner
+        const boardDoc = await firestore()
+          .collection('boards')
+          .doc(boardId)
+          .get();
+        
+        setIsOwner(boardDoc.exists && boardDoc.data().creator === currentUser?.uid);
+
+        // Fetch submission details
+        const submissionDoc = await firestore()
           .collection('boards')
           .doc(boardId)
           .collection('members')
@@ -26,21 +47,23 @@ const DetailedSubmissionView = ({ route, navigation }) => {
           .doc(submissionId)
           .get();
 
-        if (doc.exists) {
-          const data = { id: doc.id, ...doc.data() };
+        if (submissionDoc.exists) {
+          const data = { id: submissionDoc.id, ...submissionDoc.data() };
           setSubmissionDetails(data);
           setFeedback((data.responses || []).map((r) => r.feedback || ''));
+          setGenericTestFeedback(data.genericTestFeedback || '');
+          setPassStatus(data.passStatus || 'pass');
         } else {
           setSubmissionDetails(null);
         }
       } catch (error) {
-        console.error('Failed to fetch submission details: ', error);
+        console.error('Failed to fetch data: ', error);
       }
       setLoading(false);
     };
 
-    fetchSubmissionDetails();
-  }, [submissionId, userId, boardId]);
+    fetchData();
+  }, [submissionId, userId, boardId, currentUser?.uid]);
 
   const handleFeedbackChange = (text, index) => {
     const newFeedback = [...feedback];
@@ -49,6 +72,8 @@ const DetailedSubmissionView = ({ route, navigation }) => {
   };
 
   const submitFeedback = async () => {
+    if (!isOwner) return;
+    
     setLoading(true);
     try {
       await firestore()
@@ -108,37 +133,72 @@ const DetailedSubmissionView = ({ route, navigation }) => {
               <Text style={styles.responseText}>
                 Response: {Array.isArray(response.response) ? response.response.join(', ') : response.response}
               </Text>
-              <TextInput
-                style={styles.input}
-                onChangeText={(text) => handleFeedbackChange(text, index)}
-                value={feedback[index]}
-                placeholder="Enter feedback here"
-                placeholderTextColor="#888"
-                multiline
-              />
+              {isOwner ? (
+                <TextInput
+                  style={styles.input}
+                  onChangeText={(text) => handleFeedbackChange(text, index)}
+                  value={feedback[index]}
+                  placeholder="Enter feedback here"
+                  placeholderTextColor="#888"
+                  multiline
+                />
+              ) : (
+                <View style={styles.readOnlyInput}>
+                  <Text style={styles.readOnlyText}>
+                    {feedback[index] || 'No feedback provided'}
+                  </Text>
+                </View>
+              )}
             </View>
           ))}
-        <TextInput
-          style={styles.input}
-          onChangeText={setGenericTestFeedback}
-          value={genericTestFeedback}
-          placeholder="Enter generic test feedback here"
-          placeholderTextColor="#888"
-          multiline
-        />
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={passStatus}
-            onValueChange={(itemValue) => setPassStatus(itemValue)}
-            style={styles.picker}
+        
+        {isOwner ? (
+          <TextInput
+            style={styles.input}
+            onChangeText={setGenericTestFeedback}
+            value={genericTestFeedback}
+            placeholder="Enter generic test feedback here"
+            placeholderTextColor="#888"
+            multiline
+          />
+        ) : (
+          <View style={styles.readOnlyInput}>
+            <Text style={styles.readOnlyText}>
+              {genericTestFeedback || 'No generic feedback provided'}
+            </Text>
+          </View>
+        )}
+        
+        {isOwner ? (
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={passStatus}
+              onValueChange={(itemValue) => setPassStatus(itemValue)}
+              style={styles.picker}
+            >
+              <Picker.Item label="Pass" value="pass" />
+              <Picker.Item label="Fail" value="fail" />
+            </Picker>
+          </View>
+        ) : (
+          <View style={styles.readOnlyStatus}>
+            <Text style={styles.readOnlyText}>
+              Status: {passStatus === 'pass' ? 'Pass' : 'Fail'}
+            </Text>
+          </View>
+        )}
+        
+        {isOwner && (
+          <TouchableOpacity 
+            style={styles.submitButton} 
+            onPress={submitFeedback}
+            disabled={loading}
           >
-            <Picker.Item label="Pass" value="pass" />
-            <Picker.Item label="Fail" value="fail" />
-          </Picker>
-        </View>
-        <TouchableOpacity style={styles.submitButton} onPress={submitFeedback}>
-          <Text style={styles.submitButtonText}>Submit Feedback</Text>
-        </TouchableOpacity>
+            <Text style={styles.submitButtonText}>
+              {loading ? 'Submitting...' : 'Submit Feedback'}
+            </Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
     </LinearGradient>
   );
@@ -195,6 +255,32 @@ const styles = StyleSheet.create({
     color: '#0C3B2E',
     textAlignVertical: 'top',
   },
+  readOnlyInput: {
+    minHeight: 80,
+    borderWidth: 1,
+    borderColor: '#CCCCCC',
+    padding: 10,
+    marginTop: 10,
+    marginBottom: 10,
+    borderRadius: 8,
+    backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+  },
+  readOnlyStatus: {
+    minHeight: 50,
+    borderWidth: 1,
+    borderColor: '#CCCCCC',
+    padding: 10,
+    marginTop: 10,
+    marginBottom: 20,
+    borderRadius: 8,
+    backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+  },
+  readOnlyText: {
+    fontSize: 14,
+    color: '#666666',
+  },
   pickerContainer: {
     borderWidth: 1,
     borderColor: '#6D9773',
@@ -213,6 +299,11 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
+    opacity: 1,
+  },
+  submitButtonDisabled: {
+    backgroundColor: '#CCCCCC',
+    opacity: 0.6,
   },
   submitButtonText: {
     color: '#0C3B2E',
