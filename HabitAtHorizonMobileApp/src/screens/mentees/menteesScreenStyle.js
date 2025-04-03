@@ -5,41 +5,69 @@ export const menteeBoardsListStyles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    listContainer: {
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    loadingText: {
+        color: '#FFFFFF',
+        marginTop: 20,
+        fontSize: 16,
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
         padding: 20,
     },
-    boardItem: {
+    emptyTitle: {
+        color: '#FFBA00',
+        fontSize: 22,
+        fontWeight: 'bold',
+        marginTop: 20,
+        textAlign: 'center',
+    },
+    emptySubtitle: {
+        color: 'rgba(255, 255, 255, 0.8)',
+        fontSize: 16,
+        marginTop: 10,
+        textAlign: 'center',
+    },
+    listContainer: {
         padding: 15,
-        marginVertical: 8,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 8,
-        elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 3,
+    },
+    boardItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#6D9773',
+        borderRadius: 10,
+        padding: 15,
+        marginBottom: 15,
+        borderWidth: 1,
+        borderColor: '#6D9773',
+    },
+    boardIcon: {
+        marginRight: 15,
+    },
+    boardTextContainer: {
+        flex: 1,
     },
     boardTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#0C3B2E',
+        color: '#FFFFFF',
+        marginBottom: 5,
     },
     boardCreator: {
         fontSize: 14,
-        color: '#6D9773',
-        marginTop: 5,
-    },
-    loadingText: {
         color: '#FFBA00',
-        fontSize: 16,
-        textAlign: 'center',
-        marginTop: 10,
+        marginBottom: 5,
     },
-    emptyText: {
-        color: '#FFBA00',
-        fontSize: 16,
-        textAlign: 'center',
-    },
+    boardDescription: {
+        fontSize: 14,
+        color: 'rgba(255, 255, 255, 0.7)',
+    }
 });
 
 // Styles for MenteeCheckedTestScreen

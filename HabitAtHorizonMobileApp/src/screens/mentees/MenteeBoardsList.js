@@ -1,10 +1,11 @@
+import { menteeBoardsListStyles as styles } from './menteesScreenStyle';
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import CustomAppBar from '../../components/CustomAppBar';
 import LinearGradient from 'react-native-linear-gradient';
-import { menteeBoardsListStyles as styles } from './menteesScreenStyle';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const MenteeBoardsList = ({ navigation }) => {
     const [boards, setBoards] = useState([]);
@@ -14,23 +15,18 @@ const MenteeBoardsList = ({ navigation }) => {
     useEffect(() => {
         const fetchBoards = async () => {
             setLoading(true);
-            console.log("Starting to fetch boards for user:", currentUser.uid);
             const boardList = [];
 
             try {
                 const boardsSnapshot = await firestore().collection('boards').get();
-                console.log("Fetched boards, total count:", boardsSnapshot.size);
 
                 for (const boardDoc of boardsSnapshot.docs) {
-                    console.log("Checking board:", boardDoc.id);
                     const membersSnapshot = await boardDoc.ref.collection('members')
                         .where('userId', '==', currentUser.uid)
                         .where('role', '==', 'mentee')
                         .get();
 
-                    console.log(`Checked members for board ${boardDoc.id}, found count:`, membersSnapshot.size);
                     for (const memberDoc of membersSnapshot.docs) {
-                        console.log(`User ${currentUser.uid} is a mentee in board ${boardDoc.id} with memberId ${memberDoc.id}`);
                         boardList.push({
                             id: boardDoc.id,
                             memberId: memberDoc.id,
@@ -39,11 +35,6 @@ const MenteeBoardsList = ({ navigation }) => {
                     }
                 }
 
-                if (boardList.length > 0) {
-                    console.log("Boards where user is a mentee found:", boardList.length);
-                } else {
-                    console.log("No boards found where user is a mentee.");
-                }
                 setBoards(boardList);
             } catch (error) {
                 console.error("Error fetching boards:", error);
@@ -55,7 +46,6 @@ const MenteeBoardsList = ({ navigation }) => {
     }, []);
 
     if (loading) {
-        console.log("Loading boards...");
         return (
             <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
                 <CustomAppBar
@@ -63,27 +53,14 @@ const MenteeBoardsList = ({ navigation }) => {
                     showBackButton={true}
                     onBackPress={() => navigation.goBack()}
                 />
-                <ActivityIndicator size="large" color="#FFBA00" />
-                <Text style={styles.loadingText}>Loading boards...</Text>
+                <View style={styles.loaderContainer}>
+                    <ActivityIndicator size="large" color="#FFBA00" />
+                    <Text style={styles.loadingText}>Loading your learning boards...</Text>
+                </View>
             </LinearGradient>
         );
     }
 
-    if (!boards.length) {
-        console.log("No boards to display after fetch.");
-        return (
-            <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
-                <CustomAppBar
-                    title="Learning Boards"
-                    showBackButton={true}
-                    onBackPress={() => navigation.goBack()}
-                />
-                <Text style={styles.emptyText}>No boards found.</Text>
-            </LinearGradient>
-        );
-    }
-
-    console.log("Rendering boards list.");
     return (
         <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
             <CustomAppBar
@@ -91,24 +68,37 @@ const MenteeBoardsList = ({ navigation }) => {
                 showBackButton={true}
                 onBackPress={() => navigation.goBack()}
             />
-            <FlatList
-                data={boards}
-                keyExtractor={item => item.id}
-                contentContainerStyle={styles.listContainer}
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-                        style={styles.boardItem}
-                        onPress={() => {
-                            console.log("Navigating to details for board:", item.id, "with memberId:", item.memberId);
-                            navigation.navigate('MenteeLessonsBoardsScreen', { boardId: item.id, memberId: item.memberId });
-                        }}
-                    >
-                        <Text style={styles.boardTitle}>{item.title}</Text>
-                        <Text style={styles.boardCreator}>Created by: {item.creatorEmail}</Text>
-                    </TouchableOpacity>
-                )}
-                ListEmptyComponent={<Text style={styles.emptyText}>No boards found.</Text>}
-            />
+            
+            {boards.length === 0 ? (
+                <View style={styles.emptyContainer}>
+                    <Icon name="book-remove-outline" size={60} color="#FFBA00" />
+                    <Text style={styles.emptyTitle}>No Learning Boards Found</Text>
+                    <Text style={styles.emptySubtitle}>You haven't been added to any learning boards yet</Text>
+                </View>
+            ) : (
+                <FlatList
+                    data={boards}
+                    keyExtractor={item => item.id}
+                    contentContainerStyle={styles.listContainer}
+                    renderItem={({ item }) => (
+                        <TouchableOpacity
+                            style={styles.boardItem}
+                            onPress={() => navigation.navigate('MenteeLessonsBoardsScreen', { 
+                                boardId: item.id, 
+                                memberId: item.memberId 
+                            })}
+                        >
+                            <Icon name="book-education" size={30} color="#FFBA00" style={styles.boardIcon} />
+                            <View style={styles.boardTextContainer}>
+                                <Text style={styles.boardTitle}>{item.title}</Text>
+                                <Text style={styles.boardCreator}>Created by: {item.creatorEmail}</Text>
+                                <Text style={styles.boardDescription}>{item.description || 'No description available'}</Text>
+                            </View>
+                            <Icon name="chevron-right" size={24} color="#FFBA00" />
+                        </TouchableOpacity>
+                    )}
+                />
+            )}
         </LinearGradient>
     );
 };
