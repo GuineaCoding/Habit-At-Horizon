@@ -112,6 +112,7 @@ export const menteeCheckedTestScreenStyles = StyleSheet.create({
 export const menteeLessonBoardsScreenStyles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#0C3B2E',
     },
     tabView: {
         flex: 1,
@@ -121,84 +122,74 @@ export const menteeLessonBoardsScreenStyles = StyleSheet.create({
     },
     scene: {
         flex: 1,
-        padding: 20,
     },
     tabBar: {
-        backgroundColor: '#0C3B2E',
+        backgroundColor: '#6D9773',
+        elevation: 0,
+        shadowOpacity: 0,
     },
     tabLabel: {
         color: '#FFFFFF',
         fontWeight: 'bold',
+        textTransform: 'none',
+    },
+    tabIndicator: {
+        backgroundColor: '#FFBA00',
+        height: 3,
     },
     listContainer: {
-        padding: 20,
+        padding: 15,
     },
-    lessonItem: {
+    cardItem: {
         flexDirection: 'row',
         alignItems: 'center',
         padding: 15,
-        marginVertical: 8,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 8,
-    },
-    testItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 15,
-        marginVertical: 8,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 8,
-    },
-    resultItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 15,
-        marginVertical: 8,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 8,
+        marginBottom: 12,
+        backgroundColor: 'rgba(109, 151, 115, 0.8)',
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
     },
     icon: {
-        marginRight: 10,
+        marginRight: 15,
+        color: '#FFBA00',
     },
     textContainer: {
         flex: 1,
     },
-    lessonTitle: {
+    cardTitle: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#0C3B2E',
+        color: '#FFFFFF',
+        marginBottom: 4,
     },
-    lessonContent: {
+    cardContent: {
         fontSize: 14,
-        color: '#666',
+        color: 'rgba(255, 255, 255, 0.8)',
     },
-    testTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#0C3B2E',
-    },
-    testContent: {
+    statusText: {
         fontSize: 14,
-        color: '#666',
-    },
-    testName: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#0C3B2E',
-    },
-    testStatus: {
-        fontSize: 14,
-        color: '#666',
+        color: '#FFBA00',
+        fontStyle: 'italic',
     },
     messageItem: {
-        padding: 10,
-        marginVertical: 4,
-        backgroundColor: '#FFFFFF',
+        padding: 12,
+        marginBottom: 8,
         borderRadius: 8,
+        maxWidth: '80%',
+    },
+    myMessage: {
+        alignSelf: 'flex-end',
+        backgroundColor: '#FFBA00',
+    },
+    otherMessage: {
+        alignSelf: 'flex-start',
+        backgroundColor: '#6D9773',
     },
     messageUsername: {
-        fontSize: 14,
         fontWeight: 'bold',
+        fontSize: 12,
+        marginBottom: 4,
         color: '#0C3B2E',
     },
     messageText: {
@@ -208,55 +199,117 @@ export const menteeLessonBoardsScreenStyles = StyleSheet.create({
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 10,
+        padding: 15,
+        backgroundColor: '#0C3B2E',
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(255, 255, 255, 0.1)',
     },
     input: {
         flex: 1,
-        borderWidth: 1,
-        borderColor: '#6D9773',
-        padding: 10,
-        borderRadius: 8,
         backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        marginRight: 10,
         color: '#0C3B2E',
     },
     sendButton: {
-        marginLeft: 10,
-        padding: 10,
         backgroundColor: '#FFBA00',
-        borderRadius: 8,
+        borderRadius: 20,
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     loader: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    emptyText: {
+        color: 'rgba(255, 255, 255, 0.6)',
+        fontSize: 16,
+        textAlign: 'center',
+    },
 });
 
 // Styles for MenteesDashboardScreen
+
 export const menteesDashboardScreenStyles = StyleSheet.create({
     container: {
         flex: 1,
     },
     content: {
         flex: 1,
-        padding: 20,
         justifyContent: 'center',
         alignItems: 'center',
+        padding: 20,
+    },
+    welcomeText: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: 'white',
+        textAlign: 'center',
+        marginBottom: 10,
+    },
+    subtitle: {
+        fontSize: 16,
+        color: 'rgba(255, 255, 255, 0.8)',
+        textAlign: 'center',
+        marginBottom: 30,
+        paddingHorizontal: 20,
+        lineHeight: 22,
     },
     button: {
-        width: '100%',
-        padding: 15,
-        marginVertical: 10,
         backgroundColor: '#FFBA00',
         borderRadius: 8,
+        padding: 15,
+        width: '100%',
         alignItems: 'center',
     },
     buttonText: {
+        color: '#0C3B2E',
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#0C3B2E',
     },
+    buttonEnhanced: {
+        paddingVertical: 20,
+        marginBottom: 30,
+    },
+    buttonSubtext: {
+        color: 'rgba(255, 255, 255, 0.7)',
+        fontSize: 14,
+        textAlign: 'center',
+        marginTop: 5,
+    },
+    featuresContainer: {
+        width: '100%',
+        marginTop: 20,
+    },
+    featureItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 15,
+        paddingHorizontal: 20,
+    },
+    featureEmoji: {
+        fontSize: 24,
+        marginRight: 15,
+    },
+    featureText: {
+        color: 'white',
+        fontSize: 16,
+        flex: 1,
+    }
 });
+
+
 
 // Styles for MenteeTestResultScreen
 export const menteeTestResultScreenStyles = StyleSheet.create({

@@ -1,5 +1,6 @@
+// MenteeLessonBoardsScreen.js
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Dimensions, TextInput, ActivityIndicator } from 'react-native';
+import { View, FlatList, TouchableOpacity, Dimensions, TextInput, ActivityIndicator, Text } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import auth from '@react-native-firebase/auth';
@@ -7,12 +8,13 @@ import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import CustomAppBar from '../../components/CustomAppBar';
-import { menteeLessonBoardsScreenStyles as styles } from './menteesScreenStyle'; 
+import { menteeLessonBoardsScreenStyles as styles } from './menteesScreenStyle';
 
 const initialLayout = { width: Dimensions.get('window').width };
 
 const LessonsRoute = ({ boardId, navigation }) => {
     const [lessons, setLessons] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const unsubscribe = firestore()
@@ -25,25 +27,58 @@ const LessonsRoute = ({ boardId, navigation }) => {
                     ...doc.data()
                 }));
                 setLessons(fetchedLessons);
+                setLoading(false);
             });
 
         return () => unsubscribe();
     }, [boardId]);
 
+    if (loading) {
+        return (
+            <LinearGradient 
+                colors={['#0C3B2E', '#6D9773']} 
+                style={[styles.gradientContainer, styles.loader]}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 1}}
+            >
+                <ActivityIndicator size="large" color="#FFBA00" />
+            </LinearGradient>
+        );
+    }
+
+    if (lessons.length === 0) {
+        return (
+            <LinearGradient 
+                colors={['#0C3B2E', '#6D9773']} 
+                style={[styles.gradientContainer, styles.emptyContainer]}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 1}}
+            >
+                <Icon name="book-remove-outline" size={50} color="rgba(255, 255, 255, 0.3)" />
+                <Text style={styles.emptyText}>No lessons available yet</Text>
+            </LinearGradient>
+        );
+    }
+
     return (
-        <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.gradientContainer}>
+        <LinearGradient 
+            colors={['#0C3B2E', '#6D9773']} 
+            style={styles.gradientContainer}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 1}}
+        >
             <FlatList
                 data={lessons}
                 contentContainerStyle={styles.listContainer}
                 renderItem={({ item }) => (
                     <TouchableOpacity
-                        style={styles.lessonItem}
+                        style={styles.cardItem}
                         onPress={() => navigation.navigate('LessonScreen', { boardId, lessonId: item.id })}
                     >
-                        <Icon name="book-open" size={24} color="#0C3B2E" style={styles.icon} />
+                        <Icon name="book-open" size={24} style={styles.icon} />
                         <View style={styles.textContainer}>
-                            <Text style={styles.lessonTitle}>{item.title}</Text>
-                            <Text style={styles.lessonContent}>{item.description}</Text>
+                            <Text style={styles.cardTitle}>{item.title}</Text>
+                            <Text style={styles.cardContent}>{item.description || 'No description'}</Text>
                         </View>
                     </TouchableOpacity>
                 )}
@@ -55,6 +90,7 @@ const LessonsRoute = ({ boardId, navigation }) => {
 
 const TestsRoute = ({ boardId, navigation }) => {
     const [tests, setTests] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const unsubscribe = firestore()
@@ -67,10 +103,28 @@ const TestsRoute = ({ boardId, navigation }) => {
                     ...doc.data()
                 }));
                 setTests(fetchedTests);
+                setLoading(false);
             });
 
         return () => unsubscribe();
     }, [boardId]);
+
+    if (loading) {
+        return (
+            <View style={styles.loader}>
+                <ActivityIndicator size="large" color="#FFBA00" />
+            </View>
+        );
+    }
+
+    if (tests.length === 0) {
+        return (
+            <View style={styles.emptyContainer}>
+                <Icon name="clipboard-remove-outline" size={50} color="rgba(255, 255, 255, 0.3)" />
+                <Text style={styles.emptyText}>No tests available yet</Text>
+            </View>
+        );
+    }
 
     return (
         <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.gradientContainer}>
@@ -79,13 +133,13 @@ const TestsRoute = ({ boardId, navigation }) => {
                 contentContainerStyle={styles.listContainer}
                 renderItem={({ item }) => (
                     <TouchableOpacity
-                        style={styles.testItem}
+                        style={styles.cardItem}
                         onPress={() => navigation.navigate('TestViewScreen', { boardId, testId: item.id })}
                     >
-                        <Icon name="clipboard-text" size={24} color="#0C3B2E" style={styles.icon} />
+                        <Icon name="clipboard-text" size={24} style={styles.icon} />
                         <View style={styles.textContainer}>
-                            <Text style={styles.testTitle}>{item.testName}</Text>
-                            <Text style={styles.testContent}>{item.description}</Text>
+                            <Text style={styles.cardTitle}>{item.testName}</Text>
+                            <Text style={styles.cardContent}>{item.description || 'No description'}</Text>
                         </View>
                     </TouchableOpacity>
                 )}
@@ -120,11 +174,18 @@ const ResultsRoute = ({ boardId, userId }) => {
 
     if (loading) {
         return (
-            <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.gradientContainer}>
-                <View style={styles.loader}>
-                    <ActivityIndicator size="large" color="#FFBA00" />
-                </View>
-            </LinearGradient>
+            <View style={styles.loader}>
+                <ActivityIndicator size="large" color="#FFBA00" />
+            </View>
+        );
+    }
+
+    if (submissions.length === 0) {
+        return (
+            <View style={styles.emptyContainer}>
+                <Icon name="chart-box-outline" size={50} color="rgba(255, 255, 255, 0.3)" />
+                <Text style={styles.emptyText}>No test results available yet</Text>
+            </View>
         );
     }
 
@@ -135,14 +196,13 @@ const ResultsRoute = ({ boardId, userId }) => {
                 contentContainerStyle={styles.listContainer}
                 renderItem={({ item }) => (
                     <TouchableOpacity
-                        key={item.id}
-                        style={styles.resultItem}
+                        style={styles.cardItem}
                         onPress={() => navigation.navigate('MenteeTestResultScreen', { submission: item })}
                     >
-                        <Icon name="chart-bar" size={24} color="#0C3B2E" style={styles.icon} />
+                        <Icon name="chart-bar" size={24} style={styles.icon} />
                         <View style={styles.textContainer}>
-                            <Text style={styles.testName}>{item.testName}</Text>
-                            <Text style={styles.testStatus}>Status: {item.passStatus}</Text>
+                            <Text style={styles.cardTitle}>{item.testName}</Text>
+                            <Text style={styles.statusText}>Status: {item.passStatus}</Text>
                         </View>
                     </TouchableOpacity>
                 )}
@@ -218,31 +278,32 @@ const CommunicationRoute = ({ boardId }) => {
 
     return (
         <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.gradientContainer}>
-            <View style={styles.scene}>
-                <FlatList
-                    data={messages}
-                    contentContainerStyle={styles.listContainer}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => (
-                        <View style={styles.messageItem}>
-                            <Text style={styles.messageUsername}>{item.username}</Text>
-                            <Text style={styles.messageText}>{item.text}</Text>
-                        </View>
-                    )}
+            <FlatList
+                data={messages}
+                contentContainerStyle={[styles.listContainer, { paddingBottom: 80 }]}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                    <View style={[
+                        styles.messageItem,
+                        item.senderId === currentUser?.uid ? styles.myMessage : styles.otherMessage
+                    ]}>
+                        <Text style={styles.messageUsername}>{item.username}</Text>
+                        <Text style={styles.messageText}>{item.text}</Text>
+                    </View>
+                )}
+            />
+            <View style={styles.inputContainer}>
+                <TextInput
+                    style={styles.input}
+                    value={newMessage}
+                    onChangeText={setNewMessage}
+                    placeholder="Type a message..."
+                    placeholderTextColor="#888"
+                    onSubmitEditing={sendMessage}
                 />
-                <View style={styles.inputContainer}>
-                    <TextInput
-                        style={styles.input}
-                        value={newMessage}
-                        onChangeText={setNewMessage}
-                        placeholder="Type a message..."
-                        placeholderTextColor="#888"
-                        onSubmitEditing={sendMessage}
-                    />
-                    <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-                        <Icon name="send" size={24} color="#0C3B2E" />
-                    </TouchableOpacity>
-                </View>
+                <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+                    <Icon name="send" size={20} color="#0C3B2E" />
+                </TouchableOpacity>
             </View>
         </LinearGradient>
     );
@@ -258,7 +319,7 @@ const MenteeLessonBoardsScreen = ({ route, navigation }) => {
         { key: 'lessons', title: 'Lessons' },
         { key: 'tests', title: 'Tests' },
         { key: 'results', title: 'Results' },
-        { key: 'communication', title: 'Communication' },
+        { key: 'communication', title: 'Chat' },
     ]);
 
     const renderScene = SceneMap({
@@ -270,13 +331,11 @@ const MenteeLessonBoardsScreen = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            {/* CustomAppBar at the top */}
             <CustomAppBar
-                title="Mentee's Dashboard"
+                title="Learning Board"
                 showBackButton={true}
                 onBackPress={() => navigation.goBack()}
             />
-            {/* TabView below the CustomAppBar */}
             <TabView
                 navigationState={{ index, routes }}
                 renderScene={renderScene}
@@ -285,7 +344,7 @@ const MenteeLessonBoardsScreen = ({ route, navigation }) => {
                 renderTabBar={props => (
                     <TabBar
                         {...props}
-                        indicatorStyle={{ backgroundColor: '#FFBA00' }}
+                        indicatorStyle={styles.tabIndicator}
                         style={styles.tabBar}
                         labelStyle={styles.tabLabel}
                     />
