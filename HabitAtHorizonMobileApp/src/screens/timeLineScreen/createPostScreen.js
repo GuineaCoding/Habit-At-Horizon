@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, TextInput, StyleSheet, Alert, TouchableOpacity, Text, Image, ActivityIndicator, ScrollView } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import storage from '@react-native-firebase/storage';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import { launchImageLibrary } from 'react-native-image-picker'; 
@@ -14,6 +15,7 @@ const CreatePostScreen = ({ navigation }) => {
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const fetchUsername = async () => {
     const userId = auth().currentUser?.uid;
@@ -50,6 +52,29 @@ const CreatePostScreen = ({ navigation }) => {
     });
   };
 
+  const uploadImage = async () => {
+    if (!imageUri) return null;
+
+    try {
+      const filename = imageUri.substring(imageUri.lastIndexOf('/') + 1);
+      const reference = storage().ref(`post_images/${filename}`);
+      
+      const task = reference.putFile(imageUri);
+      
+      task.on('state_changed', (taskSnapshot) => {
+        const progress = (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) * 100;
+        setUploadProgress(progress);
+      });
+
+      await task;
+      return await reference.getDownloadURL();
+    } catch (error) {
+      console.error('Upload error:', error);
+      Alert.alert('Error', 'Failed to upload image.');
+      return null;
+    }
+  };
+
   const handleCreatePost = async () => {
     if (!postTitle.trim()) {
       Alert.alert('Error', 'Post title cannot be empty.');
@@ -65,12 +90,21 @@ const CreatePostScreen = ({ navigation }) => {
     setLoading(true);
 
     try {
+      let imageUrl = null;
+      if (imageUri) {
+        imageUrl = await uploadImage();
+        if (!imageUrl) {
+          setLoading(false);
+          return;
+        }
+      }
+
       const postData = {
         userId,
         username,
         title: postTitle,
         description: postDescription,
-        imageUrl: imageUri || null,
+        imageUrl: imageUrl || null,
         youtubeUrl: youtubeUrl || null,
         likesCount: 0,
         commentsCount: 0,
@@ -90,12 +124,12 @@ const CreatePostScreen = ({ navigation }) => {
       Alert.alert('Error', 'Failed to create post.');
     } finally {
       setLoading(false);
+      setUploadProgress(0);
     }
   };
 
   return (
     <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
-
       <CustomAppBar
         title="Create Post"
         showBackButton={true}
@@ -129,7 +163,15 @@ const CreatePostScreen = ({ navigation }) => {
         </TouchableOpacity>
 
         {imageUri && (
-          <Image source={{ uri: imageUri }} style={styles.uploadedImage} />
+          <>
+            <Image source={{ uri: imageUri }} style={styles.uploadedImage} />
+            {uploadProgress > 0 && uploadProgress < 100 && (
+              <View style={styles.progressContainer}>
+                <View style={[styles.progressBar, { width: `${uploadProgress}%` }]} />
+                <Text style={styles.progressText}>{Math.round(uploadProgress)}%</Text>
+              </View>
+            )}
+          </>
         )}
 
         <TextInput
@@ -222,6 +264,23 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#0C3B2E',
     fontWeight: 'bold',
+  },
+  progressContainer: {
+    height: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 10,
+    marginBottom: 16,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#FFBA00',
+  },
+  progressText: {
+    position: 'absolute',
+    alignSelf: 'center',
+    color: '#FFFFFF',
+    fontSize: 12,
   },
 });
 
