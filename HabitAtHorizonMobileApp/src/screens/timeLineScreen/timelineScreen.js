@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, Image, TouchableOpacity, Alert } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
 import LinearGradient from 'react-native-linear-gradient';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -76,6 +77,56 @@ const TimelineScreen = ({ navigation }) => {
     } finally {
       setLoadingMore(false);
     }
+  };
+
+  const deletePost = async (postId, imageUrl) => {
+    try {
+      if (imageUrl && imageUrl.startsWith('https://firebasestorage.googleapis.com/')) {
+        try {
+          const matches = imageUrl.match(/b\/(.+)\/o/);
+          if (matches && matches[1]) {
+            const imagePath = decodeURIComponent(matches[1]);
+            const imageRef = storage().ref(imagePath);
+            
+            const exists = await imageRef.getMetadata().then(() => true).catch(() => false);
+            
+            if (exists) {
+              await imageRef.delete();
+            } else {
+              console.log('Image already deleted or not found, proceeding with post deletion');
+            }
+          }
+        } catch (storageError) {
+          console.log('Error deleting image, proceeding with post deletion:', storageError);
+        }
+      }
+  
+      await firestore().collection('posts').doc(postId).delete();
+      
+      Alert.alert('Success', 'Post deleted successfully');
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      Alert.alert('Error', error.message || 'Failed to delete post');
+    }
+  };
+
+  const confirmDelete = (postId, imageUrl) => {
+    Alert.alert(
+      'Delete Post',
+      'Are you sure you want to delete this post?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          onPress: () => deletePost(postId, imageUrl),
+          style: 'destructive',
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const sendNotification = async (postCreatorId, type, message) => {
@@ -201,14 +252,30 @@ const TimelineScreen = ({ navigation }) => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.postContainer}>
-            <Text style={styles.postTitle}>{item.title}</Text>
+            {/* Post header with delete button (only for creator) */}
+            <View style={styles.postHeader}>
+              <Text style={styles.postTitle}>{item.title}</Text>
+              {item.userId === currentUserId && (
+                <TouchableOpacity 
+                  onPress={() => confirmDelete(item.id, item.imageUrl)}
+                  style={styles.deleteButton}
+                >
+                  <Icon name="delete" size={20} color="#FF4444" />
+                </TouchableOpacity>
+              )}
+            </View>
 
             {item.description && (
               <Text style={styles.postDescription}>{item.description}</Text>
             )}
 
             {item.imageUrl && (
-              <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
+              <Image 
+                source={{ uri: item.imageUrl }} 
+                style={styles.postImage}
+                resizeMode="cover"
+                onError={() => console.log('Failed to load image')}
+              />
             )}
 
             {item.youtubeUrl && (
@@ -306,11 +373,21 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
+  postHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   postTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    marginBottom: 8,
+    flex: 1,
+  },
+  deleteButton: {
+    padding: 4,
+    marginLeft: 8,
   },
   postDescription: {
     fontSize: 16,
@@ -322,10 +399,12 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 8,
     marginBottom: 8,
+    backgroundColor: '#DDD', // Fallback color if image fails to load
   },
   postMetadata: {
     fontSize: 12,
     color: '#FFBA00',
+    marginTop: 4,
   },
   interactionContainer: {
     flexDirection: 'row',
