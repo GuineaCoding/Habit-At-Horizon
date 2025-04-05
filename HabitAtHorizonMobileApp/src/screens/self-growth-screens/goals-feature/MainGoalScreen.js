@@ -118,7 +118,7 @@ const MainGoalPage = ({ navigation }) => {
       </TouchableOpacity>
 
       <TouchableOpacity style={mainGoalPageStyles.progressButton} onPress={goToProgressScreen}>
-        <Text style={mainGoalPageStyles.progressButtonText}>Go to Leaderboard</Text>
+        <Text style={mainGoalPageStyles.progressButtonText}>Progress</Text>
       </TouchableOpacity>
     </LinearGradient>
   );
