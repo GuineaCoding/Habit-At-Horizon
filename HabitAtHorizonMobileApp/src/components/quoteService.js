@@ -1,5 +1,7 @@
+// Prevents multiple simultaneous fetch calls by storing the ongoing fetch promise
 let currentFetch = null;
 
+// Fetches a random quote from the ZenQuotes API 
 export const fetchRandomQuote = async () => {
   if (currentFetch) {
     return currentFetch;
@@ -20,6 +22,7 @@ export const fetchRandomQuote = async () => {
         };
       })
       .finally(() => {
+        // Clear the current fetch once it's completed
         currentFetch = null;
       });
 

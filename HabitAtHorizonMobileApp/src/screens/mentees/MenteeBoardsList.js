@@ -7,6 +7,7 @@ import CustomAppBar from '../../components/CustomAppBar';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
+// Screen displaying a list of learning boards the mentee is part of
 const MenteeBoardsList = ({ navigation }) => {
     const [boards, setBoards] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -60,7 +61,7 @@ const MenteeBoardsList = ({ navigation }) => {
             </LinearGradient>
         );
     }
-
+    // Show a message when no learning boards are available
     return (
         <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
             <CustomAppBar
@@ -68,7 +69,7 @@ const MenteeBoardsList = ({ navigation }) => {
                 showBackButton={true}
                 onBackPress={() => navigation.goBack()}
             />
-            
+
             {boards.length === 0 ? (
                 <View style={styles.emptyContainer}>
                     <Icon name="book-remove-outline" size={60} color="#FFBA00" />
@@ -83,9 +84,9 @@ const MenteeBoardsList = ({ navigation }) => {
                     renderItem={({ item }) => (
                         <TouchableOpacity
                             style={styles.boardItem}
-                            onPress={() => navigation.navigate('MenteeLessonsBoardsScreen', { 
-                                boardId: item.id, 
-                                memberId: item.memberId 
+                            onPress={() => navigation.navigate('MenteeLessonsBoardsScreen', {
+                                boardId: item.id,
+                                memberId: item.memberId
                             })}
                         >
                             <Icon name="book-education" size={30} color="#FFBA00" style={styles.boardIcon} />

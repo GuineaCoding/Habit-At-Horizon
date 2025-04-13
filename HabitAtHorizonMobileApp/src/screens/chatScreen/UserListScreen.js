@@ -7,12 +7,14 @@ import CustomAppBar from '../../components/CustomAppBar';
 
 import { userListScreenStyle as styles } from './styles';
 
+// Main screen for displaying a list of users with search functionality and the ability to add users and start chats
 const UserListScreen = ({ navigation }) => {
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const userId = auth().currentUser.uid;
 
+// Fetch users who are visible to others and merge them with the current user's added users
   const fetchUsers = async () => {
     try {
       const usersRef = firestore()
@@ -39,6 +41,7 @@ const UserListScreen = ({ navigation }) => {
     }
   };
 
+  // search for users based on username 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
       Alert.alert('Error', 'Please enter a username to search.');
@@ -64,7 +67,8 @@ const UserListScreen = ({ navigation }) => {
       setSearchResults(results);
     }
   };
-
+  
+// Add a user to the current user's list of added users in Firestore
   const addUserToList = async (user) => {
     try {
       if (users.some((u) => u.id === user.id)) {

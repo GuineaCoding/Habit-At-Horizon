@@ -7,6 +7,7 @@ import CustomAppBar from '../../components/CustomAppBar';
 
 import { chatScreenStyle as styles } from './styles';
 
+// Chat screen component handling message display, input, and real-time updates
 const ChatScreen = ({ route, navigation }) => {
   const { chatId, participantInfo } = route.params || { chatId: '', participantInfo: null };
   const [messages, setMessages] = useState([]);
@@ -24,7 +25,7 @@ const ChatScreen = ({ route, navigation }) => {
           const chatDoc = await firestore().collection('chats').doc(chatId).get();
           const participantIds = chatDoc.data()?.participantIds || [];
           const recipientId = participantIds.find(id => id !== userId);
-          
+
           if (recipientId) {
             const recipientDoc = await firestore().collection('users').doc(recipientId).get();
             setRecipient({
@@ -37,11 +38,12 @@ const ChatScreen = ({ route, navigation }) => {
           console.error('Error fetching recipient info:', error);
         }
       };
-      
+
       fetchRecipientInfo();
     }
   }, [chatId, userId, participantInfo]);
 
+  // Real-time listener for chat messages, ordered by timestamp
   const fetchMessages = (chatId, setMessages) => {
     const messagesRef = firestore()
       .collection('chats')
@@ -58,6 +60,7 @@ const ChatScreen = ({ route, navigation }) => {
     });
   };
 
+  // Marks unseen messages (from the other user) in this chat as seen
   const markMessagesAsSeen = async (chatId, userId) => {
     const messagesRef = firestore()
       .collection('chats')
@@ -84,42 +87,44 @@ const ChatScreen = ({ route, navigation }) => {
     }
   }, [chatId, userId]);
 
+  // Sends a new message and clears input field
   const handleSendMessage = async () => {
     if (newMessage.trim()) {
       try {
         await sendMessage(chatId, userId, newMessage);
-        setNewMessage(''); 
+        setNewMessage('');
       } catch (error) {
         console.error('Error sending message:', error);
       }
     }
   };
 
+// Adds message to Firestore, sends notification to recipient
   const sendMessage = async (chatId, senderId, text) => {
     const chatRef = firestore().collection('chats').doc(chatId);
     const messagesRef = chatRef.collection('messages');
-  
+
     await messagesRef.add({
       senderId,
       text,
       timestamp: firestore.Timestamp.now(),
       seen: false,
     });
-  
+
     await chatRef.update({
       lastMessage: text,
       lastMessageTimestamp: firestore.Timestamp.now(),
       lastMessageSenderId: senderId,
     });
-  
+
     const chatDoc = await chatRef.get();
     const participantIds = chatDoc.data()?.participantIds || [];
     const recipientId = participantIds.find((id) => id !== senderId);
-  
+
     if (recipientId) {
       const senderDoc = await firestore().collection('users').doc(senderId).get();
       const senderUsername = senderDoc.data()?.username || 'Unknown User';
-  
+
       await firestore().collection('notifications').add({
         userId: recipientId,
         type: 'message',
@@ -132,11 +137,11 @@ const ChatScreen = ({ route, navigation }) => {
 
   return (
     <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
-      <CustomAppBar 
-        title={recipient?.username || 'Chat'} 
+      <CustomAppBar
+        title={recipient?.username || 'Chat'}
         subtitle={recipient?.roles?.includes('mentee') ? 'Mentee' : 'Mentor'}
-        showBackButton={true} 
-        onBackPress={() => navigation.goBack()} 
+        showBackButton={true}
+        onBackPress={() => navigation.goBack()}
       />
       <FlatList
         data={messages}

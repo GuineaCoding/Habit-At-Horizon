@@ -9,6 +9,7 @@ import CustomAppBar from '../../components/CustomAppBar';
 
 import { notificationsScreenStyle as styles } from './styles';
 
+// Renders a single notification that fades out if the notification is seen
 const NotificationItem = ({ item }) => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
@@ -104,7 +105,7 @@ const NotificationsScreen = () => {
 
     return unsubscribe;
   }, [navigation]);
-
+// Marks all unseen notifications for the current user as seen in Firestore
   const markNotificationsAsSeen = async () => {
     if (!userId) {
       console.log('[NotificationsScreen] User ID is missing. Cannot mark notifications as seen.');

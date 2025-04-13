@@ -17,6 +17,7 @@ import { useRefreshService } from '../components/pullRefreshScreenService';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
+// Home screen component displaying the main navigation options, quote, and a refreshable view
 const HomeScreen = () => {
   const navigation = useNavigation();
   const { quote, isLoading, error, fetchQuote } = useQuote(false);

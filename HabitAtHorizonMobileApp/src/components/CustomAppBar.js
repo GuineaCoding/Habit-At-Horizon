@@ -10,7 +10,7 @@ const CustomAppBar = ({ title, showBackButton = false }) => {
   const navigation = useNavigation();
   const [menuVisible, setMenuVisible] = useState(false);
   const userId = auth().currentUser?.uid;
-
+// Define the items in the dropdown menu with navigation handlers
   const menuItems = useMemo(() => [
     { title: 'My Personal Space', icon: 'account', onPress: () => navigation.navigate('PersonalSpaceScreen') },
     { title: 'Mentoring Space', icon: 'school', onPress: () => navigation.navigate('MentorshipScreen') },
@@ -18,6 +18,7 @@ const CustomAppBar = ({ title, showBackButton = false }) => {
     { title: 'Logout', icon: 'logout', onPress: () => auth().signOut().catch(console.error) },
   ], [navigation]);
 
+  // Marks all unseen notifications for the current user as seen in Firestore
   const markNotificationsAsSeen = async () => {
     try {
       const snapshot = await firestore()
@@ -34,6 +35,7 @@ const CustomAppBar = ({ title, showBackButton = false }) => {
     }
   };
 
+  // Handles bell icon press by marking notifications as seen and navigating to Notifications screen
   const handleBellPress = () => {
     markNotificationsAsSeen();
     navigation.navigate('NotificationsScreen');

@@ -5,6 +5,7 @@ import firestore from '@react-native-firebase/firestore';
 const NotificationBadge = ({ userId }) => {
   const [count, setCount] = useState(0);
 
+  // Subscribe to real-time updates for unseen notifications and update the badge count
   useEffect(() => {
     if (!userId) return; 
 
@@ -22,7 +23,7 @@ const NotificationBadge = ({ userId }) => {
 
     return () => unsubscribe();
   }, [userId]);
-
+  // Show the badge only if there are unseen notifications
   return count > 0 ? <Badge style={styles.badge}>{count}</Badge> : null;
 };
 
