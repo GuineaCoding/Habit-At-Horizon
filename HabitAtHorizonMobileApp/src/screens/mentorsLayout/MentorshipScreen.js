@@ -4,6 +4,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import CustomAppBar from '../../components/CustomAppBar';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; 
 
+import { mentorshipScreenStyle as styles } from './styles';
+
 const MentorshipScreen = ({ navigation }) => {
     const menuItems = [
         { id: '1', title: 'Boards', navigateTo: 'BoardsScreen', icon: 'view-dashboard' },
@@ -49,47 +51,5 @@ const MentorshipScreen = ({ navigation }) => {
         </LinearGradient>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    content: {
-        flex: 1,
-        padding: 20,
-    },
-    header: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#FFBA00',
-        textAlign: 'center',
-        marginBottom: 30,
-    },
-    listContainer: {
-        flexGrow: 1,
-    },
-    listItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#FFBA00',
-        padding: 20,
-        borderRadius: 12,
-        marginBottom: 15,
-        elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-    },
-    icon: {
-        marginRight: 16,
-        color: '#0C3B2E',
-    },
-    listText: {
-        fontSize: 18,
-        color: '#0C3B2E',
-        fontWeight: '600',
-    },
-});
 
 export default MentorshipScreen;

@@ -3,6 +3,8 @@ import { View, Text, ScrollView, StyleSheet, Linking, TouchableOpacity, Image } 
 import CustomAppBar from '../../components/CustomAppBar';
 import LinearGradient from 'react-native-linear-gradient';
 
+import { mentorProfileViewScreenStyle as styles } from './styles';
+
 const MentorProfileViewScreen = ({ route, navigation }) => {
   const { mentor } = route.params;
 
@@ -113,110 +115,5 @@ const MentorProfileViewScreen = ({ route, navigation }) => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    padding: 16,
-  },
-  profileHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 20,
-    borderWidth: 3,
-    borderColor: '#FFBA00',
-    resizeMode: 'cover',
-  },
-  profileCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 20,
-    borderWidth: 3,
-    borderColor: '#FFBA00',
-  },
-  profileLetter: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  name: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  username: {
-    fontSize: 16,
-    color: '#FFBA00',
-  },
-  card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFBA00',
-    marginBottom: 8,
-  },
-  bio: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    lineHeight: 20,
-  },
-  expertise: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    lineHeight: 20,
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 8,
-  },
-  tag: {
-    fontSize: 12,
-    color: '#FFFFFF',
-    backgroundColor: 'rgba(109, 151, 115, 0.7)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  experienceLevel: {
-    fontSize: 14,
-    color: '#FFFFFF',
-  },
-  link: {
-    fontSize: 14,
-    color: '#FFBA00',
-    marginBottom: 8,
-    textDecorationLine: 'underline',
-  },
-  noProfileText: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginTop: 20,
-  },
-});
 
 export default MentorProfileViewScreen;

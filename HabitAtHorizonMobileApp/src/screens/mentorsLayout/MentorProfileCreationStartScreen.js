@@ -4,6 +4,8 @@ import CustomAppBar from '../../components/CustomAppBar';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
+import { mentorProfileCreationStartScreenStyle as styles } from './styles';
+
 const MentorProfileCreationStartScreen = ({ navigation }) => {
     return (
         <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
@@ -35,62 +37,5 @@ const MentorProfileCreationStartScreen = ({ navigation }) => {
         </LinearGradient>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    content: {
-        flexGrow: 1,
-        padding: 20,
-        alignItems: 'center',
-    },
-    icon: {
-        marginBottom: 20,
-    },
-    heading: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#FFBA00',
-        marginBottom: 10,
-        textAlign: 'center',
-    },
-    text: {
-        fontSize: 16,
-        color: '#FFFFFF',
-        textAlign: 'center',
-        marginBottom: 20,
-        lineHeight: 24,
-    },
-    subHeading: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#FFBA00',
-        marginBottom: 10,
-        textAlign: 'center',
-    },
-    benefitsContainer: {
-        marginBottom: 20,
-    },
-    benefitText: {
-        fontSize: 16,
-        color: '#FFFFFF',
-        marginBottom: 8,
-        textAlign: 'center',
-    },
-    button: {
-        backgroundColor: '#FFBA00',
-        padding: 15,
-        borderRadius: 10,
-        width: '80%',
-        alignItems: 'center',
-        elevation: 3,
-    },
-    buttonText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#0C3B2E',
-    },
-});
 
 export default MentorProfileCreationStartScreen;

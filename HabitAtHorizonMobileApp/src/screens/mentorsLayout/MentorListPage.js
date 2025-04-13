@@ -4,6 +4,8 @@ import firestore from '@react-native-firebase/firestore';
 import CustomAppBar from '../../components/CustomAppBar';
 import LinearGradient from 'react-native-linear-gradient';
 
+import { mentorListPageStyle as styles } from './styles';
+
 const MentorListPage = ({ navigation }) => {
   const [mentors, setMentors] = useState([]);
 
@@ -77,84 +79,5 @@ const MentorListPage = ({ navigation }) => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  listContainer: {
-    padding: 16,
-  },
-  mentorItem: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    marginBottom: 12,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  profileImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginRight: 16,
-    resizeMode: 'cover',
-  },
-  profileCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  profileLetter: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  mentorInfo: {
-    flex: 1,
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 4,
-    color: '#0C3B2E',
-  },
-  username: {
-    fontSize: 14,
-    color: '#6D9773',
-    marginBottom: 8,
-  },
-  bio: {
-    fontSize: 14,
-    color: '#333',
-    marginBottom: 8,
-  },
-  expertise: {
-    fontSize: 14,
-    color: '#B46617',
-    marginBottom: 8,
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  tag: {
-    fontSize: 12,
-    color: '#FFFFFF',
-    backgroundColor: '#6D9773',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-});
 
 export default MentorListPage;

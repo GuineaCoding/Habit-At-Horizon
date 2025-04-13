@@ -5,6 +5,8 @@ import auth from '@react-native-firebase/auth';
 import CustomAppBar from '../../components/CustomAppBar';
 import LinearGradient from 'react-native-linear-gradient';
 
+import { createMentorProfileScreenStyles as styles } from './styles';
+
 const AddMentorForm = ({ navigation }) => {
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
@@ -220,57 +222,5 @@ const AddMentorForm = ({ navigation }) => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flexGrow: 1,
-    padding: 20,
-  },
-  inputContainer: {
-    marginBottom: 15,
-  },
-  label: {
-    fontSize: 16,
-    color: '#FFBA00',
-    marginBottom: 5,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#6D9773',
-    borderRadius: 8,
-    padding: 15,
-    backgroundColor: '#FFFFFF',
-    color: '#000000',
-  },
-  disabledInput: {
-    borderWidth: 1,
-    borderColor: '#6D9773',
-    borderRadius: 8,
-    padding: 15,
-    backgroundColor: '#E0E0E0',
-    color: '#000000',
-  },
-  button: {
-    backgroundColor: '#FFBA00',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  buttonText: {
-    fontSize: 18,
-    color: '#0C3B2E',
-    fontWeight: 'bold',
-  },
-  loadingText: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginTop: 20,
-  },
-});
 
 export default AddMentorForm;
