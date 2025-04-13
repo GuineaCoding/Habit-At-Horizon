@@ -8,6 +8,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomAppBar from '../../components/CustomAppBar';
 import auth from '@react-native-firebase/auth';
 
+import { timelineScreenStyle as styles } from './styles';
+
 const TimelineScreen = ({ navigation }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -354,112 +356,5 @@ const extractYoutubeVideoId = (url) => {
   const match = url.match(regex);
   return match ? match[1] : null;
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 0,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  postContainer: {
-    borderWidth: 1,
-    borderColor: '#FFBA00',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  postHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  postTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    flex: 1,
-  },
-  deleteButton: {
-    padding: 4,
-    marginLeft: 8,
-  },
-  postDescription: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    marginBottom: 8,
-  },
-  postImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 8,
-    marginBottom: 8,
-    backgroundColor: '#DDD', // Fallback color if image fails to load
-  },
-  postMetadata: {
-    fontSize: 12,
-    color: '#FFBA00',
-    marginTop: 4,
-  },
-  interactionContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 12,
-  },
-  interactionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  interactionText: {
-    fontSize: 14,
-    color: '#FFBA00',
-    marginLeft: 4,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-  },
-  fab: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: '#FFBA00',
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-  },
-  footerContainer: {
-    padding: 10,
-    alignItems: 'center',
-  },
-  loadMoreButton: {
-    padding: 10,
-    backgroundColor: '#FFBA00',
-    borderRadius: 5,
-    margin: 10,
-    alignItems: 'center',
-  },
-  loadMoreText: {
-    color: '#0C3B2E',
-    fontWeight: 'bold',
-  },
-});
 
 export default TimelineScreen;

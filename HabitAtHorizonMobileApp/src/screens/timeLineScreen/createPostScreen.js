@@ -8,6 +8,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import { launchImageLibrary } from 'react-native-image-picker'; 
 import CustomAppBar from '../../components/CustomAppBar'; 
 
+import { createPostScreenStyle as styles } from './styles';
+
 const CreatePostScreen = ({ navigation }) => {
   const [postTitle, setPostTitle] = useState('');
   const [postDescription, setPostDescription] = useState('');
@@ -197,91 +199,5 @@ const CreatePostScreen = ({ navigation }) => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    padding: 16,
-  },
-  usernameText: {
-    fontSize: 18, 
-    color: '#FFFFFF',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#FFBA00',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    fontSize: 16,
-    color: '#FFFFFF',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  longInput: {
-    borderWidth: 1,
-    borderColor: '#FFBA00',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    fontSize: 16,
-    color: '#FFFFFF', 
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    textAlignVertical: 'top', 
-    height: 150, 
-  },
-  uploadButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255, 186, 0, 0.2)',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  uploadButtonText: {
-    fontSize: 16,
-    color: '#FFBA00',
-    marginLeft: 8,
-  },
-  uploadedImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  createPostButton: {
-    backgroundColor: '#FFBA00',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  createPostButtonText: {
-    fontSize: 18,
-    color: '#0C3B2E',
-    fontWeight: 'bold',
-  },
-  progressContainer: {
-    height: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 10,
-    marginBottom: 16,
-    overflow: 'hidden',
-  },
-  progressBar: {
-    height: '100%',
-    backgroundColor: '#FFBA00',
-  },
-  progressText: {
-    position: 'absolute',
-    alignSelf: 'center',
-    color: '#FFFFFF',
-    fontSize: 12,
-  },
-});
 
 export default CreatePostScreen;
