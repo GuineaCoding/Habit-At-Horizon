@@ -4,6 +4,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import firestore from '@react-native-firebase/firestore';
 import CustomAppBar from '../../../components/CustomAppBar';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { noteViewScreenStyle as styles } from './styles';
 
 const NoteViewScreen = ({ route, navigation }) => {
   const { noteId, userId } = route.params;
@@ -203,133 +204,6 @@ const NoteViewScreen = ({ route, navigation }) => {
       </ScrollView>
     </LinearGradient>
   );
-};
-
-const styles = {
-  container: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    marginTop: 10,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    marginTop: 10,
-  },
-  contentContainer: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  noteCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
-  section: {
-    marginBottom: 20,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#0C3B2E',
-    marginLeft: 8,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#0C3B2E',
-    marginBottom: 5,
-  },
-  content: {
-    fontSize: 16,
-    color: '#333',
-    lineHeight: 24,
-  },
-  metaContainer: {
-    marginTop: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    paddingTop: 15,
-  },
-  metaItem: {
-    marginBottom: 15,
-  },
-  metaTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#0C3B2E',
-    marginLeft: 8,
-  },
-  metaContent: {
-    fontSize: 14,
-    color: '#555',
-    marginLeft: 28,
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginLeft: 28,
-  },
-  tag: {
-    backgroundColor: '#E0F2F1',
-    borderRadius: 15,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  tagText: {
-    fontSize: 12,
-    color: '#00796B',
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 15,
-    borderRadius: 8,
-    flex: 1,
-    marginHorizontal: 5,
-  },
-  editButton: {
-    backgroundColor: '#FFBA00',
-  },
-  deleteButton: {
-    backgroundColor: '#E74C3C',
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 8,
-  },
 };
 
 export default NoteViewScreen;
