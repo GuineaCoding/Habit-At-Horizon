@@ -4,6 +4,8 @@ import firestore from '@react-native-firebase/firestore';
 import CustomAppBar from '../../components/CustomAppBar';
 import LinearGradient from 'react-native-linear-gradient';
 
+import { progressScreenStyle as styles } from './styles';
+
 const ProgressScreen = ({ navigation, route }) => {
   const { userId } = route.params;
   const [userData, setUserData] = useState(null);
@@ -79,44 +81,5 @@ const ProgressScreen = ({ navigation, route }) => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    padding: 20,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFBA00',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  infoContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  label: {
-    fontSize: 18,
-    color: 'white',
-  },
-  value: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFBA00',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
 
 export default ProgressScreen;

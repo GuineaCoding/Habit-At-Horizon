@@ -4,6 +4,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomAppBar from '../../components/CustomAppBar';
 
+import { menteeProfileCreationStartScreenStyle as styles } from './styles';
+
 const MenteeProfileCreationStartScreen = ({ navigation }) => {
   return (
     <LinearGradient colors={['#0C3B2E', '#6D9773']} style={styles.container}>
@@ -49,71 +51,5 @@ const MenteeProfileCreationStartScreen = ({ navigation }) => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flexGrow: 1,
-    padding: 20,
-    alignItems: 'center',
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFBA00',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  text: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: 20,
-    lineHeight: 24,
-  },
-  subHeading: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFBA00',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  benefitsContainer: {
-    marginBottom: 20,
-    width: '100%',
-  },
-  benefitItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  benefitIcon: {
-    marginRight: 10,
-  },
-  benefitText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    flex: 1,
-  },
-  button: {
-    backgroundColor: '#FFBA00',
-    padding: 15,
-    borderRadius: 10,
-    width: '80%',
-    alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  buttonText: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#0C3B2E',
-  },
-});
 
 export default MenteeProfileCreationStartScreen;

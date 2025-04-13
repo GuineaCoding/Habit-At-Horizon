@@ -5,6 +5,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomAppBar from '../../components/CustomAppBar';
 
+import { topListScreenStyle as styles } from './styles';
+
 const TopListScreen = ({ navigation }) => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -77,65 +79,5 @@ const TopListScreen = ({ navigation }) => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  listContainer: {
-    padding: 16,
-  },
-  userItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    marginBottom: 12,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  rankContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  rank: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#0C3B2E',
-    marginLeft: 8,
-  },
-  userInfo: {
-    flex: 1,
-  },
-  name: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#0C3B2E',
-  },
-  username: {
-    fontSize: 14,
-    color: '#6D9773',
-  },
-  pointsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  points: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#B46617',
-    marginLeft: 8,
-  },
-  loadingText: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    textAlign: 'center',
-  },
-});
 
 export default TopListScreen;

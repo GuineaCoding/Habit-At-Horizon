@@ -4,6 +4,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import firestore from '@react-native-firebase/firestore';
 import CustomAppBar from '../../components/CustomAppBar';
 
+import { menteeListScreen as styles } from './styles';
+
 const MenteeListScreen = ({ navigation }) => {
   const [mentees, setMentees] = useState([]);
 
@@ -93,103 +95,5 @@ const MenteeListScreen = ({ navigation }) => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  listContainer: {
-    padding: 16,
-  },
-  menteeItem: {
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    padding: 16,
-    marginBottom: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 186, 0, 0.2)',
-  },
-  profileImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginRight: 16,
-    borderWidth: 2,
-    borderColor: '#FFBA00',
-  },
-  profileCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-    borderWidth: 2,
-    borderColor: '#FFBA00',
-  },
-  profileLetter: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  menteeInfo: {
-    flex: 1,
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFBA00',
-    marginBottom: 2,
-  },
-  username: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    opacity: 0.8,
-    marginBottom: 8,
-  },
-  bio: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    marginBottom: 8,
-    opacity: 0.9,
-  },
-  section: {
-    marginTop: 4,
-  },
-  sectionTitle: {
-    fontSize: 12,
-    color: '#FFBA00',
-    marginBottom: 4,
-    fontWeight: '600',
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  tag: {
-    fontSize: 12,
-    color: '#FFFFFF',
-    backgroundColor: 'rgba(255, 186, 0, 0.2)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginRight: 6,
-    marginBottom: 6,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 186, 0, 0.5)',
-  },
-  moreTag: {
-    fontSize: 12,
-    color: '#FFBA00',
-    paddingVertical: 4,
-  },
-  emptyText: {
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginTop: 20,
-    fontSize: 16,
-  },
-});
 
 export default MenteeListScreen;

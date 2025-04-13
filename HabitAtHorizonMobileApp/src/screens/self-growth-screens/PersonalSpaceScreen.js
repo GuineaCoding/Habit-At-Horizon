@@ -6,6 +6,8 @@ import auth from '@react-native-firebase/auth';
 import CustomAppBar from '../../components/CustomAppBar';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
+import { personalSpaceScreenStyle as styles } from './styles';
+
 const PersonalSpaceScreen = () => {
   const navigation = useNavigation();
 
@@ -76,39 +78,5 @@ const PersonalSpaceScreen = () => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFBA00',
-    padding: 15,
-    borderRadius: 10,
-    width: '90%',
-    marginBottom: 15,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  icon: {
-    marginRight: 10,
-  },
-  buttonText: {
-    color: '#0C3B2E',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-});
 
 export default PersonalSpaceScreen;

@@ -4,6 +4,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomAppBar from '../../components/CustomAppBar';
 
+import { MenteeProfileViewScreenStyle as styles } from './styles';
+
 const MenteeProfileViewScreen = ({ route }) => {
   const { mentee } = route.params;
 
@@ -134,115 +136,5 @@ const MenteeProfileViewScreen = ({ route }) => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  profileImageContainer: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
-  },
-  profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 3,
-    borderColor: '#FFBA00',
-  },
-  name: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginTop: 16,
-    marginBottom: 4,
-  },
-  username: {
-    fontSize: 16,
-    color: '#6D9773',
-    marginBottom: 20,
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    width: '100%',
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#0C3B2E',
-    marginBottom: 12,
-  },
-  bio: {
-    fontSize: 14,
-    color: '#0C3B2E',
-    textAlign: 'center',
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-  },
-  tag: {
-    backgroundColor: '#6D9773',
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  tagText: {
-    fontSize: 12,
-    color: '#FFFFFF',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginBottom: 16,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#0C3B2E',
-    marginTop: 8,
-  },
-  statLabel: {
-    fontSize: 14,
-    color: '#6D9773',
-  },
-  dateText: {
-    fontSize: 14,
-    color: '#0C3B2E',
-    marginBottom: 8,
-  },
-  linkContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  link: {
-    fontSize: 14,
-    color: '#0077B5',
-    marginLeft: 8,
-  },
-});
 
 export default MenteeProfileViewScreen;

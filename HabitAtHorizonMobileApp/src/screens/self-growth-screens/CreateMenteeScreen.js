@@ -6,6 +6,8 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import CustomAppBar from '../../components/CustomAppBar';
 
+import { createMenteeScreen as styles } from './styles';
+
 const CreateMenteeProfile = ({ navigation }) => {
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
@@ -246,116 +248,5 @@ const CreateMenteeProfile = ({ navigation }) => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    padding: 16,
-  },
-  profileHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginRight: 20,
-    borderWidth: 3,
-    borderColor: '#FFBA00',
-    resizeMode: 'cover',
-  },
-  profileCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 20,
-    borderWidth: 3,
-    borderColor: '#FFBA00',
-  },
-  profileLetter: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  name: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  username: {
-    fontSize: 16,
-    color: '#FFBA00',
-  },
-  card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFBA00',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#6D9773',
-    borderRadius: 8,
-    padding: 12,
-    backgroundColor: '#FFFFFF',
-    color: '#000000',
-  },
-  bioInput: {
-    borderWidth: 1,
-    borderColor: '#6D9773',
-    borderRadius: 8,
-    padding: 12,
-    backgroundColor: '#FFFFFF',
-    color: '#000000',
-    height: 100,
-    textAlignVertical: 'top',
-  },
-  checkboxContainer: {
-    marginTop: 8,
-  },
-  checkboxItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  checkboxText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    marginLeft: 8,
-  },
-  button: {
-    backgroundColor: '#FFBA00',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#0C3B2E',
-  },
-  loadingText: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginTop: 20,
-  },
-});
 
 export default CreateMenteeProfile;
