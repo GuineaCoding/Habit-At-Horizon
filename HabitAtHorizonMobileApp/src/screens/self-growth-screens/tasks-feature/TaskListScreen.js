@@ -5,6 +5,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import CustomAppBar from '../../../components/CustomAppBar';
+import { taskListScreenStyle as styles } from './styles';
 
 const TaskList = ({ navigation }) => {
   const [tasks, setTasks] = useState([]);
@@ -173,83 +174,5 @@ const TaskTab = ({ tasks, navigation, userId }) => {
     />
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  flatListContent: {
-    padding: 10,
-  },
-  taskItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#6D9773',
-    backgroundColor: '#FFFFFF',
-    marginVertical: 5,
-    borderRadius: 10,
-    elevation: 3,
-  },
-  overdueTask: {
-    backgroundColor: '#FFE5E5', 
-    borderLeftWidth: 5,
-    borderLeftColor: '#FF6B6B', 
-  },
-  taskDetails: {
-    flex: 1,
-  },
-  taskTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#0C3B2E',
-  },
-  taskDueDate: {
-    fontSize: 14,
-    color: '#666',
-  },
-  taskPriority: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  taskCategory: {
-    fontSize: 14,
-    color: '#666',
-  },
-  addButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: '#FFBA00',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
-  },
-  addButtonText: {
-    fontSize: 30,
-    color: '#0C3B2E',
-    fontWeight: 'bold',
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-  },
-  smallButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 10,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
 
 export default TaskList;

@@ -6,6 +6,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomAppBar from '../../../components/CustomAppBar';
+import { taskDetailsScreenStyle as styles } from './styles';
 
 const TaskDetailsScreen = ({ navigation, route }) => {
   const { task, userId } = route.params; 
@@ -253,95 +254,5 @@ const TaskDetailsScreen = ({ navigation, route }) => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContainer: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 8,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    borderWidth: 1,
-    borderColor: '#6D9773',
-  },
-  input: {
-    flex: 1,
-    height: 50,
-    color: '#000000',
-    fontSize: 16,
-    paddingHorizontal: 10,
-  },
-  inputIcon: {
-    marginRight: 10,
-  },
-  picker: {
-    flex: 1,
-    height: 50,
-    color: '#000000',
-  },
-  yellowButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFBA00',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 15,
-  },
-  updateButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#6D9773',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 15,
-  },
-  deleteButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#E74C3C',
-    padding: 15,
-    borderRadius: 8,
-  },
-  yellowButtonText: {
-    color: '#0C3B2E',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 10,
-  },
-  updateButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 10,
-  },
-  deleteButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 10,
-  },
-  buttonIcon: {
-    marginRight: 5,
-  },
-});
 
 export default TaskDetailsScreen;

@@ -4,6 +4,7 @@ import firestore from '@react-native-firebase/firestore';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomAppBar from '../../../components/CustomAppBar';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { viewTaskScreenStyle as styles } from './styles';
 
 const ViewTaskScreen = ({ navigation, route }) => {
   const { task, userId } = route.params;
@@ -179,109 +180,5 @@ const ViewTaskScreen = ({ navigation, route }) => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  card: {
-    backgroundColor: 'rgba(26, 74, 60, 0.7)',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#FFBA00',
-  },
-  description: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    marginBottom: 20,
-    lineHeight: 24,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  detailIcon: {
-    marginRight: 15,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFBA00',
-    marginBottom: 2,
-  },
-  sectionValue: {
-    fontSize: 16,
-    color: '#FFFFFF',
-  },
-  subtaskItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(109, 151, 115, 0.5)',
-  },
-  subtaskIcon: {
-    marginRight: 10,
-  },
-  subtaskText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    flex: 1,
-  },
-  completedSubtask: {
-    textDecorationLine: 'line-through',
-    color: '#AAAAAA',
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginVertical: 10,
-    fontStyle: 'italic',
-  },
-  completeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFBA00',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 15,
-  },
-  completeButtonText: {
-    color: '#0C3B2E',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginLeft: 10,
-  },
-  deleteButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#E74C3C',
-    padding: 15,
-    borderRadius: 8,
-  },
-  deleteButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginLeft: 10,
-  },
-  buttonIcon: {
-    marginRight: 5,
-  },
-});
 
 export default ViewTaskScreen;

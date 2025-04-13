@@ -6,6 +6,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomAppBar from '../../../components/CustomAppBar';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { createTaskScreen as styles } from './styles';
 
 const CreateTask = ({ navigation, route }) => {
   const { userId } = route.params;
@@ -228,129 +229,5 @@ const CreateTask = ({ navigation, route }) => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContainer: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 8,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    borderWidth: 1,
-    borderColor: '#6D9773',
-  },
-  input: {
-    flex: 1,
-    height: 50,
-    color: '#000000',
-    fontSize: 16,
-    paddingHorizontal: 10,
-  },
-  inputIcon: {
-    marginRight: 10,
-  },
-  picker: {
-    flex: 1,
-    height: 50,
-    color: '#000000',
-  },
-  yellowButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFBA00',
-    padding: 15,
-    borderRadius: 8,
-  },
-  smallYellowButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFBA00',
-    padding: 12,
-    borderRadius: 8,
-    marginLeft: 10,
-    minWidth: 80,
-  },
-  largeYellowButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFBA00',
-    padding: 15,
-    borderRadius: 8,
-    marginTop: 20,
-  },
-  yellowButtonText: {
-    color: '#0C3B2E',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 10,
-  },
-  smallYellowButtonText: {
-    color: '#0C3B2E',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 5,
-  },
-  largeYellowButtonText: {
-    color: '#0C3B2E',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginLeft: 10,
-  },
-  buttonIcon: {
-    marginRight: 5,
-  },
-  subtaskInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  subtaskList: {
-    marginBottom: 20,
-  },
-  subtaskItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#6D9773',
-  },
-  subtaskText: {
-    fontSize: 16,
-    color: '#000000',
-    flex: 1,
-  },
-  completedSubtask: {
-    textDecorationLine: 'line-through',
-    color: '#888',
-  },
-  deleteSubtask: {
-    color: '#FF0000',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginLeft: 15,
-  },
-});
 
 export default CreateTask;
