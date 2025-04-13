@@ -6,6 +6,7 @@ import * as ImagePicker from 'react-native-image-picker';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomAppBar from '../components/CustomAppBar';
 
+// Set up state variables for lesson data, including title, description, content, image, and loading status
 const LessonBuilderScreen = ({ route, navigation }) => {
   const { boardId, lessonId } = route.params;
   const [title, setTitle] = useState('');

@@ -25,6 +25,7 @@ const AddMentorForm = ({ navigation }) => {
   const userId = auth().currentUser?.uid;
 
   useEffect(() => {
+    // Fetch user data from the 'users' collection in Firestore
     const fetchUserAndMentorProfile = async () => {
       if (userId) {
 
@@ -65,7 +66,7 @@ const AddMentorForm = ({ navigation }) => {
 
     fetchUserAndMentorProfile();
   }, [userId]);
-
+// Function to save or update mentor profile in Firestore
   const handleSaveMentor = async () => {
     if (!userId) {
       Alert.alert('Error', 'You must be logged in to create or update a mentor profile.');
