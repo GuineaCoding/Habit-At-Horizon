@@ -5,6 +5,8 @@ import auth from '@react-native-firebase/auth';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomAppBar from '../../components/CustomAppBar';
 
+import { chatScreenStyle as styles } from './styles';
+
 const ChatScreen = ({ route, navigation }) => {
   const { chatId, participantInfo } = route.params || { chatId: '', participantInfo: null };
   const [messages, setMessages] = useState([]);
@@ -164,65 +166,5 @@ const ChatScreen = ({ route, navigation }) => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  messagesContainer: {
-    padding: 10,
-  },
-  sentMessage: {
-    alignSelf: 'flex-end',
-    backgroundColor: '#DCF8C6',
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 10,
-    maxWidth: '80%',
-  },
-  receivedMessage: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#ECECEC',
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 10,
-    maxWidth: '80%',
-  },
-  messageText: {
-    fontSize: 16,
-    color: '#000',
-  },
-  timestamp: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 5,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    backgroundColor: '#1A4A3C',
-    borderTopWidth: 1,
-    borderTopColor: '#6D9773',
-  },
-  input: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 10,
-    marginRight: 10,
-    color: '#000',
-  },
-  sendButton: {
-    backgroundColor: '#FFBA00',
-    padding: 10,
-    borderRadius: 20,
-  },
-  sendButtonText: {
-    color: '#000',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
 
 export default ChatScreen;

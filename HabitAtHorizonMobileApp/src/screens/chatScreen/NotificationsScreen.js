@@ -7,6 +7,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomAppBar from '../../components/CustomAppBar';
 
+import { notificationsScreenStyle as styles } from './styles';
+
 const NotificationItem = ({ item }) => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
@@ -159,54 +161,5 @@ const NotificationsScreen = () => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 0,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-  notificationItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    marginBottom: 8,
-    backgroundColor: '#F0F0F0',
-    borderRadius: 8,
-    elevation: 2,
-  },
-  notificationContent: {
-    flex: 1,
-  },
-  notificationTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333333',
-  },
-  notificationMessage: {
-    fontSize: 14,
-    color: '#555555',
-    marginTop: 4,
-  },
-  notificationTimestamp: {
-    fontSize: 12,
-    color: '#777777',
-    marginTop: 4,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#FFFFFF',
-  },
-});
 
 export default NotificationsScreen;

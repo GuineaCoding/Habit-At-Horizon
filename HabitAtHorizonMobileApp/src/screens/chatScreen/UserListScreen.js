@@ -5,6 +5,8 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import CustomAppBar from '../../components/CustomAppBar';
 
+import { userListScreenStyle as styles } from './styles';
+
 const UserListScreen = ({ navigation }) => {
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -176,53 +178,5 @@ const UserListScreen = ({ navigation }) => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  listContent: {
-    padding: 10,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-  },
-  searchInput: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    padding: 10,
-    marginRight: 10,
-    color: '#000000',
-  },
-  searchResultsContainer: {
-    padding: 10,
-  },
-  searchResultsTitle: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  userItem: {
-    padding: 15,
-    marginBottom: 10,
-    backgroundColor: '#1A4A3C',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#6D9773',
-  },
-  userName: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  userRole: {
-    fontSize: 14,
-    color: '#FFBA00',
-  },
-});
 
 export default UserListScreen;
