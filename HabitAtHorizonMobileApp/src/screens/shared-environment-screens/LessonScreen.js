@@ -7,6 +7,8 @@ import YoutubePlayer from 'react-native-youtube-iframe';
 import CustomAppBar from '../../components/CustomAppBar';
 import { useRefreshService } from '../../components/pullRefreshScreenService';
 
+import { createPostScreenStyle as styles } from './styles';
+
 const LessonScreen = ({ route, navigation }) => {
   const { boardId, lessonId } = route.params;
   const [lesson, setLesson] = useState(null);
@@ -158,98 +160,5 @@ const LessonScreen = ({ route, navigation }) => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContainer: {
-    padding: 20,
-  },
-  loadingText: {
-    color: '#FFBA00',
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  description: {
-    fontSize: 18,
-    marginBottom: 20,
-    color: '#FFFFFF',
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginTop: 20,
-    marginBottom: 10,
-    color: '#FFBA00',
-  },
-  paragraph: {
-    fontSize: 16,
-    marginTop: 10,
-    marginBottom: 10,
-    color: '#FFFFFF',
-    lineHeight: 24,
-  },
-  listItem: {
-    fontSize: 16,
-    marginLeft: 20,
-    marginBottom: 5,
-    color: '#FFFFFF',
-  },
-  webview: {
-    height: 400,
-    marginVertical: 20,
-    borderRadius: 8,
-  },
-  youtubeContainer: {
-    height: 200,
-    marginVertical: 20,
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  image: {
-    width: '100%',
-    height: 200,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
-  },
-  fullScreenImage: {
-    width: '100%',
-    height: '100%',
-  },
-  modalCloseButton: {
-    position: 'absolute',
-    top: 40,
-    right: 20,
-    backgroundColor: '#FFBA00',
-    padding: 10,
-    borderRadius: 8,
-  },
-  modalCloseButtonText: {
-    color: '#0C3B2E',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  errorText: {
-    color: 'red',
-    textAlign: 'center',
-    marginVertical: 20,
-  },
-  contentItem: {
-    marginBottom: 20,
-  },
-  contentTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFBA00',
-    marginBottom: 10,
-  },
-});
 
 export default LessonScreen;

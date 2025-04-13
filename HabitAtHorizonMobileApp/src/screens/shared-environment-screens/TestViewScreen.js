@@ -6,6 +6,8 @@ import firestore from '@react-native-firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
 import CustomAppBar from '../../components/CustomAppBar';
 
+import { testViewScreenStyle as styles } from './styles';
+
 const TestViewScreen = ({ route, navigation }) => {
   const { testId, boardId } = route.params;
   const [testData, setTestData] = useState(null);
@@ -227,80 +229,5 @@ const TestViewScreen = ({ route, navigation }) => {
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContainer: {
-    padding: 20,
-  },
-  questionContainer: {
-    marginBottom: 20,
-    padding: 15,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-  },
-  questionText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#0C3B2E',
-  },
-  questionDetail: {
-    fontSize: 16,
-    marginBottom: 10,
-    color: '#6D9773',
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    marginVertical: 5,
-    backgroundColor: '#F0F0F0',
-    borderRadius: 8,
-  },
-  checked: {
-    backgroundColor: '#FFBA00',
-  },
-  checkboxText: {
-    fontSize: 16,
-    color: '#0C3B2E',
-  },
-  input: {
-    minHeight: 80,
-    borderWidth: 1,
-    borderColor: '#6D9773',
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    fontSize: 16,
-    marginTop: 10,
-    marginBottom: 10,
-    borderRadius: 5,
-    textAlignVertical: 'top',
-    color: '#0C3B2E',
-    backgroundColor: '#FFFFFF',
-  },
-  submitButton: {
-    backgroundColor: '#FFBA00',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  disabledButton: {
-    backgroundColor: '#ccc',
-  },
-  submitButtonText: {
-    color: '#0C3B2E',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  errorText: {
-    color: '#FF0000',
-    fontSize: 16,
-    textAlign: 'center',
-  },
-});
 
 export default TestViewScreen;
